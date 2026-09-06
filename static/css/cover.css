@@ -1,0 +1,24 @@
+body {
+  background: linear-gradient(135deg, #fff6d9 0%, #d9f4ff 55%, #ffe0ec 100%);
+  min-height: 100%;
+}
+
+.cover-container {
+  max-width: 42em;
+}
+
+.cover-container h3 {
+  color: #ff8fa3;
+}
+
+.cover-container h1 {
+  color: #ff6f61;
+}
+
+.cover-container .lead {
+  color: #3b3b3b;
+}
+
+.cover-container footer {
+  color: #6c757d;
+}
