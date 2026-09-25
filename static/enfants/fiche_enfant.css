@@ -1,0 +1,21 @@
+body {
+    color: #333;
+}
+
+.fiche-enfant {
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.card {
+    border: 1px solid #e5e5e5;
+}
+
+.card-header {
+    border-bottom: 1px solid #e5e5e5;
+    color: #2f5d50;
+}
+
+h1 {
+    color: #2f5d50;
+}
