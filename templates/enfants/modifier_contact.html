@@ -19,7 +19,7 @@
     >
 
 </head>
-
+<script src="{% static 'enfants/telephone.js' %}"></script>
 <body>
 
     <div class="container py-5 fiche-enfant">
@@ -50,7 +50,7 @@
 
             <div class="card-body">
 
-                <form method="post">
+                <form method="post" novalidate>
 
                     {% csrf_token %}
 

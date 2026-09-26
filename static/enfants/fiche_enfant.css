@@ -113,3 +113,11 @@ h1 {
     justify-content: flex-end;
     gap: 4px;
 }
+.errorlist {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 0;
+    list-style: none;
+}
