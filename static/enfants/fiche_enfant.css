@@ -1,21 +1,115 @@
+
 body {
+    background-color: #f5f7fa;
     color: #333;
 }
+
 
 .fiche-enfant {
     max-width: 850px;
     margin: 0 auto;
 }
 
-.card {
-    border: 1px solid #e5e5e5;
-}
-
-.card-header {
-    border-bottom: 1px solid #e5e5e5;
-    color: #2f5d50;
-}
 
 h1 {
-    color: #2f5d50;
+    color: #0d274d;
+    font-weight: 600;
+}
+
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #e3e7eb;
+    border-radius: 12px;
+}
+
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    color: #0d274d;
+}
+
+
+.section-generale {
+    border-top: 4px solid #289b7b;
+}
+
+
+.section-medicale {
+    border-top: 4px solid #fb363f;
+}
+
+
+.section-urgence {
+    border-top: 4px solid #1c88eb;
+}
+
+
+.section-autorisees {
+    border-top: 4px solid #f49f02;
+}
+
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.action-icon {
+    border: none;
+    background: none;
+    padding: 6px;
+    font-size: 1.1rem;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.action-icon.modifier {
+    color: #1c88eb;
+}
+
+.action-icon.supprimer {
+    color: #fb363f;
+}
+
+.action-icon:hover {
+    background-color: #f1f3f5;
+}
+
+.action-add {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    border: none;
+    background: none;
+    padding: 4px 0;
+    width: 100%;
+    color: #289b7b;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+.action-add-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid #289b7b;
+    border-radius: 50%;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.action-add:hover {
+    color: #227f65;
+}
+
+.action-add:hover .action-add-icon {
+    border-color: #227f65;
+}
+.actions-droite {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
 }
