@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'utilisateurs',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,18 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+# Modèle d'utilisateur personnalisé (voir utilisateurs/models.py).
+# Doit être défini avant le tout premier `migrate` du projet.
+AUTH_USER_MODEL = 'utilisateurs.User'
+
+# Le récit 1.1 (connexion sécurisée) n'est pas encore implémenté : en
+# attendant, les vues protégées par @login_required (ex. : création de
+# compte, récit 3.1) redirigent vers la page de connexion native de
+# l'admin Django. À remplacer par la vraie page de connexion une fois
+# le récit 1.1 livré.
+LOGIN_URL = 'admin:login'
 
 
 # Password validation
