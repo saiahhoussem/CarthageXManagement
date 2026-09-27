@@ -98,19 +98,23 @@ LOGIN_URL = 'admin:login'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
+# Validateurs personnalisés (voir utilisateurs/validators.py) : même logique
+# que les validateurs natifs de Django, messages en français adaptés au
+# projet plutôt que la traduction générique.
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'utilisateurs.validators.ValidateurSimilariteUtilisateur',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'utilisateurs.validators.ValidateurLongueurMinimale',
+        'OPTIONS': {'min_length': 8},
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'utilisateurs.validators.ValidateurMotDePasseCourant',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'utilisateurs.validators.ValidateurMotDePasseNumerique',
     },
 ]
 
@@ -118,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-ca'
 
 TIME_ZONE = 'UTC'
 
