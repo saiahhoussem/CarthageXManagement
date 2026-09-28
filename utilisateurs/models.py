@@ -1,5 +1,13 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
+
+valider_telephone = RegexValidator(
+    regex=r"^(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$",
+    message=(
+        "Numéro de téléphone invalide."
+    ),
+)
 
 
 class User(AbstractUser):
@@ -18,6 +26,7 @@ class User(AbstractUser):
         max_length=20,
         blank=True,
         verbose_name="Téléphone",
+        validators=[valider_telephone],
     )
 
     def __str__(self):

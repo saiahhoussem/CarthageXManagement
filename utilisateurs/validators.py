@@ -1,13 +1,3 @@
-"""
-Validateurs de mot de passe personnalisés.
-
-Django fournit déjà toute la logique de validation (longueur, similarité,
-mots de passe courants, mots de passe numériques) — on la réutilise via
-`super().validate()` et on ne remplace que le message affiché à
-l'utilisateur, pour garder un français adapté à CarthageKids plutôt que
-la traduction générique de Django.
-"""
-
 from django.contrib.auth.password_validation import (
     CommonPasswordValidator,
     MinimumLengthValidator,
