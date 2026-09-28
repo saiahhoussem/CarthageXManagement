@@ -1,0 +1,118 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+.conteneur-connexion {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.volet-formulaire {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  background: #f7f8fa;
+}
+.carte-connexion {
+  width: 100%;
+  max-width: 24em;
+}
+.carte-connexion .mb-3 {
+  margin-bottom: 0.75rem !important;
+}
+.logo-connexion {
+  width: 110px;
+  max-width: 60%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.carte-connexion h1 {
+  color: var(--ck-bleu-fonce);
+  text-align: center;
+  margin-bottom: 0.25rem;
+  font-size: 1.5rem;
+}
+.sous-titre {
+  text-align: center;
+  color: #5a6b85;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+.btn-carthage {
+  background-color: var(--ck-bleu-clair);
+  border-color: var(--ck-bleu-clair);
+  color: #fff;
+}
+.btn-carthage:hover,
+.btn-carthage:focus {
+  background-color: #146bbd;
+  border-color: #146bbd;
+  color: #fff;
+}
+.lien-connexion {
+  color: var(--ck-bleu-clair);
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.lien-connexion:hover {
+  text-decoration: underline;
+}
+.aide-connexion {
+  text-align: center;
+  color: #8a93a6;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+.volet-image {
+  flex: 1;
+  display: none;
+}
+.volet-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (min-width: 992px) {
+  .volet-image {
+    display: flex;
+  }
+}
+.alerte-carthage {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.85rem;
+  border-left: 4px solid transparent;
+  font-size: 0.95rem;
+  animation: apparition-alerte 0.2s ease-out;
+}
+.alerte-carthage-icone {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  margin-top: 0.4rem;
+}
+.alerte-carthage-danger {
+  background: #ffe3e4;
+  border-left-color: var(--ck-rouge);
+  color: #b81f26;
+}
+.alerte-carthage-danger .alerte-carthage-icone {
+  background: var(--ck-rouge);
+}
+@keyframes apparition-alerte {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

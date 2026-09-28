@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 
+from django.contrib.messages import constants as message_levels
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +28,7 @@ SECRET_KEY = 'django-insecure-s=j(^!do!uh(dbr#=ek4_9s&)c$@bmgkt2ht1vkiw9dxi1r&v7
 DEBUG = True
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
-ALLOWED_HOSTS = ['Houssem.pythonanywhere.com']
+ALLOWED_HOSTS = ['Houssem.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -38,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'compte',
+    'enfants',
 ]
 
 MIDDLEWARE = [
@@ -83,21 +87,32 @@ DATABASES = {
 }
 
 
+AUTH_USER_MODEL = 'compte.User'
+
+AUTHENTICATION_BACKENDS = [
+    'compte.backends.CourrielOuNomUtilisateurBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_URL = 'compte:connexion'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'compte.validators.ValidateurSimilariteUtilisateur',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'compte.validators.ValidateurLongueurMinimale',
+        'OPTIONS': {'min_length': 8},
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'compte.validators.ValidateurMotDePasseCourant',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'compte.validators.ValidateurMotDePasseNumerique',
     },
 ]
 
@@ -105,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-ca'
 
 TIME_ZONE = 'UTC'
 
@@ -120,11 +135,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
-
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
+# Messages
+# https://docs.djangoproject.com/en/6.1/ref/contrib/messages/
+MESSAGE_TAGS = {
+    message_levels.ERROR: 'danger',
 }
