@@ -30,13 +30,13 @@ class CreationCompteForm(UserCreationForm):
    
     AIDE_CHAMPS = {
         "username": "Veuillez choisir un nom d'utilisateur.",
-        "first_name": "Veuillez entrer le prénom.",
-        "last_name": "Veuillez entrer le nom.",
-        "email": "Veuillez entrer l'adresse courriel.",
-        "role": "Veuillez choisir le rôle que voulez attribuer.",
-        "telephone": "",
-        "password1": "Veuillez choisir un mot de passe.",
-        "password2": "Veuillez confirmer le mot de passe.",
+        "first_name": "Veuillez entrer le prénom de l'utilisateur.",
+        "last_name": "Veuillez entrer le nom de l'utilisateur.",
+        "email": "Veuillez entrer l'adresse courriel de l'utilisateur.",
+        "role": "Veuillez choisir le rôle que voulez attribuer à l'utilisateur.",
+        "telephone": "Veuillez entrer le numéro de téléphone de l'utilisateur.",
+        "password1": "Veuillez choisir un mot de passe du compte.",
+        "password2": "Veuillez confirmer le mot de passe du compte.",
     }
 
     def __init__(self, *args, **kwargs):
@@ -44,6 +44,7 @@ class CreationCompteForm(UserCreationForm):
         for name, field in self.fields.items():
             field.widget.attrs.setdefault("class", "form-control")
             field.help_text = self.AIDE_CHAMPS.get(name, "")
+            field.required = True
 
         
         self.fields["password1"].label = "Mot de passe"
