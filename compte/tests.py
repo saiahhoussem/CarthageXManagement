@@ -17,7 +17,7 @@ class CreationCompteTests(TestCase):
             password="motDePasse123",
             role=User.Role.PARENT,
         )
-        self.url = reverse("utilisateurs:creer_compte")
+        self.url = reverse("compte:creer_compte")
 
     def test_redirige_si_non_connecte(self):
         response = self.client.get(self.url)

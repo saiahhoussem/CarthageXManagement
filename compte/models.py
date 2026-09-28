@@ -24,7 +24,6 @@ class User(AbstractUser):
     )
     telephone = models.CharField(
         max_length=20,
-        blank=True,
         verbose_name="Téléphone",
         validators=[valider_telephone],
     )
@@ -43,3 +42,21 @@ class User(AbstractUser):
     @property
     def is_parent(self):
         return self.role == self.Role.PARENT
+
+
+class Administrateur(User):
+    class Meta:
+        verbose_name = "Administrateur"
+        verbose_name_plural = "Administrateurs"
+
+
+class Educateur(User):
+    class Meta:
+        verbose_name = "Éducateur(trice)"
+        verbose_name_plural = "Éducateurs(trices)"
+
+
+class Parent(User):
+    class Meta:
+        verbose_name = "Parent"
+        verbose_name_plural = "Parents"

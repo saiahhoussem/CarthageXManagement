@@ -8,7 +8,7 @@
     {% if user.is_authenticated %}
       <div class="ck-navbar-compte">
         <span class="ck-navbar-utilisateur">Connecté : {{ user.get_full_name|default:user.username }}</span>
-        <form method="post" action="{% url 'utilisateurs:deconnexion' %}" class="m-0">
+        <form method="post" action="{% url 'compte:deconnexion' %}" class="m-0">
           {% csrf_token %}
           <button type="submit" class="ck-navbar-bouton-deconnexion">Se déconnecter</button>
         </form>

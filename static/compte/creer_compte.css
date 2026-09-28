@@ -1,0 +1,75 @@
+body {
+  background: #f7f8fa;
+  min-height: 100vh;
+  margin: 0;
+}
+.carte-formulaire {
+  max-width: 32em;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+.logo-carthage {
+  width: 160px;
+  max-width: 70%;
+  height: auto;
+}
+h1 {
+  color: var(--ck-bleu-fonce);
+  font-size: 1.5rem;
+}
+.btn-carthage {
+  background-color: var(--ck-bleu-clair);
+  border-color: var(--ck-bleu-clair);
+  color: #fff;
+}
+.btn-carthage:hover,
+.btn-carthage:focus {
+  background-color: #146bbd;
+  border-color: #146bbd;
+  color: #fff;
+}
+.form-control:focus {
+  border-color: var(--ck-bleu-clair);
+  box-shadow: 0 0 0 0.2rem rgba(28, 136, 235, 0.2);
+}
+.text-danger {
+  color: var(--ck-rouge) !important;
+}
+.alerte-carthage {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.85rem;
+  border-left: 4px solid transparent;
+  font-size: 0.95rem;
+  animation: apparition-alerte 0.2s ease-out;
+}
+.alerte-carthage-icone {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  margin-top: 0.4rem;
+}
+.alerte-carthage-success {
+  background: #e3f5ef;
+  border-left-color: var(--ck-vert);
+  color: #1c6b57;
+}
+.alerte-carthage-success .alerte-carthage-icone {
+  background: var(--ck-vert);
+}
+.alerte-carthage-danger {
+  background: #ffe3e4;
+  border-left-color: var(--ck-rouge);
+  color: #b81f26;
+}
+.alerte-carthage-danger .alerte-carthage-icone {
+  background: var(--ck-rouge);
+}
+@keyframes apparition-alerte {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

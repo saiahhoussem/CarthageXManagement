@@ -1,7 +1,23 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
-from .models import User
+from .models import Administrateur, Educateur, Parent, User
+
+
+class ConnexionForm(AuthenticationForm):
+    username = forms.CharField(
+        label="Adresse courriel ou nom d'utilisateur",
+        widget=forms.TextInput(attrs={"class": "form-control", "autofocus": True}),
+    )
+    password = forms.CharField(
+        label="Mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+    se_souvenir = forms.BooleanField(
+        label="Se souvenir de moi",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+    )
 
 
 class CreationCompteForm(UserCreationForm):
@@ -50,6 +66,12 @@ class CreationCompteForm(UserCreationForm):
         self.fields["password1"].label = "Mot de passe"
         self.fields["password2"].label = "Confirmation du mot de passe"
 
+    ROLE_MODELES = {
+        User.Role.ADMINISTRATEUR: Administrateur,
+        User.Role.EDUCATEUR: Educateur,
+        User.Role.PARENT: Parent,
+    }
+
     def clean_email(self):
         email = self.cleaned_data["email"]
         if User.objects.filter(email__iexact=email).exists():
@@ -57,8 +79,16 @@ class CreationCompteForm(UserCreationForm):
         return email
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data["email"]
+        modele = self.ROLE_MODELES.get(self.cleaned_data["role"], User)
+        utilisateur = modele(
+            username=self.cleaned_data["username"],
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
+            email=self.cleaned_data["email"],
+            role=self.cleaned_data["role"],
+            telephone=self.cleaned_data["telephone"],
+        )
+        utilisateur.set_password(self.cleaned_data["password1"])
         if commit:
-            user.save()
-        return user
+            utilisateur.save()
+        return utilisateur

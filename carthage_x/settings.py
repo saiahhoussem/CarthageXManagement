@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'utilisateurs',
+    'compte',
     'enfants',
 ]
 
@@ -87,9 +87,14 @@ DATABASES = {
 }
 
 
-AUTH_USER_MODEL = 'utilisateurs.User'
+AUTH_USER_MODEL = 'compte.User'
 
-LOGIN_URL = 'admin:login'
+AUTHENTICATION_BACKENDS = [
+    'compte.backends.CourrielOuNomUtilisateurBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_URL = 'compte:connexion'
 
 
 # Password validation
@@ -97,17 +102,17 @@ LOGIN_URL = 'admin:login'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'utilisateurs.validators.ValidateurSimilariteUtilisateur',
+        'NAME': 'compte.validators.ValidateurSimilariteUtilisateur',
     },
     {
-        'NAME': 'utilisateurs.validators.ValidateurLongueurMinimale',
+        'NAME': 'compte.validators.ValidateurLongueurMinimale',
         'OPTIONS': {'min_length': 8},
     },
     {
-        'NAME': 'utilisateurs.validators.ValidateurMotDePasseCourant',
+        'NAME': 'compte.validators.ValidateurMotDePasseCourant',
     },
     {
-        'NAME': 'utilisateurs.validators.ValidateurMotDePasseNumerique',
+        'NAME': 'compte.validators.ValidateurMotDePasseNumerique',
     },
 ]
 
@@ -134,14 +139,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/6.1/ref/contrib/messages/
 MESSAGE_TAGS = {
     message_levels.ERROR: 'danger',
-}
-
-
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
-
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
 }
