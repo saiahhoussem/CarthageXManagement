@@ -57,7 +57,7 @@ def creer_compte(request):
             )
             return redirect("compte:creer_compte")
         else:
-            messages.error(request, "L'utilisateur n'a pas été ajouté à la liste.")
+            messages.error(request, "Impossible de créer le compte.")
     else:
         form = CreationCompteForm()
 
