@@ -24,7 +24,6 @@ class User(AbstractUser):
     )
     telephone = models.CharField(
         max_length=20,
-        blank=True,
         verbose_name="Téléphone",
         validators=[valider_telephone],
     )
