@@ -5,12 +5,20 @@ from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm
 def fiche_enfant(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
 
+    retour = request.GET.get("retour")
+
     return render(request, "enfants/fiche_enfant.html", {
-        "enfant": enfant
+        "enfant": enfant,
+        "retour": retour,
+        "est_parent": request.user.is_parent,
+        "est_educateur": request.user.is_educateur,
     })
 
 def ajouter_allergie(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
+
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=enfant.id)
 
     if request.method == "POST":
         form = AllergieForm(request.POST)
@@ -33,6 +41,9 @@ def ajouter_allergie(request, enfant_id):
     
 def modifier_allergie(request, allergie_id):
     allergie = get_object_or_404(Allergie, id=allergie_id)
+
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=allergie.enfant.id)
 
     if request.method == "POST":
         form = AllergieForm(request.POST, instance=allergie)
@@ -57,6 +68,9 @@ def modifier_allergie(request, allergie_id):
 def supprimer_allergie(request, allergie_id):
     allergie = get_object_or_404(Allergie, id=allergie_id)
 
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=allergie.enfant.id)
+
     if request.method == "POST":
         enfant_id = allergie.enfant.id
         allergie.delete()
@@ -71,6 +85,9 @@ def supprimer_allergie(request, allergie_id):
 
 def ajouter_contact(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
+
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=enfant.id)
 
     if request.method == "POST":
         form = ContactUrgenceForm(request.POST)
@@ -92,6 +109,9 @@ def ajouter_contact(request, enfant_id):
 
 def modifier_contact(request, contact_id):
     contact = get_object_or_404(ContactUrgence, id=contact_id)
+
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=contact.enfant.id)
 
     if request.method == "POST":
         form = ContactUrgenceForm(request.POST, instance=contact)
@@ -115,6 +135,9 @@ def modifier_contact(request, contact_id):
 
 def supprimer_contact(request, contact_id):
     contact = get_object_or_404(ContactUrgence, id=contact_id)
+    
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=contact.enfant.id)
 
     if request.method == "POST":
         enfant_id = contact.enfant.id
@@ -129,6 +152,9 @@ def supprimer_contact(request, contact_id):
 
 def ajouter_personne_autorisee(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
+
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=enfant.id)
 
     if request.method == "POST":
         form = PersonneAutoriseeForm(request.POST)
@@ -150,6 +176,9 @@ def ajouter_personne_autorisee(request, enfant_id):
 
 def modifier_personne_autorisee(request, personne_id):
     personne = get_object_or_404(PersonneAutorisee, id=personne_id)
+
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=personne.enfant.id)
 
     if request.method == "POST":
         form = PersonneAutoriseeForm(request.POST, instance=personne)
@@ -174,6 +203,9 @@ def modifier_personne_autorisee(request, personne_id):
 def supprimer_personne_autorisee(request, personne_id):
     personne = get_object_or_404(PersonneAutorisee, id=personne_id)
 
+    if not request.user.is_parent:
+        return redirect("fiche_enfant", enfant_id=personne.enfant.id)
+
     if request.method == "POST":
         enfant_id = personne.enfant.id
         personne.delete()
@@ -184,3 +216,10 @@ def supprimer_personne_autorisee(request, personne_id):
         "personne": personne,
         "enfant": personne.enfant
     })
+
+def mon_groupe(request):
+    return render(request, "mon_groupe.html")
+
+
+def mes_enfants(request):
+    return render(request, "mes_enfants.html")
