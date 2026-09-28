@@ -1,0 +1,48 @@
+:root {
+  --ck-bleu-fonce: #0d274d;
+  --ck-orange: #f49f02;
+  --ck-vert: #289b7b;
+  --ck-rouge: #fb363f;
+  --ck-bleu-clair: #1c88eb;
+}
+
+.ck-navbar {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(13, 39, 79, 0.08);
+  box-shadow: 0 2px 10px rgba(13, 39, 79, 0.06);
+}
+.ck-navbar .navbar-brand {
+  display: flex;
+  align-items: center;
+}
+.ck-navbar-logo {
+  height: 44px;
+  width: auto;
+}
+.ck-navbar-compte {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--ck-bleu-fonce);
+  font-size: 0.9rem;
+}
+.ck-navbar-utilisateur {
+  opacity: 0.85;
+}
+.ck-navbar-bouton-deconnexion {
+  background: none;
+  border: 1px solid rgba(13, 39, 79, 0.35);
+  color: var(--ck-bleu-fonce);
+  padding: 0.3rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.ck-navbar-bouton-deconnexion:hover,
+.ck-navbar-bouton-deconnexion:focus {
+  background: rgba(13, 39, 79, 0.08);
+  border-color: var(--ck-bleu-fonce);
+  color: var(--ck-bleu-fonce);
+}

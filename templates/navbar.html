@@ -1,0 +1,18 @@
+{% load static %}
+<nav class="navbar navbar-expand ck-navbar">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a class="navbar-brand mb-0" href="{% url 'home' %}">
+      <img src="{% static 'img/logo-carthagekids.png' %}" alt="CarthageKids" class="ck-navbar-logo">
+    </a>
+
+    {% if user.is_authenticated %}
+      <div class="ck-navbar-compte">
+        <span class="ck-navbar-utilisateur">Connecté : {{ user.get_full_name|default:user.username }}</span>
+        <form method="post" action="{% url 'utilisateurs:deconnexion' %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="ck-navbar-bouton-deconnexion">Se déconnecter</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</nav>
