@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Mes enfants{% endblock %}
+
+{% block sidebar %}
+    {% include "components/menu_parent.html" %}
+{% endblock %}
+
+{% block content %}
+    <main>
+        <h1>Mes enfants</h1>
+
+        <p>Enfant de test</p>
+
+        <a href="{% url 'fiche_enfant' 1 %}" class="btn-details">
+            Afficher les détails de l’enfant
+        </a>
+    </main>
+{% endblock %}
