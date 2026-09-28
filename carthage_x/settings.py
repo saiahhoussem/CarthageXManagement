@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 
+from django.contrib.messages import constants as message_levels
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -85,23 +87,13 @@ DATABASES = {
 }
 
 
-# Modèle d'utilisateur personnalisé (voir utilisateurs/models.py).
-# Doit être défini avant le tout premier `migrate` du projet.
 AUTH_USER_MODEL = 'utilisateurs.User'
 
-# Le récit 1.1 (connexion sécurisée) n'est pas encore implémenté : en
-# attendant, les vues protégées par @login_required (ex. : création de
-# compte, récit 3.1) redirigent vers la page de connexion native de
-# l'admin Django. À remplacer par la vraie page de connexion une fois
-# le récit 1.1 livré.
 LOGIN_URL = 'admin:login'
 
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
-# Validateurs personnalisés (voir utilisateurs/validators.py) : même logique
-# que les validateurs natifs de Django, messages en français adaptés au
-# projet plutôt que la traduction générique.
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -136,6 +128,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# Messages
+# https://docs.djangoproject.com/en/6.1/ref/contrib/messages/
+MESSAGE_TAGS = {
+    message_levels.ERROR: 'danger',
+}
 
 
 # Email
