@@ -1,0 +1,47 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mes enfants{% endblock %}
+
+{% block sidebar %}
+    {% include "components/menu_parent.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main>
+
+    <h1>Mes enfants</h1>
+
+    {% for enfant in enfants %}
+
+        <div class="mb-4">
+
+            <h2>
+                {{ enfant.prenom }} {{ enfant.nom }}
+            </h2>
+
+            <p class="text-muted">
+                Groupe : {{ enfant.groupe.nom }}
+            </p>
+
+            <a
+                href="{% url 'fiche_enfant' enfant.id %}?retour=mes-enfants"
+                class="btn-details"
+            >
+                Afficher les détails de l’enfant
+            </a>
+
+        </div>
+
+    {% empty %}
+
+        <p class="text-muted">
+            Aucun enfant n’est actuellement associé à votre compte.
+        </p>
+
+    {% endfor %}
+
+</main>
+
+{% endblock %}

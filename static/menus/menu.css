@@ -1,0 +1,88 @@
+body {
+    margin: 0;
+}
+
+main {
+    flex: 1;
+    padding: 40px;
+}
+
+.parent-menu,
+.educateur-menu {
+    width: 250px;
+    min-height: 100vh;
+    box-sizing: border-box;
+    background-color: #3D7A78;
+    padding: 25px 15px;
+
+    display: flex;
+    flex-direction: column;
+
+    font-family: 'Comfortaa', sans-serif;
+}
+
+.parent-menu h2,
+.educateur-menu h2 {
+    color: white;
+    font-size: 22px;
+    margin: 0 0 30px 10px;
+}
+
+.parent-menu ul,
+.educateur-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.parent-menu li,
+.educateur-menu li {
+    margin-bottom: 10px;
+}
+
+.parent-menu a,
+.educateur-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.parent-menu a:hover,
+.educateur-menu a:hover {
+    background-color: #DCEFE9;
+    color: #3D7A78;
+}
+
+.parent-menu i,
+.educateur-menu i {
+    font-size: 18px;
+}
+
+.parent-menu .logout,
+.educateur-menu .logout {
+    margin-top: auto;
+}
+
+.btn-details {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 18px;
+
+    background-color:#0d274d;
+    color: white;
+    text-decoration: none;
+
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-details:hover {
+    background-color: #f49f02;
+    color: white;
+}

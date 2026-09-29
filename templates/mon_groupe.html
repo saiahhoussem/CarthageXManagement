@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Mon groupe{% endblock %}
+
+{% block sidebar %}
+    {% include "components/menu_educateur.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main>
+
+    <h1>Mon groupe</h1>
+
+    {% for groupe in groupes %}
+
+        <h2>{{ groupe.nom }}</h2>
+
+        {% for enfant in groupe.enfant_set.all %}
+
+            <div class="mb-3">
+                <p>
+                    {{ enfant.prenom }} {{ enfant.nom }}
+                </p>
+
+                <a
+                    href="{% url 'fiche_enfant' enfant.id %}?retour=mon-groupe"
+                    class="btn-details"
+                >
+                    Afficher les détails de l’enfant
+                </a>
+            </div>
+
+        {% empty %}
+
+            <p class="text-muted">
+                Aucun enfant n’est actuellement affecté à ce groupe.
+            </p>
+
+        {% endfor %}
+
+    {% empty %}
+
+        <p class="text-muted">
+            Aucun groupe ne vous est actuellement attribué.
+        </p>
+
+    {% endfor %}
+
+</main>
+
+{% endblock %}
