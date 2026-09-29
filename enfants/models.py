@@ -21,15 +21,9 @@ class Groupe(models.Model):
         ]
     )
 
-    educateur = models.ForeignKey(
-    "compte.Educateur",
-    on_delete=models.PROTECT,
-    related_name="groupes",
-    null=True,
-    blank=True
-    )
     def __str__(self):
         return self.nom
+
 
 class Enfant(models.Model):
     prenom = models.CharField(
@@ -49,14 +43,11 @@ class Enfant(models.Model):
                 "Le nom de l'enfant doit contenir au moins 3 caractères."
             )
         ]
+        
     )
     groupe = models.ForeignKey(Groupe, on_delete=models.PROTECT)
     date_naissance = models.DateField(
-    )
-    parents = models.ManyToManyField(
-    "compte.Parent",
-    related_name="enfants",
-    blank=True
+    
     )
 
     def clean(self):

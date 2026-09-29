@@ -4,16 +4,6 @@ from . import views
 
 urlpatterns = [
     path(
-        "mon-groupe/",
-        views.mon_groupe,
-        name="mon_groupe"
-    ),
-    path(
-        "mes-enfants/",
-        views.mes_enfants,
-        name="mes_enfants"
-    ),
-    path(
         "enfant/<int:enfant_id>/", 
         views.fiche_enfant, 
         name="fiche_enfant"
@@ -64,6 +54,6 @@ urlpatterns = [
     "personne_autorisee/<int:personne_id>/supprimer/",
     views.supprimer_personne_autorisee,
     name="supprimer_personne_autorisee"
-    )
+    ),
 ]
 
