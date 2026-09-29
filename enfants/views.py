@@ -345,14 +345,28 @@ def supprimer_personne_autorisee(request, personne_id):
         "est_educateur": request.user.is_educateur,
     })
 
+@login_required
 def mon_groupe(request):
-    groupes = request.user.educateur.groupes.prefetch_related("enfant_set")
+    if not request.user.is_educateur:
+        raise PermissionDenied(
+            "Vous n'avez pas accès à cette page."
+        )
+
+    groupes = Groupe.objects.filter(
+        educateur__pk=request.user.pk
+    ).prefetch_related("enfant_set")
 
     return render(request, "mon_groupe.html", {
         "groupes": groupes
     })
-
+    
+@login_required
 def mes_enfants(request):
+    if not request.user.is_parent:
+        raise PermissionDenied(
+            "Vous n'avez pas accès à cette page."
+        )
+
     enfants = Enfant.objects.filter(
         parents__pk=request.user.pk
     )
