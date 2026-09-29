@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Liste des éducatrices - CarthageKids{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Liste des éducatrices</h2>
+    <a href="{% url 'compte:creer_compte' %}" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Nouvelle éducatrice
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if educateurs %}
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Courriel</th>
+          <th>Téléphone</th>
+          <th>Statut</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for educ in educateurs %}
+        <tr>
+          <td>{{ educ.last_name }}</td>
+          <td>{{ educ.first_name }}</td>
+          <td>{{ educ.email }}</td>
+          <td>{{ educ.telephone }}</td>
+          <td>
+            {% if educ.is_active %}
+              <span class="badge bg-success">Actif</span>
+            {% else %}
+              <span class="badge bg-secondary">Désactivé</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{% url 'compte:detail_educateur' educ.pk %}"
+               class="btn btn-sm btn-info">
+              <i class="bi bi-eye"></i> Voir
+            </a>
+            <a href="{% url 'compte:modifier_educateur' educ.pk %}"
+               class="btn btn-sm btn-warning">
+              <i class="bi bi-pencil"></i> Modifier
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">
+      Aucune éducatrice enregistrée pour le moment.
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
