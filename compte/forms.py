@@ -92,3 +92,33 @@ class CreationCompteForm(UserCreationForm):
         if commit:
             utilisateur.save()
         return utilisateur
+
+
+class ModificationEducateurForm(forms.ModelForm):
+    
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email", "telephone"]
+        widgets = {
+            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "telephone": forms.TextInput(attrs={"class": "form-control"}),
+        }
+        labels = {
+            "username": "Nom d'utilisateur",
+            "first_name": "Prénom",
+            "last_name": "Nom",
+            "email": "Courriel",
+            "telephone": "Téléphone",
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        qs = User.objects.filter(email__iexact=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Un compte existe déjà avec ce courriel.")
+        return email
