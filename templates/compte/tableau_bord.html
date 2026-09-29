@@ -3,7 +3,9 @@
 {% block title %}Tableau de bord — {{ titre }}{% endblock %}
 
 {% block sidebar %}
-    {% if titre == "Parent" %}
+    {% if titre == "Administrateur" %}
+        {% include "components/menu_admin.html" %}
+    {% elif titre == "Parent" %}
         {% include "components/menu_parent.html" %}
     {% elif titre == "Éducateur(trice)" %}
         {% include "components/menu_educateur.html" %}
