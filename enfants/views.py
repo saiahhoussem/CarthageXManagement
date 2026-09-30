@@ -1,7 +1,6 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
-
-from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee
+from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe
 from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
