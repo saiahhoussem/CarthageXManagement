@@ -1,10 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 
-from .forms import ConnexionForm, CreationCompteForm
-from .models import User
+from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
+from .models import Educateur, User
 
 
 def est_administrateur(user):
@@ -83,3 +83,72 @@ def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
         return redirect(url_tableau_bord(request.user))
     return render(request, "compte/tableau_bord.html", {"titre": "Parent"})
+
+
+@login_required
+@user_passes_test(est_administrateur)
+def liste_educateurs(request):
+    """Liste toutes les éducatrices (actives et inactives)."""
+    educateurs = Educateur.objects.all().order_by("last_name", "first_name")
+    return render(
+        request,
+        "compte/liste_educateurs.html",
+        {"educateurs": educateurs},
+    )
+
+
+@login_required
+@user_passes_test(est_administrateur)
+def detail_educateur(request, pk):
+    """Détail d'une éducatrice."""
+    educateur = get_object_or_404(Educateur, pk=pk)
+    return render(
+        request,
+        "compte/detail_educateur.html",
+        {"educateur": educateur},
+    )
+
+
+@login_required
+@user_passes_test(est_administrateur)
+def modifier_educateur(request, pk):
+    """Modification des informations d'une éducatrice."""
+    educateur = get_object_or_404(Educateur, pk=pk)
+
+    if request.method == "POST":
+        form = ModificationEducateurForm(request.POST, instance=educateur)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Les informations ont été mises à jour.")
+            return redirect("compte:detail_educateur", pk=educateur.pk)
+        else:
+            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
+    else:
+        form = ModificationEducateurForm(instance=educateur)
+
+    return render(
+        request,
+        "compte/modifier_educateur.html",
+        {"form": form, "educateur": educateur},
+    )
+
+
+@login_required
+@user_passes_test(est_administrateur)
+def basculer_statut_educateur(request, pk):
+    """Désactive ou réactive le compte d'une éducatrice (POST uniquement)."""
+    educateur = get_object_or_404(Educateur, pk=pk)
+
+    if request.method != "POST":
+        return redirect("compte:detail_educateur", pk=pk)
+
+    if educateur.pk == request.user.pk:
+        messages.error(request, "Vous ne pouvez pas désactiver votre propre compte.")
+        return redirect("compte:detail_educateur", pk=pk)
+
+    educateur.is_active = not educateur.is_active
+    educateur.save(update_fields=["is_active"])
+
+    statut = "activé" if educateur.is_active else "désactivé"
+    messages.success(request, f"Le compte de {educateur} a été {statut}.")
+    return redirect("compte:detail_educateur", pk=pk)

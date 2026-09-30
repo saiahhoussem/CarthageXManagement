@@ -28,4 +28,28 @@ urlpatterns = [
         views.tableau_bord_parent,
         name="tableau_bord_parent",
     ),
+
+    path(
+        "educateurs/", 
+        views.liste_educateurs, 
+        name="liste_educateurs",
+        ),
+
+    path(
+        "educateurs/<int:pk>/",
+          views.detail_educateur, 
+          name="detail_educateur",
+          ),
+
+    path(
+        "educateurs/<int:pk>/modifier/", 
+        views.modifier_educateur, 
+        name="modifier_educateur",
+        ),
+
+    path(
+        "educateurs/<int:pk>/basculer/", 
+        views.basculer_statut_educateur, 
+        name="basculer_statut_educateur",
+        ),
 ]
