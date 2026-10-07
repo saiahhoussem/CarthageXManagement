@@ -11,6 +11,11 @@ telephone_validator = RegexValidator(
 
 
 class Groupe(models.Model):
+    class TrancheAge(models.TextChoices):
+        BEBE = "0-18", "0 à 18 mois"
+        TROTTEUR = "18-36", "18 à 36 mois"
+        PRESCOLAIRE = "36-60", "3 à 5 ans"
+
     nom = models.CharField(
         max_length=100,
         validators=[
@@ -21,16 +26,22 @@ class Groupe(models.Model):
         ]
     )
 
-    educateur = models.ForeignKey(
-    "compte.Educateur",
-    on_delete=models.PROTECT,
-    related_name="groupes",
-    null=True,
-    blank=True
+    tranche_age = models.CharField(
+        max_length=20,
+        choices=TrancheAge.choices
     )
+
+    educateur = models.ForeignKey(
+        "compte.Educateur",
+        on_delete=models.PROTECT,
+        related_name="groupes",
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         return self.nom
-
+    
 class Enfant(models.Model):
     prenom = models.CharField(
         max_length=100,
