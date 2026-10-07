@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.validators import MinLengthValidator, RegexValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -38,9 +38,19 @@ class Groupe(models.Model):
         null=True,
         blank=True
     )
+    capacite = models.PositiveIntegerField(
+    default=10,
+    verbose_name="Capacité maximale",
+    validators=[
+        MinValueValidator(
+            1,
+            "La capacité du groupe doit être d'au moins 1 enfant."
+        )
+    ]
+    )       
 
     def __str__(self):
-        return self.nom
+        return str(self.nom)
     
 class Enfant(models.Model):
     prenom = models.CharField(

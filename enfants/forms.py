@@ -1,5 +1,5 @@
 from django import forms
-from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee
+from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee,Groupe
 
 
 class EnfantForm(forms.ModelForm):
@@ -53,3 +53,48 @@ class PersonneAutoriseeForm(forms.ModelForm):
             "telephone": { "required": "Veuillez indiquer un numéro de téléphone pour joindre cette personne." } 
             }
         widgets = { "telephone": forms.TextInput(attrs={ "placeholder": "418-555-1234", "maxlength": "12" }) }
+
+
+
+
+class GroupeForm(forms.ModelForm):
+    class Meta:
+        model = Groupe
+        fields = ["nom", "tranche_age","capacite", "educateur"]
+        error_messages = {
+            "nom": {
+                "required": "Veuillez indiquer le nom du groupe."
+            },
+            "tranche_age": {
+                "required": "Veuillez sélectionner une tranche d'âge."
+            },
+            "capacite": {
+                "required": "Veuillez indiquer la capacité maximale du groupe.",
+                "invalid": "Veuillez entrer un nombre valide."
+            }
+        }
+        widgets = {
+            "nom": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Nom du groupe"
+                }
+            ),
+            "tranche_age": forms.Select(
+                attrs={
+                    "class": "form-select"
+                }
+            ),
+            "capacite": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": 1,
+                    "placeholder": "Ex. : 10"
+                }
+            ),
+            "educateur": forms.Select(
+                attrs={
+                    "class": "form-select"
+                }
+            ),
+        }

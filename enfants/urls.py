@@ -64,6 +64,16 @@ urlpatterns = [
     "personne_autorisee/<int:personne_id>/supprimer/",
     views.supprimer_personne_autorisee,
     name="supprimer_personne_autorisee"
-    )
+    ),
+    path(
+        "groupes/ajouter/",
+        views.ajouter_groupe,
+        name="ajouter_groupe"
+    ),
+    path(
+    "groupes/",
+    views.liste_groupes,
+    name="liste_groupes"
+    ),
 ]
 

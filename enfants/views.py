@@ -1,7 +1,7 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe
-from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm
+from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
@@ -373,3 +373,36 @@ def mes_enfants(request):
     return render(request, "mes_enfants.html", {
         "enfants": enfants
     })
+
+@login_required
+def ajouter_groupe(request):
+    if not request.user.is_administrateur:
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    if request.method == "POST":
+        form = GroupeForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect("liste_groupes")
+    else:
+        form = GroupeForm()
+
+    return render(
+        request,
+        "groupes/ajouter_groupe.html",
+        {"form": form}
+    )
+
+@login_required
+def liste_groupes(request):
+    if not request.user.is_administrateur:
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    groupes = Groupe.objects.select_related("educateur").all()
+
+    return render(
+        request,
+        "groupes/liste_groupes.html",
+        {"groupes": groupes}
+    )
