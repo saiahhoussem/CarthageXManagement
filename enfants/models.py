@@ -22,14 +22,16 @@ class Groupe(models.Model):
     )
 
     educateur = models.ForeignKey(
-    "compte.Educateur",
-    on_delete=models.PROTECT,
-    related_name="groupes",
-    null=True,
-    blank=True
+        "compte.Educateur",
+        on_delete=models.PROTECT,
+        related_name="groupes",
+        null=True,
+        blank=True
     )
+
     def __str__(self):
         return self.nom
+
 
 class Enfant(models.Model):
     prenom = models.CharField(
@@ -51,12 +53,11 @@ class Enfant(models.Model):
         ]
     )
     groupe = models.ForeignKey(Groupe, on_delete=models.PROTECT)
-    date_naissance = models.DateField(
-    )
+    date_naissance = models.DateField()
     parents = models.ManyToManyField(
-    "compte.Parent",
-    related_name="enfants",
-    blank=True
+        "compte.Parent",
+        related_name="enfants",
+        blank=True
     )
 
     def clean(self):
@@ -71,6 +72,7 @@ class Enfant(models.Model):
     def __str__(self):
         return f"{self.prenom} {self.nom}"
 
+
 class Allergie(models.Model):
     enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
 
@@ -82,7 +84,6 @@ class Allergie(models.Model):
                 "Le type d'allergie doit contenir au moins 2 caractères."
             )
         ]
-      
     )
 
     reaction = models.TextField(
@@ -97,6 +98,7 @@ class Allergie(models.Model):
 
     def __str__(self):
         return self.type_allergie
+
 
 class ContactUrgence(models.Model):
     enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
@@ -119,16 +121,16 @@ class ContactUrgence(models.Model):
                 "Le nom doit contenir au moins 3 caractères."
             )
         ]
-        
     )
 
     telephone = models.CharField(
         max_length=12,
-        validators=[telephone_validator] 
+        validators=[telephone_validator]
     )
 
     def __str__(self):
         return f"{self.prenom} {self.nom}"
+
 
 class PersonneAutorisee(models.Model):
     enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
@@ -150,8 +152,6 @@ class PersonneAutorisee(models.Model):
                 "Le nom doit contenir au moins 3 caractères."
             )
         ]
-        
-        
     )
 
     relation = models.CharField(
@@ -162,13 +162,11 @@ class PersonneAutorisee(models.Model):
                 "La relation doit contenir au moins 2 caractères."
             )
         ]
-        
     )
 
     telephone = models.CharField(
         max_length=12,
         validators=[telephone_validator]
-        
     )
 
     def __str__(self):

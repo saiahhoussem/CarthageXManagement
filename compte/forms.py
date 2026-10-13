@@ -7,11 +7,17 @@ from .models import Administrateur, Educateur, Parent, User
 class ConnexionForm(AuthenticationForm):
     username = forms.CharField(
         label="Adresse courriel ou nom d'utilisateur",
-        widget=forms.TextInput(attrs={"class": "form-control", "autofocus": True}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "autofocus": True,
+        }),
     )
     password = forms.CharField(
         label="Mot de passe",
-        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "id": "id_password",
+        }),
     )
     se_souvenir = forms.BooleanField(
         label="Se souvenir de moi",
@@ -21,7 +27,6 @@ class ConnexionForm(AuthenticationForm):
 
 
 class CreationCompteForm(UserCreationForm):
-   
 
     email = forms.EmailField(required=True, label="Courriel")
 
@@ -43,7 +48,6 @@ class CreationCompteForm(UserCreationForm):
             "telephone": "Téléphone",
         }
 
-   
     AIDE_CHAMPS = {
         "username": "Veuillez choisir un nom d'utilisateur.",
         "first_name": "Veuillez entrer le prénom de l'utilisateur.",
@@ -62,7 +66,6 @@ class CreationCompteForm(UserCreationForm):
             field.help_text = self.AIDE_CHAMPS.get(name, "")
             field.required = True
 
-        
         self.fields["password1"].label = "Mot de passe"
         self.fields["password2"].label = "Confirmation du mot de passe"
 
@@ -95,7 +98,6 @@ class CreationCompteForm(UserCreationForm):
 
 
 class ModificationEducateurForm(forms.ModelForm):
-    
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email", "telephone"]
