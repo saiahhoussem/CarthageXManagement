@@ -3,7 +3,12 @@
 
 {% block title %}Fiche éducatrice - CarthageKids{% endblock %}
 
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
 {% block content %}
+<main>
 <div class="container mt-4">
 
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -75,4 +80,5 @@
   </div>
 
 </div>
+</main>
 {% endblock %}

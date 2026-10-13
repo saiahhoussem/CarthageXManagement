@@ -1,5 +1,5 @@
-
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe
 from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm
 from django.contrib.auth.decorators import login_required
@@ -20,7 +20,7 @@ def obtenir_retour(request):
 
 
 def rediriger_vers_fiche(enfant, retour):
-    url = f"/enfant/{enfant.id}/"
+    url = reverse("fiche_enfant", args=[enfant.id])
 
     if retour in ["mes-enfants", "mon-groupe"]:
         url += f"?retour={retour}"
@@ -40,6 +40,7 @@ def utilisateur_peut_acceder_enfant(user, enfant):
 
     return False
 
+
 @login_required
 def fiche_enfant(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
@@ -58,6 +59,8 @@ def fiche_enfant(request, enfant_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def ajouter_allergie(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
 
@@ -93,6 +96,7 @@ def ajouter_allergie(request, enfant_id):
     })
 
 
+@login_required
 def modifier_allergie(request, allergie_id):
     allergie = get_object_or_404(Allergie, id=allergie_id)
     enfant = allergie.enfant
@@ -127,6 +131,8 @@ def modifier_allergie(request, allergie_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def supprimer_allergie(request, allergie_id):
     allergie = get_object_or_404(Allergie, id=allergie_id)
     enfant = allergie.enfant
@@ -154,6 +160,8 @@ def supprimer_allergie(request, allergie_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def ajouter_contact(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
 
@@ -188,6 +196,8 @@ def ajouter_contact(request, enfant_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def modifier_contact(request, contact_id):
     contact = get_object_or_404(ContactUrgence, id=contact_id)
     enfant = contact.enfant
@@ -222,6 +232,8 @@ def modifier_contact(request, contact_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def supprimer_contact(request, contact_id):
     contact = get_object_or_404(ContactUrgence, id=contact_id)
     enfant = contact.enfant
@@ -249,6 +261,8 @@ def supprimer_contact(request, contact_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def ajouter_personne_autorisee(request, enfant_id):
     enfant = get_object_or_404(Enfant, id=enfant_id)
 
@@ -283,6 +297,8 @@ def ajouter_personne_autorisee(request, enfant_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def modifier_personne_autorisee(request, personne_id):
     personne = get_object_or_404(PersonneAutorisee, id=personne_id)
     enfant = personne.enfant
@@ -317,6 +333,8 @@ def modifier_personne_autorisee(request, personne_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
+@login_required
 def supprimer_personne_autorisee(request, personne_id):
     personne = get_object_or_404(PersonneAutorisee, id=personne_id)
     enfant = personne.enfant
@@ -344,6 +362,7 @@ def supprimer_personne_autorisee(request, personne_id):
         "est_educateur": request.user.is_educateur,
     })
 
+
 @login_required
 def mon_groupe(request):
     if not request.user.is_educateur:
@@ -358,7 +377,8 @@ def mon_groupe(request):
     return render(request, "mon_groupe.html", {
         "groupes": groupes
     })
-    
+
+
 @login_required
 def mes_enfants(request):
     if not request.user.is_parent:
@@ -368,7 +388,7 @@ def mes_enfants(request):
 
     enfants = Enfant.objects.filter(
         parents__pk=request.user.pk
-    )
+    ).select_related("groupe")
 
     return render(request, "mes_enfants.html", {
         "enfants": enfants
