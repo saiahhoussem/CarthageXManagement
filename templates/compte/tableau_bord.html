@@ -1,22 +1,67 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Tableau de bord — {{ titre }}{% endblock %}
+{% block title %}Tableau de bord - {{ titre }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'compte/tableau_bord.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block sidebar %}
-    {% if titre == "Administrateur" %}
-        {% include "components/menu_admin.html" %}
-    {% elif titre == "Parent" %}
-        {% include "components/menu_parent.html" %}
-    {% elif titre == "Éducateur(trice)" %}
-        {% include "components/menu_educateur.html" %}
-    {% endif %}
+    {% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
     <main>
-        <div class="container py-5 text-center">
-            <h1>Tableau de bord — {{ titre }}</h1>
-            <p class="text-muted">Cet espace est en construction.</p>
+        <div class="ck-dashboard-entete">
+            <p class="ck-dashboard-eyebrow">Tableau de bord</p>
+            <h1 class="ck-dashboard-titre">{{ titre }}</h1>
         </div>
+
+        {% if nb_educateurs is not None %}
+            <div class="ck-cartes-stats">
+                <div class="ck-carte-stat">
+                    <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-fonce">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <p class="ck-carte-stat-valeur">{{ nb_educateurs }}</p>
+                        <p class="ck-carte-stat-libelle">Éducateurs</p>
+                    </div>
+                </div>
+
+                <div class="ck-carte-stat">
+                    <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-clair">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <p class="ck-carte-stat-valeur">{{ nb_parents }}</p>
+                        <p class="ck-carte-stat-libelle">Parents</p>
+                    </div>
+                </div>
+
+                <div class="ck-carte-stat">
+                    <div class="ck-carte-stat-icone ck-carte-stat-icone--orange">
+                        <i class="bi bi-emoji-smile"></i>
+                    </div>
+                    <div>
+                        <p class="ck-carte-stat-valeur">{{ nb_enfants }}</p>
+                        <p class="ck-carte-stat-libelle">Enfants inscrits</p>
+                    </div>
+                </div>
+
+                <div class="ck-carte-stat">
+                    <div class="ck-carte-stat-icone ck-carte-stat-icone--vert">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div>
+                        <p class="ck-carte-stat-valeur">{{ nb_groupes }}</p>
+                        <p class="ck-carte-stat-libelle">Groupes</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted">Cet espace est en construction.</p>
+        {% endif %}
     </main>
 {% endblock %}
