@@ -18,50 +18,8 @@
             <h1 class="ck-dashboard-titre">{{ titre }}</h1>
         </div>
 
-        {% if nb_educateurs is not None %}
-            <div class="ck-cartes-stats">
-                <div class="ck-carte-stat">
-                    <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-fonce">
-                        <i class="bi bi-person-badge"></i>
-                    </div>
-                    <div>
-                        <p class="ck-carte-stat-valeur">{{ nb_educateurs }}</p>
-                        <p class="ck-carte-stat-libelle">Éducateurs</p>
-                    </div>
-                </div>
-
-                <div class="ck-carte-stat">
-                    <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-clair">
-                        <i class="bi bi-people"></i>
-                    </div>
-                    <div>
-                        <p class="ck-carte-stat-valeur">{{ nb_parents }}</p>
-                        <p class="ck-carte-stat-libelle">Parents</p>
-                    </div>
-                </div>
-
-                <div class="ck-carte-stat">
-                    <div class="ck-carte-stat-icone ck-carte-stat-icone--orange">
-                        <i class="bi bi-emoji-smile"></i>
-                    </div>
-                    <div>
-                        <p class="ck-carte-stat-valeur">{{ nb_enfants }}</p>
-                        <p class="ck-carte-stat-libelle">Enfants inscrits</p>
-                    </div>
-                </div>
-
-                <div class="ck-carte-stat">
-                    <div class="ck-carte-stat-icone ck-carte-stat-icone--vert">
-                        <i class="bi bi-diagram-3"></i>
-                    </div>
-                    <div>
-                        <p class="ck-carte-stat-valeur">{{ nb_groupes }}</p>
-                        <p class="ck-carte-stat-libelle">Groupes</p>
-                    </div>
-                </div>
-            </div>
-        {% else %}
+        <div>
             <p class="text-muted">Cet espace est en construction.</p>
-        {% endif %}
+        </div>
     </main>
 {% endblock %}
