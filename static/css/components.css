@@ -1,0 +1,115 @@
+.btn-carthage {
+  background-color: var(--ck-vert);
+  border-color: var(--ck-vert);
+  color: #fff;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.btn-carthage:hover,
+.btn-carthage:focus {
+  background-color: #1f7a61;
+  border-color: #1f7a61;
+  color: #fff;
+}
+
+.btn-ck-bleu-fonce {
+  background-color: var(--ck-bleu-fonce) !important;
+  border: 1px solid var(--ck-bleu-fonce) !important;
+  color: #fff !important;
+}
+.btn-ck-bleu-fonce:hover,
+.btn-ck-bleu-fonce:focus {
+  background-color: #081a33 !important;
+  border-color: #081a33 !important;
+  color: #fff !important;
+}
+
+.btn-ck-orange {
+  background-color: var(--ck-orange) !important;
+  border: 1px solid var(--ck-orange) !important;
+  color: var(--ck-bleu-fonce) !important;
+  font-weight: 600;
+}
+.btn-ck-orange:hover,
+.btn-ck-orange:focus {
+  background-color: #d88b00 !important;
+  border-color: #d88b00 !important;
+  color: var(--ck-bleu-fonce) !important;
+}
+
+.btn-ck-bleu-clair {
+  background-color: var(--ck-bleu-clair) !important;
+  border: 1px solid var(--ck-bleu-clair) !important;
+  color: #fff !important;
+}
+.btn-ck-bleu-clair:hover,
+.btn-ck-bleu-clair:focus {
+  background-color: #156fc1 !important;
+  border-color: #156fc1 !important;
+  color: #fff !important;
+}
+
+.form-control:focus {
+  border-color: var(--ck-bleu-clair);
+  box-shadow: 0 0 0 0.2rem rgba(28, 136, 235, 0.2);
+}
+
+.text-danger {
+  color: var(--ck-rouge) !important;
+}
+
+.alerte-carthage {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.85rem;
+  border-left: 4px solid transparent;
+  font-size: 0.95rem;
+  animation: apparition-alerte 0.2s ease-out;
+}
+.alerte-carthage-icone {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  margin-top: 0.4rem;
+}
+.alerte-carthage-success {
+  background: #e3f5ef;
+  border-left-color: var(--ck-vert);
+  color: #1c6b57;
+}
+.alerte-carthage-success .alerte-carthage-icone {
+  background: var(--ck-vert);
+}
+.alerte-carthage-danger {
+  background: #ffe3e4;
+  border-left-color: var(--ck-rouge);
+  color: #b81f26;
+}
+.alerte-carthage-danger .alerte-carthage-icone {
+  background: var(--ck-rouge);
+}
+@keyframes apparition-alerte {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-details {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 18px;
+
+  background-color: var(--ck-bleu-fonce);
+  color: white;
+  text-decoration: none;
+
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.btn-details:hover {
+  background-color: var(--ck-orange);
+  color: white;
+}
