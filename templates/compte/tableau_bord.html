@@ -1,21 +1,24 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Tableau de bord — {{ titre }}{% endblock %}
+{% block title %}Tableau de bord - {{ titre }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'compte/tableau_bord.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block sidebar %}
-    {% if titre == "Administrateur" %}
-        {% include "components/menu_admin.html" %}
-    {% elif titre == "Parent" %}
-        {% include "components/menu_parent.html" %}
-    {% elif titre == "Éducateur(trice)" %}
-        {% include "components/menu_educateur.html" %}
-    {% endif %}
+    {% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
     <main>
-        <div class="container py-5 text-center">
-            <h1>Tableau de bord — {{ titre }}</h1>
+        <div class="ck-dashboard-entete">
+            <p class="ck-dashboard-eyebrow">Tableau de bord</p>
+            <h1 class="ck-dashboard-titre">{{ titre }}</h1>
+        </div>
+
+        <div>
             <p class="text-muted">Cet espace est en construction.</p>
         </div>
     </main>

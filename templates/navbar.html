@@ -1,17 +1,24 @@
 {% load static %}
 <nav class="navbar navbar-expand ck-navbar">
   <div class="container d-flex justify-content-between align-items-center">
-    <a class="navbar-brand mb-0" href="{% url 'home' %}">
-      <img src="{% static 'img/logo-carthagekids.png' %}" alt="CarthageKids" class="ck-navbar-logo">
-    </a>
+    <div class="d-flex align-items-center">
+      <button type="button" class="ck-bouton-menu" id="bouton-menu-mobile" aria-label="Ouvrir le menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <a class="navbar-brand mb-0 ck-navbar-marque" href="{% url 'home' %}">
+        <img src="{% static 'img/logo-navbar-carthagekids.png' %}" alt="CarthageKids" class="ck-navbar-logo">
+      </a>
+    </div>
 
     {% if user.is_authenticated %}
       <div class="ck-navbar-compte">
-        <span class="ck-navbar-utilisateur">Connecté : {{ user.get_full_name|default:user.username }}</span>
-        <form method="post" action="{% url 'compte:deconnexion' %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="ck-navbar-bouton-deconnexion">Se déconnecter</button>
-        </form>
+        <div class="ck-navbar-profil">
+          <span class="ck-navbar-avatar">{% if user.first_name %}{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}{% else %}{{ user.username|first|upper }}{% endif %}</span>
+          <span class="ck-navbar-identite">
+            <span class="ck-navbar-nom">{{ user.get_full_name|default:user.username }}</span>
+            <span class="ck-navbar-role">{% if user.is_superuser %}Administrateur{% else %}{{ user.get_role_display }}{% endif %}</span>
+          </span>
+        </div>
       </div>
     {% endif %}
   </div>

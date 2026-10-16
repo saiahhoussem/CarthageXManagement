@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
 from .models import Educateur, User
+from enfants.models import Enfant, Groupe
 
 
 def est_administrateur(user):
@@ -23,6 +24,12 @@ def url_tableau_bord(utilisateur):
     return "compte:connexion"
 
 
+def accueil(request):
+    if request.user.is_authenticated:
+        return redirect(url_tableau_bord(request.user))
+    return redirect("compte:connexion")
+
+
 def connexion(request):
     if request.user.is_authenticated:
         return redirect(url_tableau_bord(request.user))
@@ -35,7 +42,7 @@ def connexion(request):
             if not form.cleaned_data.get("se_souvenir"):
                 request.session.set_expiry(0)
             return redirect(url_tableau_bord(utilisateur))
-        else:
+        elif form.non_field_errors():
             messages.error(request, "Identifiant ou mot de passe incorrect.")
     else:
         form = ConnexionForm(request)
@@ -68,14 +75,21 @@ def creer_compte(request):
 def tableau_bord_admin(request):
     if not est_administrateur(request.user):
         return redirect(url_tableau_bord(request.user))
-    return render(request, "compte/tableau_bord.html", {"titre": "Administrateur"})
+    contexte = {
+        "titre": "Administrateur",
+        "nb_educateurs": User.objects.filter(role=User.Role.EDUCATEUR).count(),
+        "nb_parents": User.objects.filter(role=User.Role.PARENT).count(),
+        "nb_enfants": Enfant.objects.count(),
+        "nb_groupes": Groupe.objects.count(),
+    }
+    return render(request, "compte/tableau_bord.html", contexte)
 
 
 @login_required
 def tableau_bord_educateur(request):
     if request.user.role != User.Role.EDUCATEUR:
         return redirect(url_tableau_bord(request.user))
-    return render(request, "compte/tableau_bord.html", {"titre": "Éducateur(trice)"})
+    return render(request, "compte/tableau_bord.html", {"titre": "Éducateur"})
 
 
 @login_required
@@ -88,7 +102,6 @@ def tableau_bord_parent(request):
 @login_required
 @user_passes_test(est_administrateur)
 def liste_educateurs(request):
-    """Liste toutes les éducatrices (actives et inactives)."""
     educateurs = Educateur.objects.all().order_by("last_name", "first_name")
     return render(
         request,
@@ -100,7 +113,6 @@ def liste_educateurs(request):
 @login_required
 @user_passes_test(est_administrateur)
 def detail_educateur(request, pk):
-    """Détail d'une éducatrice."""
     educateur = get_object_or_404(Educateur, pk=pk)
     return render(
         request,
@@ -112,7 +124,6 @@ def detail_educateur(request, pk):
 @login_required
 @user_passes_test(est_administrateur)
 def modifier_educateur(request, pk):
-    """Modification des informations d'une éducatrice."""
     educateur = get_object_or_404(Educateur, pk=pk)
 
     if request.method == "POST":
@@ -136,7 +147,6 @@ def modifier_educateur(request, pk):
 @login_required
 @user_passes_test(est_administrateur)
 def basculer_statut_educateur(request, pk):
-    """Désactive ou réactive le compte d'une éducatrice (POST uniquement)."""
     educateur = get_object_or_404(Educateur, pk=pk)
 
     if request.method != "POST":

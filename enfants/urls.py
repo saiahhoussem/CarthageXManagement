@@ -6,84 +6,81 @@ urlpatterns = [
     path(
         "mon-groupe/",
         views.mon_groupe,
-        name="mon_groupe"
+        name="mon_groupe",
     ),
     path(
         "mes-enfants/",
         views.mes_enfants,
-        name="mes_enfants"
+        name="mes_enfants",
     ),
     path(
-        "enfant/<int:enfant_id>/", 
-        views.fiche_enfant, 
-        name="fiche_enfant"
-    ),
-
-    path(
-    "enfant/<int:enfant_id>/allergie/ajouter/",
-    views.ajouter_allergie,
-    name="ajouter_allergie"
-    ),
-    
-    path(
-    "allergie/<int:allergie_id>/modifier/",
-    views.modifier_allergie,
-    name="modifier_allergie"
+        "enfant/<int:enfant_id>/",
+        views.fiche_enfant,
+        name="fiche_enfant",
     ),
     path(
-    "allergie/<int:allergie_id>/supprimer/",
-    views.supprimer_allergie,
-    name="supprimer_allergie"
+        "enfant/<int:enfant_id>/allergie/ajouter/",
+        views.ajouter_allergie,
+        name="ajouter_allergie",
     ),
     path(
-    "enfant/<int:enfant_id>/contact/ajouter/",
-    views.ajouter_contact,
-    name="ajouter_contact"
+        "allergie/<int:allergie_id>/modifier/",
+        views.modifier_allergie,
+        name="modifier_allergie",
     ),
     path(
-    "contact/<int:contact_id>/modifier/",
-    views.modifier_contact,
-    name="modifier_contact"
+        "allergie/<int:allergie_id>/supprimer/",
+        views.supprimer_allergie,
+        name="supprimer_allergie",
     ),
     path(
-    "contact/<int:contact_id>/supprimer/",
-    views.supprimer_contact,
-    name="supprimer_contact"
+        "enfant/<int:enfant_id>/contact/ajouter/",
+        views.ajouter_contact,
+        name="ajouter_contact",
     ),
     path(
-    "enfant/<int:enfant_id>/personne_autorisee/ajouter/",
-    views.ajouter_personne_autorisee,
-    name="ajouter_personne_autorisee"
+        "contact/<int:contact_id>/modifier/",
+        views.modifier_contact,
+        name="modifier_contact",
     ),
     path(
-    "personne_autorisee/<int:personne_id>/modifier/",
-    views.modifier_personne_autorisee,
-    name="modifier_personne_autorisee"
+        "contact/<int:contact_id>/supprimer/",
+        views.supprimer_contact,
+        name="supprimer_contact",
     ),
     path(
-    "personne_autorisee/<int:personne_id>/supprimer/",
-    views.supprimer_personne_autorisee,
-    name="supprimer_personne_autorisee"
+        "enfant/<int:enfant_id>/personne_autorisee/ajouter/",
+        views.ajouter_personne_autorisee,
+        name="ajouter_personne_autorisee",
+    ),
+    path(
+        "personne_autorisee/<int:personne_id>/modifier/",
+        views.modifier_personne_autorisee,
+        name="modifier_personne_autorisee",
+    ),
+    path(
+        "personne_autorisee/<int:personne_id>/supprimer/",
+        views.supprimer_personne_autorisee,
+        name="supprimer_personne_autorisee",
+    ),
+    path(
+        "groupes/",
+        views.liste_groupes,
+        name="liste_groupes",
     ),
     path(
         "groupes/ajouter/",
         views.ajouter_groupe,
-        name="ajouter_groupe"
+        name="ajouter_groupe",
     ),
     path(
-    "groupes/<int:groupe_id>/modifier/",
-    views.modifier_groupe,
-    name="modifier_groupe"
+        "groupes/<int:groupe_id>/modifier/",
+        views.modifier_groupe,
+        name="modifier_groupe",
     ),
     path(
-    "groupes/",
-    views.liste_groupes,
-    name="liste_groupes"
-    ),
-    path(
-    "groupes/<int:groupe_id>/supprimer/",
-    views.supprimer_groupe,
-    name="supprimer_groupe"
+        "groupes/<int:groupe_id>/supprimer/",
+        views.supprimer_groupe,
+        name="supprimer_groupe",
     ),
 ]
-

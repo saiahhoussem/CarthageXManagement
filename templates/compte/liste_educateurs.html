@@ -3,12 +3,17 @@
 
 {% block title %}Liste des éducatrices - CarthageKids{% endblock %}
 
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
 {% block content %}
+<main>
 <div class="container mt-4">
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Liste des éducatrices</h2>
-    <a href="{% url 'compte:creer_compte' %}" class="btn btn-primary">
+    <a href="{% url 'compte:creer_compte' %}" class="btn btn-carthage">
       <i class="bi bi-plus-circle"></i> Nouvelle éducatrice
     </a>
   </div>
@@ -47,11 +52,11 @@
           </td>
           <td class="text-end">
             <a href="{% url 'compte:detail_educateur' educ.pk %}"
-               class="btn btn-sm btn-info">
+               class="btn btn-sm btn-ck-bleu-fonce">
               <i class="bi bi-eye"></i> Voir
             </a>
             <a href="{% url 'compte:modifier_educateur' educ.pk %}"
-               class="btn btn-sm btn-warning">
+               class="btn btn-sm btn-ck-orange">
               <i class="bi bi-pencil"></i> Modifier
             </a>
           </td>
@@ -66,4 +71,5 @@
   {% endif %}
 
 </div>
+</main>
 {% endblock %}
