@@ -62,16 +62,11 @@ class GroupeForm(forms.ModelForm):
         model = Groupe
         fields = ["nom", "tranche_age","capacite", "educateur"]
         error_messages = {
-            "nom": {
-                "required": "Veuillez indiquer le nom du groupe."
-            },
-            "tranche_age": {
-                "required": "Veuillez sélectionner une tranche d'âge."
-            },
+            "nom": {"required": "Veuillez indiquer le nom du groupe."},
+            "tranche_age": {"required": "Veuillez sélectionner une tranche d'âge."},
             "capacite": {
                 "required": "Veuillez indiquer la capacité maximale du groupe.",
-                "invalid": "Veuillez entrer un nombre valide."
-            }
+                "invalid": "Veuillez entrer un nombre valide."}
         }
         widgets = {
             "nom": forms.TextInput(
