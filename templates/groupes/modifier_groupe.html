@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier un groupe{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div
+                    class="card-header text-white py-3 rounded-top-4"
+                    style="background-color: #0d274d;"
+                >
+                    <h1 class="h4 mb-1">Modifier le groupe</h1>
+
+                    <p class="mb-0 small opacity-75">
+                        Modifiez les informations du groupe {{ groupe.nom }}.
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {{ form.non_field_errors }}
+
+                        <div class="mb-3">
+                            <label
+                                for="{{ form.nom.id_for_label }}"
+                                class="form-label fw-semibold"
+                            >
+                                Nom du groupe
+                            </label>
+
+                            {{ form.nom }}
+
+                            {% if form.nom.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.nom.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label
+                                for="{{ form.tranche_age.id_for_label }}"
+                                class="form-label fw-semibold"
+                            >
+                                Tranche d'âge
+                            </label>
+
+                            {{ form.tranche_age }}
+
+                            {% if form.tranche_age.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.tranche_age.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label
+                                for="{{ form.capacite.id_for_label }}"
+                                class="form-label fw-semibold"
+                            >
+                                Capacité maximale
+                            </label>
+
+                            {{ form.capacite }}
+
+                            {% if form.capacite.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.capacite.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label
+                                for="{{ form.educateur.id_for_label }}"
+                                class="form-label fw-semibold"
+                            >
+                                Éducateur
+                            </label>
+
+                            {{ form.educateur }}
+
+                            <div class="form-text">
+                                Vous pouvez laisser ce champ vide si aucun éducateur n'est encore assigné.
+                            </div>
+
+                            {% if form.educateur.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.educateur.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a
+                                href="{% url 'liste_groupes' %}"
+                                class="btn btn-outline-secondary px-4"
+                            >
+                                Annuler
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn text-white px-4"
+                                style="background-color: #289b7b;"
+                            >
+                                Enregistrer
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</main>
+{% endblock %}

@@ -406,3 +406,45 @@ def liste_groupes(request):
         "groupes/liste_groupes.html",
         {"groupes": groupes}
     )
+
+@login_required
+def modifier_groupe(request, groupe_id):
+    if not request.user.is_administrateur:
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    groupe = get_object_or_404(Groupe, id=groupe_id)
+
+    if request.method == "POST":
+        form = GroupeForm(request.POST, instance=groupe)
+
+        if form.is_valid():
+            form.save()
+            return redirect("liste_groupes")
+    else:
+        form = GroupeForm(instance=groupe)
+
+    return render(
+        request,
+        "groupes/modifier_groupe.html",
+        {
+            "form": form,
+            "groupe": groupe
+        }
+    )
+
+@login_required
+def supprimer_groupe(request, groupe_id):
+    if not request.user.is_administrateur:
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    groupe = get_object_or_404(Groupe, id=groupe_id)
+
+    if request.method == "POST":
+        groupe.delete()
+        return redirect("liste_groupes")
+
+    return render(
+        request,
+        "groupes/supprimer_groupe.html",
+        {"groupe": groupe}
+    )
