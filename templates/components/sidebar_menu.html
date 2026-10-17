@@ -17,6 +17,15 @@
                     Utilisateurs
                 </a>
             </li>
+            <li>
+                <a
+                    href="{% url 'liste_groupes' %}"
+                    class="{% if url_actif in 'liste_groupes ajouter_groupe modifier_groupe supprimer_groupe' %}active{% endif %}"
+                >
+                    <i class="bi bi-diagram-3"></i>
+                    Groupes
+                </a>
+            </li>
 
         {% elif user.is_educateur %}
 
