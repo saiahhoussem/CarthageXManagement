@@ -394,19 +394,17 @@ def mes_enfants(request):
         "enfants": enfants
     })
 
+
 @login_required
 def ajouter_groupe(request):
-    if not request.user.is_administrateur:
+    if not (request.user.is_administrateur or request.user.is_superuser):
         raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
-    if request.method == "POST":
-        form = GroupeForm(request.POST)
+    form = GroupeForm(request.POST or None)
 
-        if form.is_valid():
-            form.save()
-            return redirect("liste_groupes")
-    else:
-        form = GroupeForm()
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("liste_groupes")
 
     return render(
         request,
@@ -416,7 +414,7 @@ def ajouter_groupe(request):
 
 @login_required
 def liste_groupes(request):
-    if not request.user.is_administrateur:
+    if not (request.user.is_administrateur or request.user.is_superuser):
         raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
     groupes = Groupe.objects.select_related("educateur").all()
@@ -429,7 +427,7 @@ def liste_groupes(request):
 
 @login_required
 def modifier_groupe(request, groupe_id):
-    if not request.user.is_administrateur:
+    if not (request.user.is_administrateur or request.user.is_superuser):
         raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
     groupe = get_object_or_404(Groupe, id=groupe_id)
@@ -454,7 +452,7 @@ def modifier_groupe(request, groupe_id):
 
 @login_required
 def supprimer_groupe(request, groupe_id):
-    if not request.user.is_administrateur:
+    if not (request.user.is_administrateur or request.user.is_superuser):
         raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
     groupe = get_object_or_404(Groupe, id=groupe_id)
