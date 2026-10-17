@@ -1,6 +1,7 @@
 from django import forms
 
 from .models import Allergie, ContactUrgence, Groupe, PersonneAutorisee
+from compte.models import Educateur
 
 
 class AllergieForm(forms.ModelForm):
@@ -89,41 +90,23 @@ class GroupeForm(forms.ModelForm):
         model = Groupe
         fields = ["nom", "tranche_age", "capacite", "educateur"]
 
-        error_messages = {
-            "nom": {
-                "required": "Veuillez indiquer le nom du groupe."
-            },
-            "tranche_age": {
-                "required": "Veuillez sélectionner une tranche d'âge."
-            },
-            "capacite": {
-                "required": "Veuillez indiquer la capacité maximale du groupe.",
-                "invalid": "Veuillez entrer un nombre valide."
-            }
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        widgets = {
-            "nom": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "Nom du groupe"
-                }
-            ),
-            "tranche_age": forms.Select(
-                attrs={
-                    "class": "form-select"
-                }
-            ),
-            "capacite": forms.NumberInput(
-                attrs={
-                    "class": "form-control",
-                    "min": 1,
-                    "placeholder": "Ex. : 10"
-                }
-            ),
-            "educateur": forms.Select(
-                attrs={
-                    "class": "form-select"
-                }
-            ),
-        }
+        educateurs_disponibles = Educateur.objects.filter(
+            groupe__isnull=True
+        )
+
+        if self.instance and self.instance.pk:
+            educateur_actuel = self.instance.educateur
+
+            educateurs_disponibles = (
+                educateurs_disponibles
+                | Educateur.objects.filter(pk=educateur_actuel.pk)
+            )
+
+        self.fields["educateur"].queryset = educateurs_disponibles
+
+        self.aucun_educateur_disponible = (
+            not educateurs_disponibles.exists()
+        )
