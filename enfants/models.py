@@ -41,13 +41,11 @@ class Groupe(models.Model):
         ]
     )
 
-    educateur = models.ForeignKey(
-        "compte.Educateur",
-        on_delete=models.PROTECT,
-        related_name="groupes",
-        null=True,
-        blank=True
-    )
+    educateur = models.OneToOneField(
+    "compte.Educateur",
+    on_delete=models.PROTECT,
+    related_name="groupe"
+)  
 
     def __str__(self):
         return str(self.nom)
