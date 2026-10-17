@@ -151,3 +151,45 @@ h1 {
 .btn-retour i {
     font-size: 17px;
 }
+.form-enfant .champ-formulaire label {
+    display: block;
+    margin-bottom: 8px;
+    color: #0d274d;
+}
+
+.form-enfant .champ-saisie input,
+.form-enfant .champ-saisie textarea,
+.form-enfant .champ-saisie select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-enfant .champ-saisie textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-enfant .champ-saisie input:focus,
+.form-enfant .champ-saisie textarea:focus,
+.form-enfant .champ-saisie select:focus {
+    outline: none;
+    border-color: #289b7b;
+    box-shadow: 0 0 0 0.2rem rgba(40, 155, 123, 0.15);
+}
+
+.form-enfant .form-text {
+    margin-top: 6px;
+    font-size: 0.875rem;
+}
+
+.form-enfant .errorlist {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+}
