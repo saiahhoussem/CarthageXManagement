@@ -48,4 +48,10 @@ urlpatterns = [
         views.basculer_statut_educateur,
         name="basculer_statut_educateur",
     ),
+
+     path(
+        "parents/",
+        views.liste_parents,
+        name="liste_parents",
+    ),
 ]
