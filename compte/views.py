@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
-from .models import Educateur, User
+from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
 
 

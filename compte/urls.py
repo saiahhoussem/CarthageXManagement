@@ -56,7 +56,7 @@ urlpatterns = [
     ),
 
     path(
-        "detail_parent/",
+        "parents/<int:pk>/",
         views.detail_parent,
         name="detail_parent",
     ),
