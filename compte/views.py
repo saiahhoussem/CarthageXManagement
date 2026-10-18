@@ -3,17 +3,14 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
-
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
 from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
-
 
 def est_administrateur(user):
     return user.is_authenticated and (
         user.is_superuser or user.role == User.Role.ADMINISTRATEUR
     )
-
 
 def url_tableau_bord(utilisateur):
     if utilisateur.is_superuser or utilisateur.role == User.Role.ADMINISTRATEUR:
@@ -24,12 +21,10 @@ def url_tableau_bord(utilisateur):
         return "compte:tableau_bord_parent"
     return "compte:connexion"
 
-
 def accueil(request):
     if request.user.is_authenticated:
         return redirect(url_tableau_bord(request.user))
     return redirect("compte:connexion")
-
 
 def connexion(request):
     if request.user.is_authenticated:
@@ -50,8 +45,6 @@ def connexion(request):
 
     return render(request, "compte/connexion.html", {"form": form})
 
-
-# Rôles pouvant être présélectionnés depuis le sidebar (?role=educateur / ?role=parent)
 ROLES_CREATION = {
     "educateur": User.Role.EDUCATEUR,
     "parent": User.Role.PARENT,
@@ -66,9 +59,7 @@ TITRES_CREATION = {
 @login_required
 @user_passes_test(est_administrateur)
 def creer_compte(request):
-    role_param = request.POST.get("role") or request.GET.get("role")
-    role = ROLES_CREATION.get(role_param)
-
+    role_predefini = request.GET.get('role')    
     if request.method == "POST":
         form = CreationCompteForm(request.POST)
         if form.is_valid():
@@ -85,16 +76,11 @@ def creer_compte(request):
         else:
             messages.error(request, "Impossible de créer le compte.")
     else:
-        form = CreationCompteForm(initial={"role": role} if role else None)
-
-    titre_page = TITRES_CREATION.get(role, "Créer un compte utilisateur")
-
-    return render(
-        request,
-        "compte/creer_compte.html",
-        {"form": form, "titre_page": titre_page},
-    )
-
+        initial_data = {}
+        if role_predefini:
+            initial_data['role'] = role_predefini
+        form = CreationCompteForm(initial=initial_data)
+    return render(request, "compte/creer_compte.html", {"form": form})
 
 @login_required
 def tableau_bord_admin(request):
@@ -109,20 +95,17 @@ def tableau_bord_admin(request):
     }
     return render(request, "compte/tableau_bord.html", contexte)
 
-
 @login_required
 def tableau_bord_educateur(request):
     if request.user.role != User.Role.EDUCATEUR:
         return redirect(url_tableau_bord(request.user))
     return render(request, "compte/tableau_bord.html", {"titre": "Éducateur"})
 
-
 @login_required
 def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
         return redirect(url_tableau_bord(request.user))
     return render(request, "compte/tableau_bord.html", {"titre": "Parent"})
-
 
 @login_required
 @user_passes_test(est_administrateur)
@@ -134,7 +117,6 @@ def liste_educateurs(request):
         {"educateurs": educateurs},
     )
 
-
 @login_required
 @user_passes_test(est_administrateur)
 def detail_educateur(request, pk):
@@ -145,12 +127,10 @@ def detail_educateur(request, pk):
         {"educateur": educateur},
     )
 
-
 @login_required
 @user_passes_test(est_administrateur)
 def modifier_educateur(request, pk):
     educateur = get_object_or_404(Educateur, pk=pk)
-
     if request.method == "POST":
         form = ModificationEducateurForm(request.POST, instance=educateur)
         if form.is_valid():
@@ -168,22 +148,17 @@ def modifier_educateur(request, pk):
         {"form": form, "educateur": educateur},
     )
 
-
 @login_required
 @user_passes_test(est_administrateur)
 def basculer_statut_educateur(request, pk):
     educateur = get_object_or_404(Educateur, pk=pk)
-
     if request.method != "POST":
         return redirect("compte:detail_educateur", pk=pk)
-
     if educateur.pk == request.user.pk:
         messages.error(request, "Vous ne pouvez pas désactiver votre propre compte.")
         return redirect("compte:detail_educateur", pk=pk)
-
     educateur.is_active = not educateur.is_active
     educateur.save(update_fields=["is_active"])
-
     statut = "activé" if educateur.is_active else "désactivé"
     messages.success(request, f"Le compte de {educateur} a été {statut}.")
     return redirect("compte:detail_educateur", pk=pk)
