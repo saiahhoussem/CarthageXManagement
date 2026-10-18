@@ -172,3 +172,13 @@ def liste_parents(request):
         "compte/liste_parents.html",
         {"parents": parents},
     )
+
+@login_required
+@user_passes_test(est_administrateur)
+def detail_parent(request, pk):
+    parent = get_object_or_404(Parent, pk=pk)
+    return render(
+        request,
+        "compte/detail_parent.html",
+        {"parent": parent},
+    )
