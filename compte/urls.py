@@ -54,4 +54,10 @@ urlpatterns = [
         views.liste_parents,
         name="liste_parents",
     ),
+
+    path(
+        "detail_parent/",
+        views.detail_parent,
+        name="detail_parent",
+    ),
 ]
