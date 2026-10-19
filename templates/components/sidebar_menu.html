@@ -72,6 +72,13 @@
             </li>
 
             <li>
+                <a href="{% url 'mes_demandes_inscription' %}" class="{% if url_actif in 'mes_demandes_inscription creer_demande_inscription modifier_demande_inscription supprimer_demande_inscription' %}active{% endif %}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    Demandes d'inscription
+                </a>
+            </li>
+
+            <li>
                 <a href="#">
                     <i class="bi bi-calendar3"></i>
                     Calendrier
