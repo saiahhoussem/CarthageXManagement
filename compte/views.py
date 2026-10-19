@@ -176,7 +176,6 @@ def liste_parents(request):
         {"parents": parents},
     )
 
-
 @login_required
 @user_passes_test(est_administrateur)
 def detail_parent(request, pk):
@@ -185,4 +184,26 @@ def detail_parent(request, pk):
         request,
         "compte/detail_parent.html",
         {"parent": parent},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def modifier_parent(request, pk):
+    parent = get_object_or_404(Parent, pk=pk)
+
+    if request.method == "POST":
+        form = ModificationEducateurForm(request.POST, instance=parent)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Les informations du parent ont été mises à jour.")
+            return redirect("compte:detail_parent", pk=parent.pk)
+        else:
+            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
+    else:
+        form = ModificationEducateurForm(instance=parent)
+
+    return render(
+        request,
+        "compte/modifier_parent.html",
+        {"form": form, "parent": parent},
     )
