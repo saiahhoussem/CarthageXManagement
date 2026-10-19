@@ -49,15 +49,19 @@ urlpatterns = [
         name="basculer_statut_educateur",
     ),
 
-     path(
+    path(
         "parents/",
         views.liste_parents,
         name="liste_parents",
     ),
-
     path(
         "parents/<int:pk>/",
         views.detail_parent,
         name="detail_parent",
+    ),
+    path(
+        "parents/<int:pk>/modifier/",
+        views.modifier_parent,
+        name="modifier_parent",
     ),
 ]
