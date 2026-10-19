@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
-from .models import Educateur, User
+from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
 
 
@@ -162,3 +162,23 @@ def basculer_statut_educateur(request, pk):
     statut = "activé" if educateur.is_active else "désactivé"
     messages.success(request, f"Le compte de {educateur} a été {statut}.")
     return redirect("compte:detail_educateur", pk=pk)
+
+@login_required
+@user_passes_test(est_administrateur)
+def liste_parents(request):
+    parents = Parent.objects.all().order_by("last_name", "first_name")
+    return render(
+        request,
+        "compte/liste_parents.html",
+        {"parents": parents},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def detail_parent(request, pk):
+    parent = get_object_or_404(Parent, pk=pk)
+    return render(
+        request,
+        "compte/detail_parent.html",
+        {"parent": parent},
+    )
