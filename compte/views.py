@@ -59,7 +59,8 @@ TITRES_CREATION = {
 @login_required
 @user_passes_test(est_administrateur)
 def creer_compte(request):
-    role_predefini = request.GET.get('role')    
+    role_predefini = request.GET.get('role')
+    
     if request.method == "POST":
         form = CreationCompteForm(request.POST)
         if form.is_valid():
@@ -80,6 +81,7 @@ def creer_compte(request):
         if role_predefini:
             initial_data['role'] = role_predefini
         form = CreationCompteForm(initial=initial_data)
+
     return render(request, "compte/creer_compte.html", {"form": form})
 
 @login_required
