@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Modifier la demande d'inscription{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'enfants/fiche_enfant.css' %}">
+{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+<div class="container py-5 fiche-enfant">
+
+    <h1 class="fw-semibold mb-2">Modifier la demande d'inscription</h1>
+
+    <p class="text-muted mb-4">
+        Enfant : {{ demande.prenom_enfant }} {{ demande.nom_enfant }}
+    </p>
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h2 class="h5 mb-0">Informations sur l'enfant</h2>
+        </div>
+
+        <div class="card-body">
+
+            <form method="post" novalidate>
+
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label for="{{ form.prenom_enfant.id_for_label }}" class="form-label">
+                            {{ form.prenom_enfant.label }}
+                        </label>
+                        {{ form.prenom_enfant }}
+                        {% for erreur in form.prenom_enfant.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.nom_enfant.id_for_label }}" class="form-label">
+                            {{ form.nom_enfant.label }}
+                        </label>
+                        {{ form.nom_enfant }}
+                        {% for erreur in form.nom_enfant.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.date_naissance.id_for_label }}" class="form-label">
+                            {{ form.date_naissance.label }}
+                        </label>
+                        {{ form.date_naissance }}
+                        {% for erreur in form.date_naissance.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label for="{{ form.note.id_for_label }}" class="form-label">
+                            {{ form.note.label }}
+                        </label>
+                        {{ form.note }}
+                        {% for erreur in form.note.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+
+                    <button type="submit" class="btn btn-success">
+                        Enregistrer
+                    </button>
+
+                    <a href="{% url 'mes_demandes_inscription' %}" class="btn btn-secondary">
+                        Annuler
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+{% endblock %}
