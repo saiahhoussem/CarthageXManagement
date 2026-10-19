@@ -207,3 +207,18 @@ def modifier_parent(request, pk):
         "compte/modifier_parent.html",
         {"form": form, "parent": parent},
     )
+
+@login_required
+@user_passes_test(est_administrateur)
+def basculer_statut_parent(request, pk):
+    parent = get_object_or_404(Parent, pk=pk)
+
+    if request.method != "POST":
+        return redirect("compte:detail_parent", pk=pk)
+
+    parent.is_active = not parent.is_active
+    parent.save(update_fields=["is_active"])
+
+    statut = "activé" if parent.is_active else "désactivé"
+    messages.success(request, f"Le compte de {parent} a été {statut}.")
+    return redirect("compte:detail_parent", pk=pk)
