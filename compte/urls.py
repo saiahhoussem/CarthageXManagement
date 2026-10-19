@@ -64,4 +64,9 @@ urlpatterns = [
         views.modifier_parent,
         name="modifier_parent",
     ),
+        path(
+        "parents/<int:pk>/basculer/",
+        views.basculer_statut_parent,
+        name="basculer_statut_parent",
+    ),
 ]
