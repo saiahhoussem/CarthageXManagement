@@ -14,6 +14,26 @@ urlpatterns = [
         name="mes_enfants",
     ),
     path(
+        "mes-demandes-inscription/",
+        views.mes_demandes_inscription,
+        name="mes_demandes_inscription",
+    ),
+    path(
+        "demande-inscription/creer/",
+        views.creer_demande_inscription,
+        name="creer_demande_inscription",
+    ),
+    path(
+        "demande-inscription/<int:demande_id>/modifier/",
+        views.modifier_demande_inscription,
+        name="modifier_demande_inscription",
+    ),
+    path(
+        "demande-inscription/<int:demande_id>/supprimer/",
+        views.supprimer_demande_inscription,
+        name="supprimer_demande_inscription",
+    ),
+    path(
         "enfant/<int:enfant_id>/",
         views.fiche_enfant,
         name="fiche_enfant",
