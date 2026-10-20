@@ -103,4 +103,9 @@ urlpatterns = [
         views.supprimer_groupe,
         name="supprimer_groupe",
     ),
+    path(
+        "demandes-inscription/",
+        views.liste_demandes_inscription,
+        name="liste_demandes_inscription",
+    ),
 ]

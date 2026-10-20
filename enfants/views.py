@@ -597,3 +597,17 @@ def supprimer_demande_inscription(request, demande_id):
     return render(request, "enfants/supprimer_demande_inscription.html", {
         "demande": demande
     })
+
+
+@login_required
+def liste_demandes_inscription(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    demandes = DemandeInscription.objects.select_related("parent").order_by(
+        "-date_creation"
+    )
+
+    return render(request, "enfants/liste_demandes_inscription.html", {
+        "demandes": demandes
+    })
