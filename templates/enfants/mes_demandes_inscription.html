@@ -18,12 +18,6 @@
         </a>
     </div>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
     {% if demandes %}
         <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
