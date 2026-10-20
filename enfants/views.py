@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.db.models.deletion import ProtectedError
+from django.contrib import messages
 from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe
 from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
@@ -458,7 +461,33 @@ def supprimer_groupe(request, groupe_id):
     groupe = get_object_or_404(Groupe, id=groupe_id)
 
     if request.method == "POST":
-        groupe.delete()
+
+        if groupe.enfant_set.exists():
+            messages.error(
+                request,
+                (
+                    f'Impossible de supprimer le groupe "{groupe.nom}" '
+                    "car il contient encore au moins un enfant. "
+                    "Veuillez d'abord réaffecter ou retirer les enfants du groupe."
+                )
+            )
+            return redirect("liste_groupes")
+
+        try:
+            nom_groupe = groupe.nom
+            groupe.delete()
+
+            messages.success(
+                request,
+                f'Le groupe "{nom_groupe}" a été supprimé avec succès.'
+            )
+
+        except ProtectedError:
+            messages.error(
+                request,
+                f'Impossible de supprimer le groupe "{groupe.nom}".'
+            )
+
         return redirect("liste_groupes")
 
     return render(
