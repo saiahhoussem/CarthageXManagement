@@ -31,6 +31,15 @@
 
                 {% csrf_token %}
 
+                {% if form.aucun_educateur_disponible %}
+                    <div class="alert alert-info">
+                        Aucun éducateur n'est actuellement disponible. Vous pouvez créer
+                        le groupe maintenant et lui assigner un éducateur plus tard, mais
+                        le groupe ne pourra pas accueillir d'enfants tant qu'aucun
+                        éducateur ne lui sera assigné.
+                    </div>
+                {% endif %}
+
                 <div class="row g-3">
 
                     <div class="col-md-6">
@@ -77,15 +86,6 @@
                     </div>
 
                 </div>
-
-                {% if form.aucun_educateur_disponible %}
-                    <div class="alert alert-info mt-3">
-                        Aucun éducateur n'est actuellement disponible. Vous pouvez créer
-                        le groupe maintenant et lui assigner un éducateur plus tard, mais
-                        le groupe ne pourra pas accueillir d'enfants tant qu'aucun
-                        éducateur ne lui sera assigné.
-                    </div>
-                {% endif %}
 
                 {% for erreur in form.non_field_errors %}
                     <div class="text-danger small mt-3">
