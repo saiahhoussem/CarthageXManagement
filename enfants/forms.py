@@ -139,10 +139,11 @@ class GroupeForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             educateur_actuel = self.instance.educateur
 
-            educateurs_disponibles = (
-                educateurs_disponibles
-                | Educateur.objects.filter(pk=educateur_actuel.pk)
-            )
+            if educateur_actuel is not None:
+                educateurs_disponibles = (
+                    educateurs_disponibles
+                    | Educateur.objects.filter(pk=educateur_actuel.pk)
+                )
 
         self.fields["educateur"].queryset = educateurs_disponibles
 

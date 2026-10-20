@@ -65,7 +65,10 @@
 
                     <div class="col-md-6">
                         <label for="{{ form.educateur.id_for_label }}" class="form-label">
-                            {{ form.educateur.label }} <span class="champ-requis">*</span>
+                            {{ form.educateur.label }}
+                            {% if form.educateur.field.required %}
+                                <span class="champ-requis">*</span>
+                            {% endif %}
                         </label>
                         {{ form.educateur }}
                         {% for erreur in form.educateur.errors %}
@@ -76,9 +79,11 @@
                 </div>
 
                 {% if form.aucun_educateur_disponible %}
-                    <div class="alert alert-warning mt-3">
-                        Aucun éducateur n'est actuellement disponible.
-                        Tous les éducateurs sont déjà assignés à un groupe.
+                    <div class="alert alert-info mt-3">
+                        Aucun éducateur n'est actuellement disponible. Vous pouvez créer
+                        le groupe maintenant et lui assigner un éducateur plus tard, mais
+                        le groupe ne pourra pas accueillir d'enfants tant qu'aucun
+                        éducateur ne lui sera assigné.
                     </div>
                 {% endif %}
 
@@ -93,7 +98,6 @@
                     <button
                         type="submit"
                         class="btn btn-success"
-                        {% if form.aucun_educateur_disponible %}disabled{% endif %}
                     >
                         Ajouter le groupe
                     </button>

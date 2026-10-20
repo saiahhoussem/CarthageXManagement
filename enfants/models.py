@@ -42,15 +42,17 @@ class Groupe(models.Model):
     )
 
     educateur = models.OneToOneField(
-    "compte.Educateur",
-    on_delete=models.PROTECT,
-    related_name="groupe"
-)  
+        "compte.Educateur",
+        on_delete=models.PROTECT,
+        related_name="groupe",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return str(self.nom)
-    
-           
+
+
 class Enfant(models.Model):
     prenom = models.CharField(
         max_length=100,
@@ -85,6 +87,13 @@ class Enfant(models.Model):
             raise ValidationError({
                 "date_naissance":
                     "La date de naissance doit être dans le passé."
+            })
+
+        if self.groupe_id and self.groupe.educateur_id is None:
+            raise ValidationError({
+                "groupe":
+                    "Ce groupe n'a pas encore d'éducateur assigné et ne "
+                    "peut donc pas accueillir d'enfants."
             })
 
     def __str__(self):
