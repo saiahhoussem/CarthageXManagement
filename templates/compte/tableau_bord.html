@@ -103,6 +103,101 @@
 
         </div>
 
+        <div class="ck-actions-rapides">
+
+            <div class="ck-actions-rapides-entete">
+
+                <div>
+                    <p class="ck-actions-rapides-eyebrow">
+                        Gestion
+                    </p>
+
+                    <h2 class="ck-actions-rapides-titre">
+                        Actions rapides
+                    </h2>
+                </div>
+
+
+            </div>
+
+            <div class="ck-actions-rapides-carte">
+
+                <a href="{% url 'ajouter_groupe' %}" class="ck-action-rapide">
+
+                    <div class="ck-action-rapide-icone ck-action-rapide-icone--vert">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+
+                    <div class="ck-action-rapide-contenu">
+
+                        <p class="ck-action-rapide-titre">
+                            Ajouter un groupe
+                        </p>
+
+                        <p class="ck-action-rapide-description">
+                            Créer un nouveau groupe.
+                        </p>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right ck-action-rapide-fleche"></i>
+
+                </a>
+
+                <a
+                    href="{% url 'compte:creer_compte' %}?role=educateur"
+                    class="ck-action-rapide"
+                >
+
+                    <div class="ck-action-rapide-icone ck-action-rapide-icone--bleu">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+
+                    <div class="ck-action-rapide-contenu">
+
+                        <p class="ck-action-rapide-titre">
+                            Ajouter un éducateur
+                        </p>
+
+                        <p class="ck-action-rapide-description">
+                            Créer un nouveau compte éducateur.
+                        </p>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right ck-action-rapide-fleche"></i>
+
+                </a>
+
+                <a
+                    href="{% url 'compte:creer_compte' %}?role=parent"
+                    class="ck-action-rapide"
+                >
+
+                    <div class="ck-action-rapide-icone ck-action-rapide-icone--orange">
+                        <i class="bi bi-person-add"></i>
+                    </div>
+
+                    <div class="ck-action-rapide-contenu">
+
+                        <p class="ck-action-rapide-titre">
+                            Ajouter un parent
+                        </p>
+
+                        <p class="ck-action-rapide-description">
+                            Créer un nouveau compte parent.
+                        </p>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right ck-action-rapide-fleche"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
     {% else %}
 
         <div class="alert alert-light border">
