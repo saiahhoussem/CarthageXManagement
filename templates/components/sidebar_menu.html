@@ -1,94 +1,180 @@
 {% with url_actif=request.resolver_match.url_name %}
+
 <nav class="ck-sidebar">
 
-    <ul>
+    <ul id="accordion-sidebar">
+
         {% if user.is_administrateur or user.is_superuser %}
 
-        <li>
-            <a href="{% url 'compte:tableau_bord_admin' %}"
-                class="{% if url_actif == 'tableau_bord_admin' %}active{% endif %}">
-                <i class="bi bi-house"></i>
-                Accueil
-            </a>
-        </li>
+            <li>
+                <a
+                    href="{% url 'compte:tableau_bord_admin' %}"
+                    class="{% if url_actif == 'tableau_bord_admin' %}active{% endif %}"
+                >
+                    <i class="bi bi-house"></i>
+                    Accueil
+                </a>
+            </li>
 
-        <li>
-            <a href="#sous-menu-educateurs" data-bs-toggle="collapse" role="button" aria-expanded="false"
-                aria-controls="sous-menu-educateurs"
-                class="d-flex justify-content-between align-items-center {% if url_actif in 'liste_educateurs detail_educateur modifier_educateur' or url_actif == 'creer_compte' and request.GET.role == 'educateur' %}active{% endif %}">
-                <span>
-                    <i class="bi bi-person-badge"></i>
-                    Éducateurs
-                </span>
-                <i class="bi bi-chevron-down"></i>
-            </a>
+            <li>
+                <a
+                    href="#sous-menu-educateurs"
+                    data-bs-toggle="collapse"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="sous-menu-educateurs"
+                    class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_educateurs' or url_actif == 'detail_educateur' or url_actif == 'modifier_educateur' or url_actif == 'creer_compte' and request.GET.role == 'educateur' %}active{% endif %}"
+                >
+                    <span>
+                        <i class="bi bi-person-badge"></i>
+                        Éducateurs
+                    </span>
 
-            <div class="collapse {% if url_actif in 'liste_educateurs detail_educateur modifier_educateur' or url_actif == 'creer_compte' and request.GET.role == 'educateur' %}show{% endif %}"
-                id="sous-menu-educateurs" data-bs-parent="#accordion-sidebar">
-                <ul class="list-unstyled ms-4 mt-1">
-                    <li>
-                        <a href="{% url 'compte:liste_educateurs' %}"
-                            class="{% if url_actif in 'liste_educateurs detail_educateur modifier_educateur' %}active{% endif %}">
-                            Tous les éducateurs
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'compte:creer_compte' %}?role=educateur"
-                            class="{% if url_actif == 'creer_compte' and request.GET.role == 'educateur' %}active{% endif %}">
-                            Ajouter un éducateur
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                    <i class="bi bi-chevron-down"></i>
+                </a>
 
-        <li>
-            <a href="#sous-menu-parents" data-bs-toggle="collapse" role="button" aria-expanded="false"
-                aria-controls="sous-menu-parents"
-                class="d-flex justify-content-between align-items-center {% if url_actif in 'liste_parents detail_parent' or url_actif == 'creer_compte' and request.GET.role == 'parent' %}active{% endif %}">
-                <span>
-                    <i class="bi bi-people"></i>
-                    Parents
-                </span>
-                <i class="bi bi-chevron-down"></i>
-            </a>
+                <div
+                    class="collapse {% if url_actif == 'liste_educateurs' or url_actif == 'detail_educateur' or url_actif == 'modifier_educateur' or url_actif == 'creer_compte' and request.GET.role == 'educateur' %}show{% endif %}"
+                    id="sous-menu-educateurs"
+                    data-bs-parent="#accordion-sidebar"
+                >
+                    <ul class="list-unstyled ms-4 mt-1">
 
-            <div class="collapse {% if url_actif in 'liste_parents detail_parent' or url_actif == 'creer_compte' and request.GET.role == 'parent' %}show{% endif %}"
-                id="sous-menu-parents" data-bs-parent="#accordion-sidebar">
-                <ul class="list-unstyled ms-4 mt-1">
-                    <li>
-                        <a href="{% url 'compte:liste_parents' %}"
-                            class="{% if url_actif in 'liste_parents detail_parent' %}active{% endif %}">
-                            Tous les parents
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'compte:creer_compte' %}?role=parent"
-                            class="{% if url_actif == 'creer_compte' and request.GET.role == 'parent' %}active{% endif %}">
-                            Ajouter un parent
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                        <li>
+                            <a
+                                href="{% url 'compte:liste_educateurs' %}"
+                                class="{% if url_actif == 'liste_educateurs' or url_actif == 'detail_educateur' or url_actif == 'modifier_educateur' %}active{% endif %}"
+                            >
+                                Tous les éducateurs
+                            </a>
+                        </li>
 
+                        <li>
+                            <a
+                                href="{% url 'compte:creer_compte' %}?role=educateur"
+                                class="{% if url_actif == 'creer_compte' and request.GET.role == 'educateur' %}active{% endif %}"
+                            >
+                                Ajouter un éducateur
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+
+            <li>
+                <a
+                    href="#sous-menu-parents"
+                    data-bs-toggle="collapse"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="sous-menu-parents"
+                    class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_parents' or url_actif == 'detail_parent' or url_actif == 'creer_compte' and request.GET.role == 'parent' %}active{% endif %}"
+                >
+                    <span>
+                        <i class="bi bi-people"></i>
+                        Parents
+                    </span>
+
+                    <i class="bi bi-chevron-down"></i>
+                </a>
+
+                <div
+                    class="collapse {% if url_actif == 'liste_parents' or url_actif == 'detail_parent' or url_actif == 'creer_compte' and request.GET.role == 'parent' %}show{% endif %}"
+                    id="sous-menu-parents"
+                    data-bs-parent="#accordion-sidebar"
+                >
+                    <ul class="list-unstyled ms-4 mt-1">
+
+                        <li>
+                            <a
+                                href="{% url 'compte:liste_parents' %}"
+                                class="{% if url_actif == 'liste_parents' or url_actif == 'detail_parent' %}active{% endif %}"
+                            >
+                                Tous les parents
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="{% url 'compte:creer_compte' %}?role=parent"
+                                class="{% if url_actif == 'creer_compte' and request.GET.role == 'parent' %}active{% endif %}"
+                            >
+                                Ajouter un parent
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+
+            <li>
+                <a
+                    href="#sous-menu-groupes"
+                    data-bs-toggle="collapse"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="sous-menu-groupes"
+                    class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_groupes' or url_actif == 'ajouter_groupe' or url_actif == 'modifier_groupe' or url_actif == 'supprimer_groupe' %}active{% endif %}"
+                >
+                    <span>
+                        <i class="bi bi-diagram-3"></i>
+                        Groupes
+                    </span>
+
+                    <i class="bi bi-chevron-down"></i>
+                </a>
+
+                <div
+                    class="collapse {% if url_actif == 'liste_groupes' or url_actif == 'ajouter_groupe' or url_actif == 'modifier_groupe' or url_actif == 'supprimer_groupe' %}show{% endif %}"
+                    id="sous-menu-groupes"
+                    data-bs-parent="#accordion-sidebar"
+                >
+                    <ul class="list-unstyled ms-4 mt-1">
+
+                        <li>
+                            <a
+                                href="{% url 'liste_groupes' %}"
+                                class="{% if url_actif == 'liste_groupes' or url_actif == 'modifier_groupe' or url_actif == 'supprimer_groupe' %}active{% endif %}"
+                            >
+                                Tous les groupes
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="{% url 'ajouter_groupe' %}"
+                                class="{% if url_actif == 'ajouter_groupe' %}active{% endif %}"
+                            >
+                                Ajouter un groupe
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
 
         {% elif user.is_educateur %}
 
-        <li>
-            <a href="{% url 'compte:tableau_bord_educateur' %}"
-                class="{% if url_actif == 'tableau_bord_educateur' %}active{% endif %}">
-                <i class="bi bi-house"></i>
-                Accueil
-            </a>
-        </li>
+            <li>
+                <a
+                    href="{% url 'compte:tableau_bord_educateur' %}"
+                    class="{% if url_actif == 'tableau_bord_educateur' %}active{% endif %}"
+                >
+                    <i class="bi bi-house"></i>
+                    Accueil
+                </a>
+            </li>
 
-        <li>
-            <a href="{% url 'mon_groupe' %}" class="{% if url_actif in 'mon_groupe fiche_enfant' %}active{% endif %}">
-                <i class="bi bi-people"></i>
-                Mon groupe
-            </a>
-        </li>
+            <li>
+                <a
+                    href="{% url 'mon_groupe' %}"
+                    class="{% if url_actif == 'mon_groupe' or url_actif == 'fiche_enfant' %}active{% endif %}"
+                >
+                    <i class="bi bi-people"></i>
+                    Mon groupe
+                </a>
+            </li>
 
         <li>
             <a href="#">
@@ -164,16 +250,22 @@
         </li>
 
         {% endif %}
+
     </ul>
 
     <div class="logout">
-        <form method="post" action="{% url 'compte:deconnexion' %}">
+        <form
+            method="post"
+            action="{% url 'compte:deconnexion' %}"
+        >
             {% csrf_token %}
+
             <button type="submit">
                 <i class="bi bi-box-arrow-right"></i>
                 Déconnexion
             </button>
         </form>
     </div>
+
 </nav>
 {% endwith %}

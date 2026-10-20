@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .models import Enfant, Allergie, ContactUrgence, DemandeInscription, PersonneAutorisee, Groupe
-from .forms import AllergieForm, ContactUrgenceForm, DemandeInscriptionForm, PersonneAutoriseeForm
+from django.db.models.deletion import ProtectedError
+from django.contrib import messages
+from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
+from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm,DemandeInscriptionForm
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
@@ -396,6 +399,102 @@ def mes_enfants(request):
 
 
 @login_required
+def ajouter_groupe(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    form = GroupeForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("liste_groupes")
+
+    return render(
+        request,
+        "groupes/ajouter_groupe.html",
+        {"form": form}
+    )
+
+@login_required
+def liste_groupes(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    groupes = Groupe.objects.select_related("educateur").all()
+
+    return render(
+        request,
+        "groupes/liste_groupes.html",
+        {"groupes": groupes}
+    )
+
+@login_required
+def modifier_groupe(request, groupe_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    groupe = get_object_or_404(Groupe, id=groupe_id)
+
+    if request.method == "POST":
+        form = GroupeForm(request.POST, instance=groupe)
+
+        if form.is_valid():
+            form.save()
+            return redirect("liste_groupes")
+    else:
+        form = GroupeForm(instance=groupe)
+
+    return render(
+        request,
+        "groupes/modifier_groupe.html",
+        {
+            "form": form,
+            "groupe": groupe
+        }
+    )
+
+@login_required
+def supprimer_groupe(request, groupe_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    groupe = get_object_or_404(Groupe, id=groupe_id)
+
+    if request.method == "POST":
+
+        if groupe.enfant_set.exists():
+            messages.error(
+                request,
+                (
+                    f'Impossible de supprimer le groupe "{groupe.nom}" '
+                    "car il contient encore au moins un enfant. "
+                    "Veuillez d'abord réaffecter ou retirer les enfants du groupe."
+                )
+            )
+            return redirect("liste_groupes")
+
+        try:
+            nom_groupe = groupe.nom
+            groupe.delete()
+
+            messages.success(
+                request,
+                f'Le groupe "{nom_groupe}" a été supprimé avec succès.'
+            )
+
+        except ProtectedError:
+            messages.error(
+                request,
+                f'Impossible de supprimer le groupe "{groupe.nom}".'
+            )
+
+        return redirect("liste_groupes")
+
+    return render(
+        request,
+        "groupes/supprimer_groupe.html",
+        {"groupe": groupe}
+    )
 def mes_demandes_inscription(request):
     if not request.user.is_parent:
         raise PermissionDenied(

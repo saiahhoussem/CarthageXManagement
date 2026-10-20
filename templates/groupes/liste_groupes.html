@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des groupes{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: #0d274d;">
+                Gestion des groupes
+            </h1>
+            <p class="text-muted mb-0">
+                Consultez et gérez les groupes de la garderie.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'ajouter_groupe' %}"
+            class="btn text-white mt-3 mt-md-0 px-4"
+            style="background-color: #289b7b;"
+        >
+            <i class="bi bi-plus-circle me-2"></i>
+            Ajouter un groupe
+        </a>
+    </div>
+
+    {% if groupes %}
+
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+
+            <div
+                class="card-header text-white py-3"
+                style="background-color: #0d274d;"
+            >
+                <h2 class="h5 mb-0">
+                    Groupes disponibles
+                </h2>
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3">Nom</th>
+                            <th class="py-3">Tranche d'âge</th>
+                            <th class="py-3">Capacité</th>
+                            <th class="py-3">Éducateur</th>
+                            <th class="py-3 text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for groupe in groupes %}
+
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    {{ groupe.nom }}
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="badge rounded-pill px-3 py-2"
+                                        style="background-color: #289b7b;"
+                                    >
+                                        {{ groupe.get_tranche_age_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ groupe.capacite }} enfants
+                                </td>
+
+                                <td>
+                                    {% if groupe.educateur %}
+
+                                        {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            Non assigné
+                                        </span>
+
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end">
+
+                                    <a
+                                        href="{% url 'modifier_groupe' groupe.id %}"
+                                        class="btn btn-sm text-white"
+                                        style="background-color: #f49f02;"
+                                    >
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        Modifier
+                                    </a>
+
+                                </td>
+                                <td>
+                                    <a
+                                        href="{% url 'supprimer_groupe' groupe.id %}"
+                                        class="btn btn-sm btn-danger"
+                                    >
+                                        <i class="bi bi-trash me-1"></i>
+                                        Supprimer
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+
+                <i
+                    class="bi bi-people fs-1"
+                    style="color: #289b7b;"
+                ></i>
+
+                <h2
+                    class="h5 mt-3"
+                    style="color: #0d274d;"
+                >
+                    Aucun groupe
+                </h2>
+
+                <p class="text-muted">
+                    Aucun groupe n'a encore été créé.
+                </p>
+
+                <a
+                    href="{% url 'ajouter_groupe' %}"
+                    class="btn text-white px-4"
+                    style="background-color: #289b7b;"
+                >
+                    Créer un premier groupe
+                </a>
+
+            </div>
+        </div>
+
+    {% endif %}
+
+</main>
+{% endblock %}

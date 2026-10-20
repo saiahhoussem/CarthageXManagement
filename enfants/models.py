@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.validators import MinLengthValidator, RegexValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -9,8 +9,12 @@ telephone_validator = RegexValidator(
     message="Le numéro de téléphone doit contenir 10 chiffres."
 )
 
-
 class Groupe(models.Model):
+    class TrancheAge(models.TextChoices):
+        BEBE = "0-18", "0 à 18 mois"
+        TROTTEUR = "18-36", "18 à 36 mois"
+        PRESCOLAIRE = "36-60", "3 à 5 ans"
+
     nom = models.CharField(
         max_length=100,
         validators=[
@@ -21,18 +25,32 @@ class Groupe(models.Model):
         ]
     )
 
-    educateur = models.ForeignKey(
-        "compte.Educateur",
-        on_delete=models.PROTECT,
-        related_name="groupes",
-        null=True,
-        blank=True
+    tranche_age = models.CharField(
+        max_length=20,
+        choices=TrancheAge.choices
     )
 
+    capacite = models.PositiveIntegerField(
+        default=10,
+        verbose_name="Capacité maximale",
+        validators=[
+            MinValueValidator(
+                1,
+                "La capacité du groupe doit être d'au moins 1 enfant."
+            )
+        ]
+    )
+
+    educateur = models.OneToOneField(
+    "compte.Educateur",
+    on_delete=models.PROTECT,
+    related_name="groupe"
+)  
+
     def __str__(self):
-        return self.nom
-
-
+        return str(self.nom)
+    
+           
 class Enfant(models.Model):
     prenom = models.CharField(
         max_length=100,

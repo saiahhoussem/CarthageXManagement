@@ -83,4 +83,24 @@ urlpatterns = [
         views.supprimer_personne_autorisee,
         name="supprimer_personne_autorisee",
     ),
+    path(
+        "groupes/",
+        views.liste_groupes,
+        name="liste_groupes",
+    ),
+    path(
+        "groupes/ajouter/",
+        views.ajouter_groupe,
+        name="ajouter_groupe",
+    ),
+    path(
+        "groupes/<int:groupe_id>/modifier/",
+        views.modifier_groupe,
+        name="modifier_groupe",
+    ),
+    path(
+        "groupes/<int:groupe_id>/supprimer/",
+        views.supprimer_groupe,
+        name="supprimer_groupe",
+    ),
 ]
