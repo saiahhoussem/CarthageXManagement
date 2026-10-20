@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Supprimer la demande d'inscription{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'enfants/fiche_enfant.css' %}">
+{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+<div class="container py-5 fiche-enfant">
+
+    <h1 class="fw-semibold mb-4">Supprimer la demande d'inscription</h1>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <p>
+                Voulez-vous vraiment supprimer cette demande d'inscription ?
+            </p>
+
+            <p>
+                <strong>Enfant :</strong>
+                {{ demande.prenom_enfant }} {{ demande.nom_enfant }}
+            </p>
+
+            <p>
+                <strong>Date de naissance :</strong>
+                {{ demande.date_naissance }}
+            </p>
+
+            <form method="post" class="mt-4">
+
+                {% csrf_token %}
+
+                <button type="submit" class="btn btn-danger">
+                    Oui, supprimer
+                </button>
+
+                <a href="{% url 'mes_demandes_inscription' %}" class="btn btn-secondary">
+                    Annuler
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+{% endblock %}

@@ -151,3 +151,7 @@ h1 {
 .btn-retour i {
     font-size: 17px;
 }
+
+.champ-requis {
+    color: var(--ck-rouge);
+}

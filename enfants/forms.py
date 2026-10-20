@@ -1,5 +1,5 @@
 from django import forms
-from .models import Allergie, ContactUrgence, PersonneAutorisee
+from .models import Allergie, ContactUrgence, DemandeInscription, PersonneAutorisee
 
 
 class AllergieForm(forms.ModelForm):
@@ -18,6 +18,45 @@ class AllergieForm(forms.ModelForm):
             "type_allergie": {"required": "Le type de l'allergie est obligatoire."},
             "reaction": {"required": "Veuillez préciser la réaction provoquée par cette allergie."}
         }
+
+
+class DemandeInscriptionForm(forms.ModelForm):
+    class Meta:
+        model = DemandeInscription
+        fields = ["prenom_enfant", "nom_enfant", "date_naissance", "note"]
+
+        labels = {
+            "prenom_enfant": "Prénom de l'enfant",
+            "nom_enfant": "Nom de l'enfant",
+            "date_naissance": "Date de naissance",
+            "note": "Note (optionnelle)",
+        }
+
+        widgets = {
+            "prenom_enfant": forms.TextInput(attrs={
+                "placeholder": "Prénom de l'enfant"
+            }),
+            "nom_enfant": forms.TextInput(attrs={
+                "placeholder": "Nom de l'enfant"
+            }),
+            "date_naissance": forms.DateInput(attrs={"type": "date"}),
+            "note": forms.Textarea(attrs={
+                "rows": 4,
+                "placeholder": "Informations complémentaires pour l'administration (optionnel)."
+            })
+        }
+
+        error_messages = {
+            "prenom_enfant": {"required": "Veuillez indiquer le prénom de l'enfant."},
+            "nom_enfant": {"required": "Veuillez indiquer le nom de l'enfant."},
+            "date_naissance": {"required": "Veuillez indiquer la date de naissance de l'enfant."}
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
 
 
 class ContactUrgenceForm(forms.ModelForm):
