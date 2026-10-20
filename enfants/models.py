@@ -150,6 +150,65 @@ class ContactUrgence(models.Model):
         return f"{self.prenom} {self.nom}"
 
 
+class DemandeInscription(models.Model):
+    class Statut(models.TextChoices):
+        EN_ATTENTE = "en_attente", "En attente"
+        APPROUVEE = "approuvee", "Approuvée"
+        REFUSEE = "refusee", "Refusée"
+
+    parent = models.ForeignKey(
+        "compte.Parent",
+        on_delete=models.CASCADE,
+        related_name="demandes_inscription"
+    )
+
+    prenom_enfant = models.CharField(
+        max_length=100,
+        validators=[
+            MinLengthValidator(
+                2,
+                "Le prénom doit contenir au moins 2 caractères."
+            )
+        ]
+    )
+    nom_enfant = models.CharField(
+        max_length=100,
+        validators=[
+            MinLengthValidator(
+                3,
+                "Le nom de l'enfant doit contenir au moins 3 caractères."
+            )
+        ]
+    )
+    date_naissance = models.DateField()
+
+    note = models.TextField(
+        max_length=500,
+        blank=True
+    )
+
+    statut = models.CharField(
+        max_length=20,
+        choices=Statut.choices,
+        default=Statut.EN_ATTENTE
+    )
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        super().clean()
+
+        if self.date_naissance and self.date_naissance >= timezone.now().date():
+            raise ValidationError({
+                "date_naissance":
+                    "La date de naissance doit être dans le passé."
+            })
+
+    def __str__(self):
+        return f"{self.prenom_enfant} {self.nom_enfant} ({self.get_statut_display()})"
+
+
 class PersonneAutorisee(models.Model):
     enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
 

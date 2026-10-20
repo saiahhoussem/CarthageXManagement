@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Mes demandes d'inscription{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-semibold mb-0">Mes demandes d'inscription</h1>
+        <a href="{% url 'creer_demande_inscription' %}" class="btn btn-carthage">
+            <i class="bi bi-plus-circle"></i> Nouvelle demande
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if demandes %}
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Enfant</th>
+                    <th>Date de naissance</th>
+                    <th>Statut</th>
+                    <th>Soumise le</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                <tr>
+                    <td>{{ demande.prenom_enfant }} {{ demande.nom_enfant }}</td>
+                    <td>{{ demande.date_naissance }}</td>
+                    <td>
+                        {% if demande.statut == "en_attente" %}
+                            <span class="badge bg-secondary">En attente</span>
+                        {% elif demande.statut == "approuvee" %}
+                            <span class="badge bg-success">Approuvée</span>
+                        {% else %}
+                            <span class="badge bg-danger">Refusée</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
+                    <td class="text-end">
+                        {% if demande.statut == "en_attente" %}
+                            <a href="{% url 'modifier_demande_inscription' demande.id %}"
+                               class="btn btn-sm btn-ck-orange">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a href="{% url 'supprimer_demande_inscription' demande.id %}"
+                               class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Vous n'avez soumis aucune demande d'inscription pour le moment.
+        </div>
+    {% endif %}
+
+</div>
+
+</main>
+{% endblock %}

@@ -151,6 +151,7 @@ h1 {
 .btn-retour i {
     font-size: 17px;
 }
+
 .form-enfant .champ-formulaire label {
     display: block;
     margin-bottom: 8px;
@@ -193,3 +194,9 @@ h1 {
     padding-left: 0;
     list-style: none;
 }
+
+
+.champ-requis {
+    color: var(--ck-rouge);
+}
+
