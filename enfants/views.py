@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
-from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm,DemandeInscriptionForm
+from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -495,6 +495,9 @@ def supprimer_groupe(request, groupe_id):
         "groupes/supprimer_groupe.html",
         {"groupe": groupe}
     )
+
+
+@login_required
 def mes_demandes_inscription(request):
     if not request.user.is_parent:
         raise PermissionDenied(
