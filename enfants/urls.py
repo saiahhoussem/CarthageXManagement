@@ -108,4 +108,19 @@ urlpatterns = [
         views.liste_demandes_inscription,
         name="liste_demandes_inscription",
     ),
+    path(
+        "demandes-inscription/<int:demande_id>/",
+        views.detail_demande_inscription,
+        name="detail_demande_inscription",
+    ),
+    path(
+        "demandes-inscription/<int:demande_id>/refuser/",
+        views.refuser_demande_inscription,
+        name="refuser_demande_inscription",
+    ),
+    path(
+        "demandes-inscription/<int:demande_id>/accepter/",
+        views.accepter_demande_inscription,
+        name="accepter_demande_inscription",
+    ),
 ]

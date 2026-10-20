@@ -33,6 +33,7 @@
                     <th>Parent</th>
                     <th>Statut</th>
                     <th>Soumise le</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,6 +52,12 @@
                         {% endif %}
                     </td>
                     <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'detail_demande_inscription' demande.id %}"
+                           class="btn btn-sm btn-ck-bleu-fonce">
+                            <i class="bi bi-eye"></i> Voir
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

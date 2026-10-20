@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Count, F
 
 from .models import Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
 from compte.models import Educateur
@@ -149,4 +150,21 @@ class GroupeForm(forms.ModelForm):
 
         self.aucun_educateur_disponible = (
             not educateurs_disponibles.exists()
+        )
+
+
+class AccepterDemandeInscriptionForm(forms.Form):
+    groupe = forms.ModelChoiceField(
+        queryset=Groupe.objects.none(),
+        label="Groupe",
+        empty_label="Sélectionnez un groupe",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["groupe"].queryset = (
+            Groupe.objects.filter(educateur__isnull=False)
+            .annotate(nb_enfants=Count("enfant"))
+            .filter(nb_enfants__lt=F("capacite"))
         )
