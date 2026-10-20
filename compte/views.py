@@ -2,9 +2,10 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse
 
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
-from .models import Educateur, User
+from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
 
 
@@ -50,9 +51,24 @@ def connexion(request):
     return render(request, "compte/connexion.html", {"form": form})
 
 
+# Rôles pouvant être présélectionnés depuis le sidebar (?role=educateur / ?role=parent)
+ROLES_CREATION = {
+    "educateur": User.Role.EDUCATEUR,
+    "parent": User.Role.PARENT,
+}
+
+TITRES_CREATION = {
+    User.Role.EDUCATEUR: "Créer un compte éducateur",
+    User.Role.PARENT: "Créer un compte parent",
+}
+
+
 @login_required
 @user_passes_test(est_administrateur)
 def creer_compte(request):
+    role_param = request.POST.get("role") or request.GET.get("role")
+    role = ROLES_CREATION.get(role_param)
+
     if request.method == "POST":
         form = CreationCompteForm(request.POST)
         if form.is_valid():
@@ -62,13 +78,22 @@ def creer_compte(request):
                 f"Le compte de {utilisateur.get_full_name() or utilisateur.username} "
                 f"a été créé avec succès.",
             )
-            return redirect("compte:creer_compte")
+            url_retour = reverse("compte:creer_compte")
+            if role_param:
+                url_retour += f"?role={role_param}"
+            return redirect(url_retour)
         else:
             messages.error(request, "Impossible de créer le compte.")
     else:
-        form = CreationCompteForm()
+        form = CreationCompteForm(initial={"role": role} if role else None)
 
-    return render(request, "compte/creer_compte.html", {"form": form})
+    titre_page = TITRES_CREATION.get(role, "Créer un compte utilisateur")
+
+    return render(
+        request,
+        "compte/creer_compte.html",
+        {"form": form, "titre_page": titre_page},
+    )
 
 
 @login_required
@@ -162,3 +187,25 @@ def basculer_statut_educateur(request, pk):
     statut = "activé" if educateur.is_active else "désactivé"
     messages.success(request, f"Le compte de {educateur} a été {statut}.")
     return redirect("compte:detail_educateur", pk=pk)
+
+
+@login_required
+@user_passes_test(est_administrateur)
+def liste_parents(request):
+    parents = Parent.objects.all().order_by("last_name", "first_name")
+    return render(
+        request,
+        "compte/liste_parents.html",
+        {"parents": parents},
+    )
+
+
+@login_required
+@user_passes_test(est_administrateur)
+def detail_parent(request, pk):
+    parent = get_object_or_404(Parent, pk=pk)
+    return render(
+        request,
+        "compte/detail_parent.html",
+        {"parent": parent},
+    )

@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe
-from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm
+from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
+from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm,DemandeInscriptionForm
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -495,3 +495,102 @@ def supprimer_groupe(request, groupe_id):
         "groupes/supprimer_groupe.html",
         {"groupe": groupe}
     )
+def mes_demandes_inscription(request):
+    if not request.user.is_parent:
+        raise PermissionDenied(
+            "Vous n'avez pas accès à cette page."
+        )
+
+    demandes = DemandeInscription.objects.filter(
+        parent__pk=request.user.pk
+    ).order_by("-date_creation")
+
+    return render(request, "enfants/mes_demandes_inscription.html", {
+        "demandes": demandes
+    })
+
+
+@login_required
+def creer_demande_inscription(request):
+    if not request.user.is_parent:
+        raise PermissionDenied(
+            "Vous n'avez pas accès à cette page."
+        )
+
+    if request.method == "POST":
+        form = DemandeInscriptionForm(request.POST)
+
+        if form.is_valid():
+            demande = form.save(commit=False)
+            demande.parent_id = request.user.pk
+            demande.save()
+
+            return redirect("mes_demandes_inscription")
+
+    else:
+        form = DemandeInscriptionForm()
+
+    return render(request, "enfants/creer_demande_inscription.html", {
+        "form": form
+    })
+
+
+@login_required
+def modifier_demande_inscription(request, demande_id):
+    demande = get_object_or_404(DemandeInscription, id=demande_id)
+
+    if (
+        not request.user.is_parent
+        or demande.parent_id != request.user.pk
+    ):
+        raise PermissionDenied(
+            "Vous n'avez pas l'autorisation de modifier cette demande."
+        )
+
+    if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
+        raise PermissionDenied(
+            "Cette demande a déjà été traitée et ne peut plus être modifiée."
+        )
+
+    if request.method == "POST":
+        form = DemandeInscriptionForm(request.POST, instance=demande)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect("mes_demandes_inscription")
+
+    else:
+        form = DemandeInscriptionForm(instance=demande)
+
+    return render(request, "enfants/modifier_demande_inscription.html", {
+        "form": form,
+        "demande": demande
+    })
+
+
+@login_required
+def supprimer_demande_inscription(request, demande_id):
+    demande = get_object_or_404(DemandeInscription, id=demande_id)
+
+    if (
+        not request.user.is_parent
+        or demande.parent_id != request.user.pk
+    ):
+        raise PermissionDenied(
+            "Vous n'avez pas l'autorisation de supprimer cette demande."
+        )
+
+    if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
+        raise PermissionDenied(
+            "Cette demande a déjà été traitée et ne peut plus être supprimée."
+        )
+
+    if request.method == "POST":
+        demande.delete()
+
+        return redirect("mes_demandes_inscription")
+
+    return render(request, "enfants/supprimer_demande_inscription.html", {
+        "demande": demande
+    })

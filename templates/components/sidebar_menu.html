@@ -176,86 +176,78 @@
                 </a>
             </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-calendar3"></i>
-                    Calendrier
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-calendar3"></i>
+                Calendrier
+            </a>
+        </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-suit-spade"></i>
-                    Activités
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-suit-spade"></i>
+                Activités
+            </a>
+        </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-bell"></i>
-                    Notifications
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-bell"></i>
+                Notifications
+            </a>
+        </li>
 
         {% elif user.is_parent %}
 
-            <li>
-                <a
-                    href="{% url 'compte:tableau_bord_parent' %}"
-                    class="{% if url_actif == 'tableau_bord_parent' %}active{% endif %}"
-                >
-                    <i class="bi bi-house"></i>
-                    Accueil
-                </a>
-            </li>
+        <li>
+            <a href="{% url 'compte:tableau_bord_parent' %}"
+                class="{% if url_actif == 'tableau_bord_parent' %}active{% endif %}">
+                <i class="bi bi-house"></i>
+                Accueil
+            </a>
+        </li>
 
-            <li>
-                <a
-                    href="{% url 'mes_enfants' %}"
-                    class="{% if url_actif == 'mes_enfants' or url_actif == 'fiche_enfant' %}active{% endif %}"
-                >
-                    <i class="bi bi-people"></i>
-                    Mes enfants
-                </a>
-            </li>
+        <li>
+            <a href="{% url 'mes_enfants' %}" class="{% if url_actif in 'mes_enfants fiche_enfant' %}active{% endif %}">
+                <i class="bi bi-people"></i>
+                Mes enfants
+            </a>
+        </li>
 
-            <li>
-                <a
-                    href="{% url 'mes_demandes_inscription' %}"
-                    class="{% if url_actif == 'mes_demandes_inscription' or url_actif == 'creer_demande_inscription' or url_actif == 'modifier_demande_inscription' or url_actif == 'supprimer_demande_inscription' %}active{% endif %}"
-                >
-                    <i class="bi bi-file-earmark-text"></i>
-                    Demandes d'inscription
-                </a>
-            </li>
+        <li>
+            <a href="{% url 'mes_demandes_inscription' %}" class="{% if url_actif in 'mes_demandes_inscription creer_demande_inscription modifier_demande_inscription supprimer_demande_inscription' %}active{% endif %}">
+                <i class="bi bi-file-earmark-text"></i>
+                Demandes d'inscription
+            </a>
+        </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-calendar3"></i>
-                    Calendrier
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-calendar3"></i>
+                Calendrier
+            </a>
+        </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-suit-spade"></i>
-                    Activités
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-suit-spade"></i>
+                Activités
+            </a>
+        </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-bell"></i>
-                    Notifications
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-bell"></i>
+                Notifications
+            </a>
+        </li>
 
-            <li>
-                <a href="#">
-                    <i class="bi bi-currency-dollar"></i>
-                    Centre de paiement
-                </a>
-            </li>
+        <li>
+            <a href="#">
+                <i class="bi bi-currency-dollar"></i>
+                Centre de paiement
+            </a>
+        </li>
 
         {% endif %}
 
@@ -276,5 +268,4 @@
     </div>
 
 </nav>
-
 {% endwith %}

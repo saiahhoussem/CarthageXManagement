@@ -193,3 +193,7 @@ h1 {
     padding-left: 0;
     list-style: none;
 }
+
+.champ-requis {
+    color: var(--ck-rouge);
+}
