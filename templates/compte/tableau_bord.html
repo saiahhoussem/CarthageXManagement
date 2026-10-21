@@ -13,7 +13,7 @@
 
 {% block content %}
 
-<main class="container py-5">
+<main class="container py-5 px-5">
 
     <div class="ck-dashboard-entete">
         <p class="ck-dashboard-eyebrow">
@@ -30,10 +30,12 @@
         <div class="ck-cartes-stats">
 
             <div class="ck-carte-stat">
+                    <img
+                            src="{% static 'img/icones/educ.png' %}"
+                            alt="icone-educateur"
+                            class="ck-icone-dashboard"
+                        >
 
-                <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-fonce">
-                    <i class="bi bi-person-badge"></i>
-                </div>
 
                 <div>
                     <p class="ck-carte-stat-valeur">
@@ -49,9 +51,12 @@
 
             <div class="ck-carte-stat">
 
-                <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-clair">
-                    <i class="bi bi-people"></i>
-                </div>
+                    <img
+                            src="{% static 'img/icones/parent.png' %}"
+                            alt="icone-parent"
+                            class="ck-icone-dashboard"
+                        >
+             
 
                 <div>
                     <p class="ck-carte-stat-valeur">
@@ -67,9 +72,11 @@
 
             <div class="ck-carte-stat">
 
-                <div class="ck-carte-stat-icone ck-carte-stat-icone--orange">
-                    <i class="bi bi-person-hearts"></i>
-                </div>
+                <img
+                    src="{% static 'img/icones/enfant.png' %}"
+                        alt="icone-enfant"
+                        class="ck-icone-dashboard"
+                        >
 
                 <div>
                     <p class="ck-carte-stat-valeur">
@@ -85,9 +92,10 @@
 
             <div class="ck-carte-stat">
 
-                <div class="ck-carte-stat-icone ck-carte-stat-icone--vert">
-                    <i class="bi bi-diagram-3"></i>
-                </div>
+                <img src="{% static 'img/icones/groupe.png' %}"
+                            alt="icone-groupe"
+                            class="ck-icone-dashboard"
+                        >      
 
                 <div>
                     <p class="ck-carte-stat-valeur">
@@ -124,9 +132,11 @@
 
                 <a href="{% url 'ajouter_groupe' %}" class="ck-action-rapide">
 
-                    <div class="ck-action-rapide-icone ck-action-rapide-icone--vert">
-                        <i class="bi bi-diagram-3"></i>
-                    </div>
+                     <img
+                            src="{% static 'img/icones/ajout_groupe_1.png' %}"
+                            alt="ajouter-un-groupe"
+                            class="ck-icone-dashboard"
+                        >
 
                     <div class="ck-action-rapide-contenu">
 
@@ -149,9 +159,11 @@
                     class="ck-action-rapide"
                 >
 
-                    <div class="ck-action-rapide-icone ck-action-rapide-icone--bleu">
-                        <i class="bi bi-person-plus"></i>
-                    </div>
+                    <img
+                            src="{% static 'img/icones/ajout_educ.png' %}"
+                            alt="ajouter-un-educateur"
+                            class="ck-icone-dashboard"
+                        >
 
                     <div class="ck-action-rapide-contenu">
 
@@ -174,9 +186,11 @@
                     class="ck-action-rapide"
                 >
 
-                    <div class="ck-action-rapide-icone ck-action-rapide-icone--orange">
-                        <i class="bi bi-person-add"></i>
-                    </div>
+                     <img
+                            src="{% static 'img/icones/ajout_parent.png' %}"
+                            alt="ajouter-un-parent"
+                            class="ck-icone-dashboard"
+                        >
 
                     <div class="ck-action-rapide-contenu">
 
@@ -198,11 +212,7 @@
 
         </div>
 
-    {% else %}
-
-        <div class="alert alert-light border">
-            Cet espace est en construction.
-        </div>
+   
 
     {% endif %}
 
