@@ -12,11 +12,9 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
             <h1 class="fw-bold mb-1" style="color: #0d274d;">
-                Gestion des groupes
+                Liste des groupes
             </h1>
-            <p class="text-muted mb-0">
-                Consultez et gérez les groupes de la garderie.
-            </p>
+            
         </div>
 
         <a
@@ -52,6 +50,7 @@
                             <th class="py-3">Tranche d'âge</th>
                             <th class="py-3">Capacité</th>
                             <th class="py-3">Éducateur</th>
+                            <th class="py-3">Places restantes</th>
                             <th class="py-3 text-end">Actions</th>
                         </tr>
                     </thead>
@@ -91,6 +90,9 @@
                                         </span>
 
                                     {% endif %}
+                                </td>
+                                <td>
+                                    {{ groupe.places_restantes }}
                                 </td>
 
                                 <td class="text-end">
