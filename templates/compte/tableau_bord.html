@@ -4,7 +4,7 @@
 {% block title %}Tableau de bord - {{ titre }}{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'compte/tableau_bord.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'compte/tableau_bord.css' %}">
 {% endblock %}
 
 {% block sidebar %}
@@ -12,14 +12,200 @@
 {% endblock %}
 
 {% block content %}
-    <main>
-        <div class="ck-dashboard-entete">
-            <p class="ck-dashboard-eyebrow">Tableau de bord</p>
-            <h1 class="ck-dashboard-titre">{{ titre }}</h1>
+
+<main class="container py-5">
+
+    <div class="ck-dashboard-entete">
+        <p class="ck-dashboard-eyebrow">
+            Espace administrateur
+        </p>
+
+        <h1 class="ck-dashboard-titre">
+            Tableau de bord
+        </h1>
+    </div>
+
+    {% if nb_educateurs is not None %}
+
+        <div class="ck-cartes-stats">
+
+            <div class="ck-carte-stat">
+
+                <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-fonce">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+
+                <div>
+                    <p class="ck-carte-stat-valeur">
+                        {{ nb_educateurs }}
+                    </p>
+
+                    <p class="ck-carte-stat-libelle">
+                        Éducateurs
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="ck-carte-stat">
+
+                <div class="ck-carte-stat-icone ck-carte-stat-icone--bleu-clair">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <div>
+                    <p class="ck-carte-stat-valeur">
+                        {{ nb_parents }}
+                    </p>
+
+                    <p class="ck-carte-stat-libelle">
+                        Parents
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="ck-carte-stat">
+
+                <div class="ck-carte-stat-icone ck-carte-stat-icone--orange">
+                    <i class="bi bi-person-hearts"></i>
+                </div>
+
+                <div>
+                    <p class="ck-carte-stat-valeur">
+                        {{ nb_enfants }}
+                    </p>
+
+                    <p class="ck-carte-stat-libelle">
+                        Enfants inscrits
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="ck-carte-stat">
+
+                <div class="ck-carte-stat-icone ck-carte-stat-icone--vert">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+
+                <div>
+                    <p class="ck-carte-stat-valeur">
+                        {{ nb_groupes }}
+                    </p>
+
+                    <p class="ck-carte-stat-libelle">
+                        Groupes
+                    </p>
+                </div>
+
+            </div>
+
         </div>
 
-        <div>
-            <p class="text-muted">Cet espace est en construction.</p>
+        <div class="ck-actions-rapides">
+
+            <div class="ck-actions-rapides-entete">
+
+                <div>
+                    <p class="ck-actions-rapides-eyebrow">
+                        Gestion
+                    </p>
+
+                    <h2 class="ck-actions-rapides-titre">
+                        Actions rapides
+                    </h2>
+                </div>
+
+
+            </div>
+
+            <div class="ck-actions-rapides-carte">
+
+                <a href="{% url 'ajouter_groupe' %}" class="ck-action-rapide">
+
+                    <div class="ck-action-rapide-icone ck-action-rapide-icone--vert">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+
+                    <div class="ck-action-rapide-contenu">
+
+                        <p class="ck-action-rapide-titre">
+                            Ajouter un groupe
+                        </p>
+
+                        <p class="ck-action-rapide-description">
+                            Créer un nouveau groupe.
+                        </p>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right ck-action-rapide-fleche"></i>
+
+                </a>
+
+                <a
+                    href="{% url 'compte:creer_compte' %}?role=educateur"
+                    class="ck-action-rapide"
+                >
+
+                    <div class="ck-action-rapide-icone ck-action-rapide-icone--bleu">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+
+                    <div class="ck-action-rapide-contenu">
+
+                        <p class="ck-action-rapide-titre">
+                            Ajouter un éducateur
+                        </p>
+
+                        <p class="ck-action-rapide-description">
+                            Créer un nouveau compte éducateur.
+                        </p>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right ck-action-rapide-fleche"></i>
+
+                </a>
+
+                <a
+                    href="{% url 'compte:creer_compte' %}?role=parent"
+                    class="ck-action-rapide"
+                >
+
+                    <div class="ck-action-rapide-icone ck-action-rapide-icone--orange">
+                        <i class="bi bi-person-add"></i>
+                    </div>
+
+                    <div class="ck-action-rapide-contenu">
+
+                        <p class="ck-action-rapide-titre">
+                            Ajouter un parent
+                        </p>
+
+                        <p class="ck-action-rapide-description">
+                            Créer un nouveau compte parent.
+                        </p>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right ck-action-rapide-fleche"></i>
+
+                </a>
+
+            </div>
+
         </div>
-    </main>
+
+    {% else %}
+
+        <div class="alert alert-light border">
+            Cet espace est en construction.
+        </div>
+
+    {% endif %}
+
+</main>
+
 {% endblock %}
