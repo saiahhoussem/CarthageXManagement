@@ -48,6 +48,11 @@ class Groupe(models.Model):
         null=True,
         blank=True,
     )
+    
+    @property
+    def places_restantes(self):
+        return max(self.capacite - self.enfant_set.count(), 0)
+
 
     def __str__(self):
         return str(self.nom)
