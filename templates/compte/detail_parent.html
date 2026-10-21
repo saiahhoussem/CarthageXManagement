@@ -51,6 +51,46 @@
             </div>
         </div>
 
+        <div class="d-flex gap-2">
+            <a href="{% url 'compte:modifier_parent' parent.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Modifier
+            </a>
+
+            <button type="button" class="btn {% if parent.is_active %}btn-danger{% else %}btn-success{% endif %}"
+                data-bs-toggle="modal" data-bs-target="#modalStatut">
+                {% if parent.is_active %}
+                <i class="bi bi-x-circle"></i> Désactiver le compte
+                {% else %}
+                <i class="bi bi-check-circle"></i> Réactiver le compte
+                {% endif %}
+            </button>
+        </div>
     </div>
 </main>
+
+<div class="modal fade" id="modalStatut" tabindex="-1" aria-labelledby="modalStatutLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalStatutLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir {% if parent.is_active %}désactiver{% else %}réactiver{% endif %} le compte de
+                <strong>{{ parent.get_full_name|default:parent.username }}</strong> ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+
+                <form method="post" action="{% url 'compte:basculer_statut_parent' parent.pk %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn {% if parent.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                        Oui, confirmer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

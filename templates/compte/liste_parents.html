@@ -48,7 +48,9 @@
                         <a href="{% url 'compte:detail_parent' parent.pk %}" class="btn btn-sm btn-ck-bleu-fonce">
                             <i class="bi bi-eye"></i> Voir
                         </a>
-                        <!-- Le bouton modifier sera ajouté plus tard -->
+                        <a href="{% url 'compte:modifier_parent' parent.pk %}" class="btn btn-sm btn-ck-orange">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
