@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Count, F
 
 from .models import Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
 from compte.models import Educateur
@@ -132,6 +133,9 @@ class GroupeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
+
         educateurs_disponibles = Educateur.objects.filter(
             groupe__isnull=True
         )
@@ -139,13 +143,31 @@ class GroupeForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             educateur_actuel = self.instance.educateur
 
-            educateurs_disponibles = (
-                educateurs_disponibles
-                | Educateur.objects.filter(pk=educateur_actuel.pk)
-            )
+            if educateur_actuel is not None:
+                educateurs_disponibles = (
+                    educateurs_disponibles
+                    | Educateur.objects.filter(pk=educateur_actuel.pk)
+                )
 
         self.fields["educateur"].queryset = educateurs_disponibles
 
         self.aucun_educateur_disponible = (
             not educateurs_disponibles.exists()
+        )
+
+
+class AccepterDemandeInscriptionForm(forms.Form):
+    groupe = forms.ModelChoiceField(
+        queryset=Groupe.objects.none(),
+        label="Groupe",
+        empty_label="Sélectionnez un groupe",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["groupe"].queryset = (
+            Groupe.objects.filter(educateur__isnull=False)
+            .annotate(nb_enfants=Count("enfant"))
+            .filter(nb_enfants__lt=F("capacite"))
         )

@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
-from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm,DemandeInscriptionForm
+from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -495,6 +495,9 @@ def supprimer_groupe(request, groupe_id):
         "groupes/supprimer_groupe.html",
         {"groupe": groupe}
     )
+
+
+@login_required
 def mes_demandes_inscription(request):
     if not request.user.is_parent:
         raise PermissionDenied(
@@ -593,4 +596,102 @@ def supprimer_demande_inscription(request, demande_id):
 
     return render(request, "enfants/supprimer_demande_inscription.html", {
         "demande": demande
+    })
+
+
+@login_required
+def liste_demandes_inscription(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    demandes = DemandeInscription.objects.select_related("parent").order_by(
+        "-date_creation"
+    )
+
+    return render(request, "enfants/liste_demandes_inscription.html", {
+        "demandes": demandes
+    })
+
+
+@login_required
+def detail_demande_inscription(request, demande_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    demande = get_object_or_404(DemandeInscription, id=demande_id)
+
+    return render(request, "enfants/detail_demande_inscription.html", {
+        "demande": demande
+    })
+
+
+@login_required
+def refuser_demande_inscription(request, demande_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    demande = get_object_or_404(DemandeInscription, id=demande_id)
+
+    if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
+        raise PermissionDenied(
+            "Cette demande a déjà été traitée et ne peut plus être refusée."
+        )
+
+    if request.method == "POST":
+        demande.statut = DemandeInscription.Statut.REFUSEE
+        demande.save(update_fields=["statut", "date_modification"])
+
+        messages.success(
+            request,
+            f"La demande d'inscription de {demande.prenom_enfant} "
+            f"{demande.nom_enfant} a été refusée."
+        )
+
+    return redirect("detail_demande_inscription", demande_id=demande.id)
+
+
+@login_required
+def accepter_demande_inscription(request, demande_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    demande = get_object_or_404(DemandeInscription, id=demande_id)
+
+    if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
+        raise PermissionDenied(
+            "Cette demande a déjà été traitée et ne peut plus être acceptée."
+        )
+
+    if request.method == "POST":
+        form = AccepterDemandeInscriptionForm(request.POST)
+
+        if form.is_valid():
+            groupe = form.cleaned_data["groupe"]
+
+            enfant = Enfant(
+                prenom=demande.prenom_enfant,
+                nom=demande.nom_enfant,
+                date_naissance=demande.date_naissance,
+                groupe=groupe,
+            )
+            enfant.full_clean()
+            enfant.save()
+            enfant.parents.add(demande.parent)
+
+            demande.statut = DemandeInscription.Statut.APPROUVEE
+            demande.save(update_fields=["statut", "date_modification"])
+
+            messages.success(
+                request,
+                f"La demande d'inscription de {demande.prenom_enfant} "
+                f"{demande.nom_enfant} a été acceptée et l'enfant a été "
+                f"ajouté au groupe {groupe.nom}."
+            )
+            return redirect("detail_demande_inscription", demande_id=demande.id)
+    else:
+        form = AccepterDemandeInscriptionForm()
+
+    return render(request, "enfants/accepter_demande_inscription.html", {
+        "form": form,
+        "demande": demande,
     })

@@ -9,6 +9,8 @@
 
 {% block navbar %}{% endblock %}
 
+{% block messages %}{% endblock %}
+
 {% block content %}
   <div class="conteneur-connexion">
     <div class="volet-formulaire">
@@ -59,7 +61,7 @@
             {{ form.se_souvenir }}
             <label class="form-check-label" for="{{ form.se_souvenir.id_for_label }}">Se souvenir de moi</label>
           </div>
-          
+
         </form>
 
         <a href="#" class="lien-connexion d-block mb-2">Mot de passe oublié?</a>

@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='groupe',
             name='educateur',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='groupe', to='compte.educateur'),
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='groupe', to='compte.educateur'),
         ),
     ]

@@ -40,25 +40,27 @@
 
     <div class="flex-grow-1">
 
-      {% if messages %}
-        <div class="container mt-3">
-          {% for message in messages %}
-            <div
-              class="alert alert-{{ message.tags }} alert-dismissible fade show"
-              role="alert"
-            >
-              {{ message }}
+      {% block messages %}
+        {% if messages %}
+          <div class="container mt-3">
+            {% for message in messages %}
+              <div
+                class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                role="alert"
+              >
+                {{ message }}
 
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Fermer"
-              ></button>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                  aria-label="Fermer"
+                ></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endblock %}
 
       {% block content %}
       {% endblock %}

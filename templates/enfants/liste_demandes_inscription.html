@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Demandes d'inscription{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="fw-semibold mb-1">Demandes d'inscription</h1>
+        <p class="text-muted mb-0">
+            Consultez les demandes d'inscription soumises par les parents.
+        </p>
+    </div>
+
+    {% if demandes %}
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Enfant</th>
+                    <th>Date de naissance</th>
+                    <th>Parent</th>
+                    <th>Statut</th>
+                    <th>Soumise le</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                <tr>
+                    <td>{{ demande.prenom_enfant }} {{ demande.nom_enfant }}</td>
+                    <td>{{ demande.date_naissance }}</td>
+                    <td>{{ demande.parent.get_full_name|default:demande.parent.username }}</td>
+                    <td>
+                        {% if demande.statut == "en_attente" %}
+                            <span class="badge bg-secondary">En attente</span>
+                        {% elif demande.statut == "approuvee" %}
+                            <span class="badge bg-success">Approuvée</span>
+                        {% else %}
+                            <span class="badge bg-danger">Refusée</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ demande.date_creation|date:"d/m/Y" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'detail_demande_inscription' demande.id %}"
+                           class="btn btn-sm btn-ck-bleu-fonce">
+                            <i class="bi bi-eye"></i> Voir
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Aucune demande d'inscription n'a été soumise pour le moment.
+        </div>
+    {% endif %}
+
+</div>
+
+</main>
+{% endblock %}

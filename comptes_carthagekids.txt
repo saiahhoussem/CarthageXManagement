@@ -1,0 +1,21 @@
+COMPTES DE DÉMONSTRATION - CARTHAGEKIDS
+=========================================
+
+Mot de passe pour tous les comptes ci-dessous : mdpcarthage123!
+
+ADMINISTRATEUR
+--------------
+- Houssem Saiah   | utilisateur : admin     | courriel : houssem.saiah@gmail.com
+
+ÉDUCATEURS
+----------
+- Marc-André Gagnon   | utilisateur : mgagnon   | courriel : marc-andre.gagnon@carthagekids.ca
+- Véronique Bouchard  | utilisateur : vbouchard | courriel : veronique.bouchard@carthagekids.ca
+- Félix Tremblay      | utilisateur : ftremblay | courriel : felix.tremblay@carthagekids.ca
+
+PARENTS
+-------
+- Jean-François Gagné   | utilisateur : jgagne     | courriel : jf.gagne@gmail.com
+- Marie-Claude Bélanger | utilisateur : mbelanger | courriel : mc.belanger@gmail.com
+- Sophie Roy            | utilisateur : sroy       | courriel : sophie.roy@gmail.com
+
