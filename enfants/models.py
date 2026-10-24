@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, RegexValidator, MinValueValidator
 from django.core.exceptions import ValidationError
+from django.templatetags.static import static
 from django.utils import timezone
 
 
@@ -299,6 +300,51 @@ class Activite(models.Model):
         related_name="activites",
         blank=True,
     )
+
+    description = models.TextField(
+        validators=[
+            MinLengthValidator(
+                2,
+                "La description doit contenir au moins 2 caractères."
+            )
+        ]
+    )
+
+    photo = models.ImageField(
+        upload_to="activites/",
+        blank=True,
+        null=True,
+    )
+
+    @property
+    def photo_url(self):
+        """URL de la photo de l'activité, ou une photo par défaut si l'admin n'en a pas fourni."""
+        if self.photo:
+            return self.photo.url
+
+        return static("enfants/img/activite_defaut.jpg")
+
+    @property
+    def applique_a_tous_les_groupes(self):
+        """
+        True si l'activité ne cible aucun groupe en particulier : soit aucun groupe
+        n'a été sélectionné, soit l'admin a sélectionné tous les groupes existants
+        un par un, ce qui revient au même.
+
+        Pratique pour une seule activité (ex. page de détail), mais à éviter dans une
+        boucle sur une liste d'activités : chaque appel fait une requête sur Groupe en
+        plus de celle sur self.groupes. Pour une liste, annoter le queryset avec
+        Count("groupes") et comparer au nombre total de groupes (voir liste_activites)
+        plutôt que d'utiliser cette propriété.
+        """
+        groupes_selectionnes = {groupe.pk for groupe in self.groupes.all()}
+
+        if not groupes_selectionnes:
+            return True
+
+        tous_les_groupes = set(Groupe.objects.values_list("pk", flat=True))
+
+        return groupes_selectionnes == tous_les_groupes
 
     def __str__(self):
         return str(self.nom)

@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from .models import Activite, Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
@@ -724,10 +725,18 @@ def liste_activites(request):
     if not (request.user.is_administrateur or request.user.is_superuser):
         raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
-    activites = Activite.objects.prefetch_related("groupes").order_by("date")
+    activites = (
+        Activite.objects
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
+    )
 
     return render(
         request,
         "activites/liste_activites.html",
-        {"activites": activites}
+        {
+            "activites": activites,
+            "total_groupes": Groupe.objects.count(),
+        }
     )

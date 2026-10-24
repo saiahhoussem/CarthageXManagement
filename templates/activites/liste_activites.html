@@ -79,16 +79,18 @@
                                 </td>
 
                                 <td>
-                                    {% for groupe in activite.groupes.all %}
-                                        <span
-                                            class="badge rounded-pill px-3 py-2 me-1"
-                                            style="background-color: #289b7b;"
-                                        >
-                                            {{ groupe.nom }}
-                                        </span>
-                                    {% empty %}
+                                    {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
                                         <span class="text-muted">Tous les groupes</span>
-                                    {% endfor %}
+                                    {% else %}
+                                        {% for groupe in activite.groupes.all %}
+                                            <span
+                                                class="badge rounded-pill px-3 py-2 me-1"
+                                                style="background-color: #289b7b;"
+                                            >
+                                                {{ groupe.nom }}
+                                            </span>
+                                        {% endfor %}
+                                    {% endif %}
                                 </td>
 
                             </tr>
