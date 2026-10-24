@@ -159,18 +159,24 @@ class GroupeForm(forms.ModelForm):
 class ActiviteForm(forms.ModelForm):
     class Meta:
         model = Activite
-        fields = ["nom", "date", "lieu", "frais_inscription", "groupes"]
+        fields = ["nom", "date", "lieu", "frais_inscription", "description", "photo", "groupes"]
 
         labels = {
             "nom": "Nom de l'activité",
             "date": "Date",
             "lieu": "Lieu",
             "frais_inscription": "Frais d'inscription ($)",
+            "description": "Description",
+            "photo": "Photo",
             "groupes": "Groupes concernés",
         }
 
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}),
+            "description": forms.Textarea(attrs={
+                "rows": 4,
+                "placeholder": "Décrivez l'activité (optionnel)."
+            }),
             "groupes": forms.CheckboxSelectMultiple(),
         }
 

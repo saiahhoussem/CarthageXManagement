@@ -702,7 +702,7 @@ def ajouter_activite(request):
     if not (request.user.is_administrateur or request.user.is_superuser):
         raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
-    form = ActiviteForm(request.POST or None)
+    form = ActiviteForm(request.POST or None, request.FILES or None)
 
     if request.method == "POST" and form.is_valid():
         form.save()
