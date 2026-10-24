@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer une activité{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div
+                    class="card-header text-white py-3 rounded-top-4"
+                    style="background-color: #0d274d;"
+                >
+                    <h1 class="h4 mb-0">
+                        Supprimer une activité
+                    </h1>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <p class="mb-3">
+                        Êtes-vous certain de vouloir supprimer l'activité
+                        <strong>{{ activite.nom }}</strong> ?
+                    </p>
+
+                    <div class="alert alert-warning">
+                        Cette action est irréversible.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a
+                                href="{% url 'liste_activites' %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Annuler
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger"
+                            >
+                                Supprimer
+                            </button>
+
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</main>
+{% endblock %}

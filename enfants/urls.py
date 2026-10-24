@@ -133,4 +133,19 @@ urlpatterns = [
         views.ajouter_activite,
         name="ajouter_activite",
     ),
+    path(
+        "activites/<int:activite_id>/modifier/",
+        views.modifier_activite,
+        name="modifier_activite",
+    ),
+    path(
+        "activites/<int:activite_id>/supprimer/",
+        views.supprimer_activite,
+        name="supprimer_activite",
+    ),
+    path(
+        "mes-activites/",
+        views.mes_activites,
+        name="mes_activites",
+    ),
 ]

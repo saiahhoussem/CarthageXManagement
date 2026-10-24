@@ -740,3 +740,79 @@ def liste_activites(request):
             "total_groupes": Groupe.objects.count(),
         }
     )
+
+
+@login_required
+def modifier_activite(request, activite_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    activite = get_object_or_404(Activite, id=activite_id)
+
+    if request.method == "POST":
+        form = ActiviteForm(request.POST, request.FILES, instance=activite)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                f"L'activité « {activite.nom} » a été modifiée avec succès."
+            )
+            return redirect("liste_activites")
+    else:
+        form = ActiviteForm(instance=activite)
+
+    return render(
+        request,
+        "activites/modifier_activite.html",
+        {
+            "form": form,
+            "activite": activite,
+        }
+    )
+
+
+@login_required
+def supprimer_activite(request, activite_id):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    activite = get_object_or_404(Activite, id=activite_id)
+
+    if request.method == "POST":
+        nom_activite = activite.nom
+        activite.delete()
+
+        messages.success(
+            request,
+            f"L'activité « {nom_activite} » a été supprimée avec succès."
+        )
+        return redirect("liste_activites")
+
+    return render(
+        request,
+        "activites/supprimer_activite.html",
+        {"activite": activite}
+    )
+
+
+@login_required
+def mes_activites(request):
+    if not (request.user.is_educateur or request.user.is_parent):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    activites = (
+        Activite.objects
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
+    )
+
+    return render(
+        request,
+        "activites/mes_activites.html",
+        {
+            "activites": activites,
+            "total_groupes": Groupe.objects.count(),
+        }
+    )

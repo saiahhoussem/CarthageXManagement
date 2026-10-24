@@ -53,6 +53,7 @@
                             <th class="py-3">Lieu</th>
                             <th class="py-3">Frais</th>
                             <th class="py-3">Groupes concernés</th>
+                            <th class="py-3 text-end">Actions</th>
                         </tr>
                     </thead>
 
@@ -91,6 +92,25 @@
                                             </span>
                                         {% endfor %}
                                     {% endif %}
+                                </td>
+
+                                <td class="text-end">
+                                    <a
+                                        href="{% url 'modifier_activite' activite.id %}"
+                                        class="btn btn-sm text-white me-1"
+                                        style="background-color: #f49f02;"
+                                    >
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        Modifier
+                                    </a>
+
+                                    <a
+                                        href="{% url 'supprimer_activite' activite.id %}"
+                                        class="btn btn-sm btn-danger"
+                                    >
+                                        <i class="bi bi-trash me-1"></i>
+                                        Supprimer
+                                    </a>
                                 </td>
 
                             </tr>
