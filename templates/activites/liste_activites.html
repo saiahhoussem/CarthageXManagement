@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des activités{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5 px-4 px-xl-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: #0d274d;">
+                Activités et événements
+            </h1>
+            <p class="text-muted mb-0">
+                Consultez et gérez les activités proposées aux parents.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'ajouter_activite' %}"
+            class="btn text-white mt-3 mt-md-0 px-4"
+            style="background-color: #289b7b;"
+        >
+            <i class="bi bi-plus-circle me-2"></i>
+            Ajouter une activité
+        </a>
+    </div>
+
+    {% if activites %}
+
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+
+            <div
+                class="card-header text-white py-3"
+                style="background-color: #0d274d;"
+            >
+                <h2 class="h5 mb-0">
+                    Activités à venir
+                </h2>
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="text-white" style="background-color: #0d274d;">
+                        <tr>
+                            <th class="py-3">Nom</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Lieu</th>
+                            <th class="py-3">Frais</th>
+                            <th class="py-3">Groupes concernés</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for activite in activites %}
+
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    {{ activite.nom }}
+                                </td>
+
+                                <td>
+                                    {{ activite.date|date:"d/m/Y" }}
+                                </td>
+
+                                <td>
+                                    {{ activite.lieu }}
+                                </td>
+
+                                <td>
+                                    {{ activite.frais_inscription }} $
+                                </td>
+
+                                <td>
+                                    {% for groupe in activite.groupes.all %}
+                                        <span
+                                            class="badge rounded-pill px-3 py-2 me-1"
+                                            style="background-color: #289b7b;"
+                                        >
+                                            {{ groupe.nom }}
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-muted">Tous les groupes</span>
+                                    {% endfor %}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+
+                <i
+                    class="bi bi-calendar-event fs-1"
+                    style="color: #289b7b;"
+                ></i>
+
+                <h2
+                    class="h5 mt-3"
+                    style="color: #0d274d;"
+                >
+                    Aucune activité
+                </h2>
+
+                <p class="text-muted">
+                    Aucune activité n'a encore été créée.
+                </p>
+
+                <a
+                    href="{% url 'ajouter_activite' %}"
+                    class="btn text-white px-4"
+                    style="background-color: #289b7b;"
+                >
+                    Créer une première activité
+                </a>
+
+            </div>
+        </div>
+
+    {% endif %}
+
+</main>
+{% endblock %}
