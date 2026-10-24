@@ -257,3 +257,48 @@ class PersonneAutorisee(models.Model):
 
     def __str__(self):
         return f"{self.prenom} {self.nom}"
+
+
+class Activite(models.Model):
+    nom = models.CharField(
+        max_length=100,
+        validators=[
+            MinLengthValidator(
+                3,
+                "Le nom de l'activité doit contenir au moins 3 caractères."
+            )
+        ]
+    )
+
+    date = models.DateField()
+
+    lieu = models.CharField(
+        max_length=200,
+        validators=[
+            MinLengthValidator(
+                2,
+                "Le lieu doit contenir au moins 2 caractères."
+            )
+        ]
+    )
+
+    frais_inscription = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=0,
+        validators=[
+            MinValueValidator(
+                0,
+                "Les frais d'inscription ne peuvent pas être négatifs."
+            )
+        ]
+    )
+
+    groupes = models.ManyToManyField(
+        Groupe,
+        related_name="activites",
+        blank=True,
+    )
+
+    def __str__(self):
+        return str(self.nom)
