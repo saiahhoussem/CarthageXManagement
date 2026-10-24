@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
-from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from .models import Activite, Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -695,3 +695,39 @@ def accepter_demande_inscription(request, demande_id):
         "form": form,
         "demande": demande,
     })
+
+
+@login_required
+def ajouter_activite(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    form = ActiviteForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(
+            request,
+            f"L'activité « {form.cleaned_data['nom']} » a été créée avec succès."
+        )
+        return redirect("liste_activites")
+
+    return render(
+        request,
+        "activites/ajouter_activite.html",
+        {"form": form}
+    )
+
+
+@login_required
+def liste_activites(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    activites = Activite.objects.prefetch_related("groupes").order_by("date")
+
+    return render(
+        request,
+        "activites/liste_activites.html",
+        {"activites": activites}
+    )

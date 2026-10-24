@@ -123,4 +123,14 @@ urlpatterns = [
         views.accepter_demande_inscription,
         name="accepter_demande_inscription",
     ),
+    path(
+        "activites/",
+        views.liste_activites,
+        name="liste_activites",
+    ),
+    path(
+        "activites/ajouter/",
+        views.ajouter_activite,
+        name="ajouter_activite",
+    ),
 ]
