@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Count, F
 
-from .models import Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
+from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
 from compte.models import Educateur
 
 
@@ -154,6 +154,38 @@ class GroupeForm(forms.ModelForm):
         self.aucun_educateur_disponible = (
             not educateurs_disponibles.exists()
         )
+
+
+class ActiviteForm(forms.ModelForm):
+    class Meta:
+        model = Activite
+        fields = ["nom", "date", "lieu", "frais_inscription", "groupes"]
+
+        labels = {
+            "nom": "Nom de l'activité",
+            "date": "Date",
+            "lieu": "Lieu",
+            "frais_inscription": "Frais d'inscription ($)",
+            "groupes": "Groupes concernés",
+        }
+
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+            "groupes": forms.CheckboxSelectMultiple(),
+        }
+
+        error_messages = {
+            "nom": {"required": "Veuillez indiquer le nom de l'activité."},
+            "date": {"required": "Veuillez indiquer la date de l'activité."},
+            "lieu": {"required": "Veuillez indiquer le lieu de l'activité."},
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            if name != "groupes":
+                field.widget.attrs.setdefault("class", "form-control")
 
 
 class AccepterDemandeInscriptionForm(forms.Form):
