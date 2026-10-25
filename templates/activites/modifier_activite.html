@@ -74,6 +74,16 @@
                     </div>
 
                     <div class="col-md-6">
+                        <label for="{{ form.places_disponibles.id_for_label }}" class="form-label">
+                            {{ form.places_disponibles.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.places_disponibles }}
+                        {% for erreur in form.places_disponibles.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="{{ form.photo.id_for_label }}" class="form-label">
                             {{ form.photo.label }}
                         </label>
@@ -91,6 +101,7 @@
                         {% endif %}
 
                         {{ form.photo }}
+                        <div class="form-text">Format image, 5 Mo maximum.</div>
                         {% for erreur in form.photo.errors %}
                             <div class="text-danger small mt-1">{{ erreur }}</div>
                         {% endfor %}

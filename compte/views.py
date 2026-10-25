@@ -3,10 +3,11 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
 from .models import Educateur, User, Parent
-from enfants.models import Enfant, Groupe
+from enfants.models import Activite, Enfant, Groupe
 
 
 def est_administrateur(user):
@@ -121,7 +122,17 @@ def tableau_bord_educateur(request):
 def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
         return redirect(url_tableau_bord(request.user))
-    return render(request, "compte/tableau_bord.html", {"titre": "Parent"})
+
+    activites = (
+        Activite.objects
+        .filter(date__gte=timezone.now().date())
+        .order_by("date")[:12]
+    )
+
+    return render(request, "compte/tableau_bord.html", {
+        "titre": "Parent",
+        "activites": activites,
+    })
 
 
 @login_required

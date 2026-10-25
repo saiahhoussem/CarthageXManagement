@@ -168,13 +168,14 @@ class PhotoFileInput(forms.ClearableFileInput):
 class ActiviteForm(forms.ModelForm):
     class Meta:
         model = Activite
-        fields = ["nom", "date", "lieu", "frais_inscription", "description", "photo", "groupes"]
+        fields = ["nom", "date", "lieu", "frais_inscription", "places_disponibles", "description", "photo", "groupes"]
 
         labels = {
             "nom": "Nom de l'activité",
             "date": "Date",
             "lieu": "Lieu",
             "frais_inscription": "Frais d'inscription ($)",
+            "places_disponibles": "Nombre de places disponibles",
             "description": "Description",
             "photo": "Photo",
             "groupes": "Groupes concernés",
@@ -195,6 +196,7 @@ class ActiviteForm(forms.ModelForm):
             "date": {"required": "Veuillez indiquer la date de l'activité."},
             "lieu": {"required": "Veuillez indiquer le lieu de l'activité."},
             "frais_inscription": {"required": "Veuillez indiquer les frais d'inscription."},
+            "places_disponibles": {"required": "Veuillez indiquer le nombre de places disponibles."},
             "description": {"required": "Veuillez indiquer une description de l'activité."},
         }
 

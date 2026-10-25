@@ -38,7 +38,7 @@
                 style="background-color: #0d274d;"
             >
                 <h2 class="h5 mb-0">
-                    Activités à venir
+                    Toutes les activités
                 </h2>
             </div>
 
@@ -52,6 +52,7 @@
                             <th class="py-3">Date</th>
                             <th class="py-3">Lieu</th>
                             <th class="py-3">Frais</th>
+                            <th class="py-3">Places</th>
                             <th class="py-3">Groupes concernés</th>
                             <th class="py-3 text-end">Actions</th>
                         </tr>
@@ -76,7 +77,11 @@
                                 </td>
 
                                 <td>
-                                    {{ activite.frais_inscription }} $
+                                    {{ activite.frais_affichage }}
+                                </td>
+
+                                <td>
+                                    {{ activite.places_disponibles }}
                                 </td>
 
                                 <td>

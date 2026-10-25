@@ -311,6 +311,17 @@ class Activite(models.Model):
         ]
     )
 
+    places_disponibles = models.PositiveIntegerField(
+        default=20,
+        verbose_name="Nombre de places disponibles",
+        validators=[
+            MinValueValidator(
+                1,
+                "Le nombre de places disponibles doit être d'au moins 1."
+            )
+        ]
+    )
+
     groupes = models.ManyToManyField(
         Groupe,
         related_name="activites",
