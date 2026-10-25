@@ -156,6 +156,15 @@ class GroupeForm(forms.ModelForm):
         )
 
 
+class PhotoFileInput(forms.ClearableFileInput):
+    """
+    ClearableFileInput sans le texte "Actuellement : <lien>" par défaut de Django :
+    la photo actuelle est déjà affichée en aperçu par le template, donc seule la
+    case à cocher "Supprimer la photo actuelle" (quand une photo existe) est utile ici.
+    """
+    template_name = "widgets/photo_file_input.html"
+
+
 class ActiviteForm(forms.ModelForm):
     class Meta:
         model = Activite
@@ -175,8 +184,9 @@ class ActiviteForm(forms.ModelForm):
             "date": forms.DateInput(attrs={"type": "date"}),
             "description": forms.Textarea(attrs={
                 "rows": 4,
-                "placeholder": "Décrivez l'activité (optionnel)."
+                "placeholder": "Décrivez l'activité."
             }),
+            "photo": PhotoFileInput(),
             "groupes": forms.CheckboxSelectMultiple(),
         }
 
@@ -184,6 +194,8 @@ class ActiviteForm(forms.ModelForm):
             "nom": {"required": "Veuillez indiquer le nom de l'activité."},
             "date": {"required": "Veuillez indiquer la date de l'activité."},
             "lieu": {"required": "Veuillez indiquer le lieu de l'activité."},
+            "frais_inscription": {"required": "Veuillez indiquer les frais d'inscription."},
+            "description": {"required": "Veuillez indiquer une description de l'activité."},
         }
 
     def __init__(self, *args, **kwargs):
