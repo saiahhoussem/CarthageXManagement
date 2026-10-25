@@ -134,6 +134,11 @@ urlpatterns = [
         name="ajouter_activite",
     ),
     path(
+        "activites/<int:activite_id>/",
+        views.detail_activite,
+        name="detail_activite",
+    ),
+    path(
         "activites/<int:activite_id>/modifier/",
         views.modifier_activite,
         name="modifier_activite",

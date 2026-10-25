@@ -9,6 +9,13 @@ from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutor
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
+from .decorators import (
+    administrateur_requis,
+    parent_requis,
+    educateur_requis,
+    educateur_ou_parent_requis,
+)
+
 
 def obtenir_retour(request):
     retour = request.GET.get("retour")
@@ -368,11 +375,8 @@ def supprimer_personne_autorisee(request, personne_id):
 
 
 @login_required
+@educateur_requis
 def mon_groupe(request):
-    if not request.user.is_educateur:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     groupes = Groupe.objects.filter(
         educateur__pk=request.user.pk
@@ -384,11 +388,8 @@ def mon_groupe(request):
 
 
 @login_required
+@parent_requis
 def mes_enfants(request):
-    if not request.user.is_parent:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     enfants = Enfant.objects.filter(
         parents__pk=request.user.pk
@@ -400,10 +401,8 @@ def mes_enfants(request):
 
 
 @login_required
+@administrateur_requis
 def ajouter_groupe(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     form = GroupeForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -417,10 +416,8 @@ def ajouter_groupe(request):
     )
 
 @login_required
+@administrateur_requis
 def liste_groupes(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     groupes = Groupe.objects.select_related("educateur").all()
 
     return render(
@@ -430,10 +427,8 @@ def liste_groupes(request):
     )
 
 @login_required
+@administrateur_requis
 def modifier_groupe(request, groupe_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     groupe = get_object_or_404(Groupe, id=groupe_id)
 
     if request.method == "POST":
@@ -455,10 +450,8 @@ def modifier_groupe(request, groupe_id):
     )
 
 @login_required
+@administrateur_requis
 def supprimer_groupe(request, groupe_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     groupe = get_object_or_404(Groupe, id=groupe_id)
 
     if request.method == "POST":
@@ -499,11 +492,8 @@ def supprimer_groupe(request, groupe_id):
 
 
 @login_required
+@parent_requis
 def mes_demandes_inscription(request):
-    if not request.user.is_parent:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     demandes = DemandeInscription.objects.filter(
         parent__pk=request.user.pk
@@ -515,11 +505,8 @@ def mes_demandes_inscription(request):
 
 
 @login_required
+@parent_requis
 def creer_demande_inscription(request):
-    if not request.user.is_parent:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     if request.method == "POST":
         form = DemandeInscriptionForm(request.POST)
@@ -601,10 +588,8 @@ def supprimer_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def liste_demandes_inscription(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demandes = DemandeInscription.objects.select_related("parent").order_by(
         "-date_creation"
     )
@@ -615,10 +600,8 @@ def liste_demandes_inscription(request):
 
 
 @login_required
+@administrateur_requis
 def detail_demande_inscription(request, demande_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demande = get_object_or_404(DemandeInscription, id=demande_id)
 
     return render(request, "enfants/detail_demande_inscription.html", {
@@ -627,10 +610,8 @@ def detail_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def refuser_demande_inscription(request, demande_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demande = get_object_or_404(DemandeInscription, id=demande_id)
 
     if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
@@ -652,10 +633,8 @@ def refuser_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def accepter_demande_inscription(request, demande_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demande = get_object_or_404(DemandeInscription, id=demande_id)
 
     if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
@@ -699,9 +678,8 @@ def accepter_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def ajouter_activite(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
 
     form = ActiviteForm(request.POST or None, request.FILES or None)
 
@@ -721,10 +699,8 @@ def ajouter_activite(request):
 
 
 @login_required
+@administrateur_requis
 def liste_activites(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     activites = (
         Activite.objects
         .prefetch_related("groupes")
@@ -743,10 +719,8 @@ def liste_activites(request):
 
 
 @login_required
+@administrateur_requis
 def modifier_activite(request, activite_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     activite = get_object_or_404(Activite, id=activite_id)
 
     if request.method == "POST":
@@ -773,10 +747,8 @@ def modifier_activite(request, activite_id):
 
 
 @login_required
+@administrateur_requis
 def supprimer_activite(request, activite_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     activite = get_object_or_404(Activite, id=activite_id)
 
     if request.method == "POST":
@@ -797,10 +769,8 @@ def supprimer_activite(request, activite_id):
 
 
 @login_required
+@educateur_ou_parent_requis
 def mes_activites(request):
-    if not (request.user.is_educateur or request.user.is_parent):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     activites = (
         Activite.objects
         .prefetch_related("groupes")
@@ -815,4 +785,19 @@ def mes_activites(request):
             "activites": activites,
             "total_groupes": Groupe.objects.count(),
         }
+    )
+
+
+@login_required
+@educateur_ou_parent_requis
+def detail_activite(request, activite_id):
+    activite = get_object_or_404(
+        Activite.objects.prefetch_related("groupes"),
+        id=activite_id,
+    )
+
+    return render(
+        request,
+        "activites/detail_activite.html",
+        {"activite": activite}
     )

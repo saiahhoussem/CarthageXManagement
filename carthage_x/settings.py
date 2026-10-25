@@ -1,12 +1,19 @@
+import os
 from pathlib import Path
 
 from django.contrib.messages import constants as message_levels
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-s=j(^!do!uh(dbr#=ek4_9s&)c$@bmgkt2ht1vkiw9dxi1r&v7'
+# En production, définir DJANGO_SECRET_KEY et DJANGO_DEBUG=0 comme variables
+# d'environnement (ex. dans la config de l'application sur PythonAnywhere).
+# En local, sans ces variables, le comportement reste identique à avant.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    'django-insecure-s=j(^!do!uh(dbr#=ek4_9s&)c$@bmgkt2ht1vkiw9dxi1r&v7',
+)
 
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 ALLOWED_HOSTS = ['Houssem.pythonanywhere.com', '127.0.0.1', 'localhost']
