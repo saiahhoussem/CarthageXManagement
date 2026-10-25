@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Activités{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'enfants/activites.css' %}">
+{% endblock %}
 
 {% block sidebar %}
 {% include "components/sidebar_menu.html" %}
@@ -26,14 +32,27 @@
 
                 <div class="col-md-6 col-xl-4">
 
-                    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                    <a
+                        href="{% url 'detail_activite' activite.id %}"
+                        class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden text-decoration-none text-reset ck-carte-activite-lien"
+                    >
 
-                        <img
-                            src="{{ activite.photo_url }}"
-                            alt="{{ activite.nom }}"
-                            class="w-100"
-                            style="height: 180px; object-fit: cover;"
-                        >
+                        <div class="ck-img-conteneur" style="height: 180px;">
+
+                            <div class="spinner-border ck-img-spinner" style="color: #289b7b;" role="status">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+
+                            <img
+                                src="{{ activite.photo_url }}"
+                                alt="{{ activite.nom }}"
+                                class="ck-img-conteneur-media"
+                                loading="lazy"
+                                onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                            >
+
+                        </div>
 
                         <div class="card-body d-flex flex-column">
 
@@ -52,13 +71,13 @@
                             </p>
 
                             <p class="mb-3">
-                                {{ activite.description }}
+                                {{ activite.description|truncatewords:20 }}
                             </p>
 
                             <div class="mt-auto">
 
                                 <p class="fw-semibold mb-2" style="color: #289b7b;">
-                                    {{ activite.frais_inscription }} $
+                                    {{ activite.frais_affichage }}
                                 </p>
 
                                 {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
@@ -80,7 +99,7 @@
 
                         </div>
 
-                    </div>
+                    </a>
 
                 </div>
 

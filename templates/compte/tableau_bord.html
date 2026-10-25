@@ -17,7 +17,7 @@
 
     <div class="ck-dashboard-entete">
         <p class="ck-dashboard-eyebrow">
-            Espace administrateur
+            Espace {{ titre|lower }}
         </p>
 
         <h1 class="ck-dashboard-titre">
@@ -198,6 +198,107 @@
 
         </div>
 
+    {% elif activites is not None %}
+
+        <div class="ck-section-activites">
+
+            <div class="ck-actions-rapides-entete">
+                <div>
+                    <p class="ck-actions-rapides-eyebrow">
+                        À venir
+                    </p>
+                    <h2 class="ck-actions-rapides-titre">
+                        Activités et événements
+                    </h2>
+                </div>
+
+                <a href="{% url 'mes_activites' %}" class="ck-voir-tout">
+                    Voir tout
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </a>
+            </div>
+
+            {% if activites %}
+
+                <div class="ck-carrousel">
+
+                    <button
+                        type="button"
+                        class="ck-carrousel-fleche ck-carrousel-fleche--gauche"
+                        aria-label="Activités précédentes"
+                        data-direction="-1"
+                    >
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+
+                    <div class="ck-carrousel-piste">
+
+                        {% for activite in activites %}
+
+                            <div class="ck-carrousel-carte">
+
+                                <div class="ck-img-conteneur ck-carrousel-carte-image">
+
+                                    <div class="spinner-border ck-img-spinner" style="color: #289b7b;" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+
+                                    <img
+                                        src="{{ activite.photo_url }}"
+                                        alt="{{ activite.nom }}"
+                                        class="ck-img-conteneur-media"
+                                        loading="lazy"
+                                        onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                        onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                    >
+
+                                </div>
+
+                                <div class="ck-carrousel-carte-corps">
+
+                                    <p class="ck-carrousel-carte-date">
+                                        <i class="bi bi-calendar-event"></i>
+                                        {{ activite.date|date:"d M Y" }}
+                                    </p>
+
+                                    <h3 class="ck-carrousel-carte-titre">
+                                        {{ activite.nom }}
+                                    </h3>
+
+                                    <p class="ck-carrousel-carte-lieu">
+                                        <i class="bi bi-geo-alt"></i>
+                                        {{ activite.lieu }}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ck-carrousel-fleche ck-carrousel-fleche--droite"
+                        aria-label="Activités suivantes"
+                        data-direction="1"
+                    >
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
+                </div>
+
+            {% else %}
+
+                <div class="alert alert-light border mb-0">
+                    Aucune activité à venir pour le moment.
+                </div>
+
+            {% endif %}
+
+        </div>
+
     {% else %}
 
         <div class="alert alert-light border">
@@ -208,4 +309,24 @@
 
 </main>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    document.querySelectorAll('.ck-carrousel').forEach(function (carrousel) {
+      var piste = carrousel.querySelector('.ck-carrousel-piste');
+      if (!piste) return;
+
+      carrousel.querySelectorAll('.ck-carrousel-fleche').forEach(function (bouton) {
+        bouton.addEventListener('click', function () {
+          var direction = parseInt(bouton.dataset.direction, 10) || 1;
+          var carte = piste.querySelector('.ck-carrousel-carte');
+          var decalage = carte ? carte.getBoundingClientRect().width + 16 : 260;
+          piste.scrollBy({ left: direction * decalage, behavior: 'smooth' });
+        });
+      });
+    });
+  })();
+</script>
 {% endblock %}
