@@ -3,10 +3,10 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
-from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
+from .forms import ConnexionForm,CreationParentForm, ModificationEducateurForm, ModificationParentForm
 from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
-from .forms import CreationParentForm
+
 
 def est_administrateur(user):
     return user.is_authenticated and (
@@ -55,9 +55,6 @@ TITRES_CREATION = {
     User.Role.EDUCATEUR: "Créer un compte éducateur",
     User.Role.PARENT: "Créer un compte parent",
 }
-
-
-from .forms import CreationParentForm
 
 @login_required
 @user_passes_test(est_administrateur)
@@ -191,7 +188,7 @@ def modifier_parent(request, pk):
     parent = get_object_or_404(Parent, pk=pk)
 
     if request.method == "POST":
-        form = ModificationEducateurForm(request.POST, instance=parent)
+        form = ModificationParentForm(request.POST, instance=parent)
         if form.is_valid():
             form.save()
             messages.success(request, "Les informations du parent ont été mises à jour.")
