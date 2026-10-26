@@ -155,6 +155,17 @@ class GroupeForm(forms.ModelForm):
             not educateurs_disponibles.exists()
         )
 
+    def clean_educateur(self):
+        educateur = self.cleaned_data.get("educateur")
+
+        if self.instance and self.instance.pk and educateur is None:
+            if self.instance.enfant_set.exists():
+                raise forms.ValidationError(
+                    "Impossible de retirer l'éducateur : ce groupe a encore des enfants assignés."
+                )
+
+        return educateur
+
 
 class PhotoFileInput(forms.ClearableFileInput):
     """
