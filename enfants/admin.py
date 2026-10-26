@@ -16,4 +16,8 @@ admin.site.register(Allergie)
 admin.site.register(ContactUrgence)
 admin.site.register(PersonneAutorisee)
 admin.site.register(DemandeInscription)
-admin.site.register(Activite)
+
+
+@admin.register(Activite)
+class ActiviteAdmin(admin.ModelAdmin):
+    list_display = ["nom", "date", "lieu", "frais_inscription", "places_disponibles"]

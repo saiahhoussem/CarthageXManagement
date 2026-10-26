@@ -183,6 +183,7 @@ class ActiviteForm(forms.ModelForm):
 
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}),
+            "places_disponibles": forms.NumberInput(attrs={"min": "1"}),
             "description": forms.Textarea(attrs={
                 "rows": 4,
                 "placeholder": "Décrivez l'activité."
@@ -206,6 +207,12 @@ class ActiviteForm(forms.ModelForm):
         for name, field in self.fields.items():
             if name != "groupes":
                 field.widget.attrs.setdefault("class", "form-control")
+
+        # PositiveIntegerField force min="0" sur le widget par défaut (son
+        # propre plancher), ce qui écrase l'attribut "min" du widget passé
+        # dans Meta.widgets. On le corrige ici pour refléter le vrai
+        # minimum métier (MinValueValidator(1) sur le modèle).
+        self.fields["places_disponibles"].widget.attrs["min"] = "1"
 
 
 class AccepterDemandeInscriptionForm(forms.Form):

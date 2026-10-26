@@ -3,7 +3,17 @@ from django.urls import reverse
 from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-from .models import Activite, Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
+from .models import (
+    Activite,
+    Enfant,
+    Allergie,
+    ContactUrgence,
+    PersonneAutorisee,
+    Groupe,
+    DemandeInscription,
+    groupes_pertinents_pour_utilisateur,
+    activite_visible_par,
+)
 from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
 
 from django.contrib.auth.decorators import login_required
@@ -771,19 +781,33 @@ def supprimer_activite(request, activite_id):
 @login_required
 @educateur_ou_parent_requis
 def mes_activites(request):
-    activites = (
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    toutes_les_activites = (
         Activite.objects
         .prefetch_related("groupes")
         .annotate(nb_groupes=Count("groupes"))
         .order_by("date")
     )
 
+    # Filtré en Python (pas en SQL) pour pouvoir réutiliser nb_groupes/
+    # total_groupes déjà annotés/calculés, sans requête supplémentaire par
+    # activité ni double comptage via une jointure sur groupes.
+    activites = [
+        activite
+        for activite in toutes_les_activites
+        if activite_visible_par(
+            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ]
+
     return render(
         request,
         "activites/mes_activites.html",
         {
             "activites": activites,
-            "total_groupes": Groupe.objects.count(),
+            "total_groupes": total_groupes,
         }
     )
 
@@ -792,9 +816,20 @@ def mes_activites(request):
 @educateur_ou_parent_requis
 def detail_activite(request, activite_id):
     activite = get_object_or_404(
-        Activite.objects.prefetch_related("groupes"),
+        Activite.objects.prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes")),
         id=activite_id,
     )
+
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    if not activite_visible_par(
+        activite, activite.nb_groupes, total_groupes, groupes_pertinents
+    ):
+        raise PermissionDenied(
+            "Cette activité ne concerne pas votre groupe."
+        )
 
     return render(
         request,

@@ -1,13 +1,20 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Count
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
 from .models import Educateur, User, Parent
-from enfants.models import Activite, Enfant, Groupe
+from enfants.models import (
+    Activite,
+    Enfant,
+    Groupe,
+    groupes_pertinents_pour_utilisateur,
+    activite_visible_par,
+)
 
 
 def est_administrateur(user):
@@ -123,11 +130,24 @@ def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
         return redirect(url_tableau_bord(request.user))
 
-    activites = (
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    activites_a_venir = (
         Activite.objects
         .filter(date__gte=timezone.now().date())
-        .order_by("date")[:12]
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
     )
+
+    activites = [
+        activite
+        for activite in activites_a_venir
+        if activite_visible_par(
+            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ][:12]
 
     return render(request, "compte/tableau_bord.html", {
         "titre": "Parent",

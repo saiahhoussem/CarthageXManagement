@@ -427,3 +427,49 @@ class Activite(models.Model):
 
     def __str__(self):
         return str(self.nom)
+
+
+def groupes_pertinents_pour_utilisateur(utilisateur):
+    """
+    Ensemble des id de Groupe concernant cet utilisateur : le groupe de
+    l'éducateur(trice), ou les groupes des enfants d'un parent. Ensemble
+    vide si l'utilisateur n'a pas de groupe/enfant associé, ou s'il n'est
+    ni éducateur ni parent (il ne verra alors que les activités ouvertes
+    à tout le monde — voir activite_visible_par).
+
+    Même logique que mon_groupe/mes_enfants : on filtre par pk plutôt que
+    d'utiliser request.user.groupe, qui n'existe que sur une instance
+    Educateur, pas sur l'instance User générique que contient request.user.
+    """
+    if utilisateur.is_educateur:
+        return set(
+            Groupe.objects.filter(educateur__pk=utilisateur.pk)
+            .values_list("pk", flat=True)
+        )
+
+    if utilisateur.is_parent:
+        return set(
+            Enfant.objects.filter(parents__pk=utilisateur.pk)
+            .values_list("groupe_id", flat=True)
+        )
+
+    return set()
+
+
+def activite_visible_par(activite, nb_groupes, total_groupes, groupes_pertinents):
+    """
+    True si `activite` (dont le nombre de groupes ciblés, déjà annoté sur
+    le queryset, est `nb_groupes`, sur `total_groupes` groupes existants
+    au total) doit être visible pour un utilisateur dont les groupes
+    pertinents sont `groupes_pertinents` (voir
+    groupes_pertinents_pour_utilisateur).
+
+    `activite.groupes` doit avoir été préchargé (prefetch_related) pour
+    éviter une requête supplémentaire par activité dans une liste.
+    """
+    if nb_groupes == 0 or nb_groupes == total_groupes:
+        return True
+
+    ids_groupes_activite = {groupe.pk for groupe in activite.groupes.all()}
+
+    return bool(ids_groupes_activite & groupes_pertinents)
