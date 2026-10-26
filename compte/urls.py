@@ -37,6 +37,14 @@ urlpatterns = [
         name="tableau_bord_parent",
     ),
 
+    # CRUD Administrateur
+
+    path(
+        "administrateurs/",
+        views.creer_administrateur, 
+        name="creer_administrateur"
+    ),
+
     # CRUD educateur
 
     path(

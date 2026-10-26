@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
-from .forms import ConnexionForm,CreationEducateurForm, ModificationEducateurForm,CreationParentForm, ModificationParentForm
+from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm,CreationParentForm, ModificationParentForm
 from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
 
@@ -79,6 +79,31 @@ def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
         return redirect(url_tableau_bord(request.user))
     return render(request, "compte/tableau_bord.html", {"titre": "Parent"})
+
+# CRUD Administrateur
+
+@login_required
+@user_passes_test(est_administrateur)
+def creer_administrateur(request):
+    if request.method == "POST":
+        form = CreationAdministrateurForm(request.POST)
+        if form.is_valid():
+            utilisateur = form.save()
+            messages.success(
+                request,
+                f"Le compte administrateur de {utilisateur.get_full_name() or utilisateur.username} a été créé avec succès."
+            )
+            return redirect("compte:tableau_bord_admin")
+        else:
+            messages.error(request, "Impossible de créer le compte administrateur.")
+    else:
+        form = CreationAdministrateurForm()
+
+    return render(
+        request,
+        "compte/creer_administrateur.html",
+        {"form": form, "titre_page": "Créer un compte administrateur"},
+    )
 
 # CRUD Educateur
 
