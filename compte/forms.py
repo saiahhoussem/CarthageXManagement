@@ -79,14 +79,12 @@ class BaseCreationCompteForm(UserCreationForm):
             utilisateur.save()
         return utilisateur
 
-
-class CreationParentForm(BaseCreationCompteForm):
-    role = User.Role.PARENT
+class CreationAdministrateurForm(BaseCreationCompteForm):
+    role = User.Role.ADMINISTRATEUR
 
     class Meta(BaseCreationCompteForm.Meta):
-        model = Parent
+        model = Administrateur
         fields = BaseCreationCompteForm.Meta.fields
-
 
 class CreationEducateurForm(BaseCreationCompteForm):
     role = User.Role.EDUCATEUR
@@ -95,16 +93,14 @@ class CreationEducateurForm(BaseCreationCompteForm):
         model = Educateur
         fields = BaseCreationCompteForm.Meta.fields
 
-
-class CreationAdministrateurForm(BaseCreationCompteForm):
-    role = User.Role.ADMINISTRATEUR
+class CreationParentForm(BaseCreationCompteForm):
+    role = User.Role.PARENT
 
     class Meta(BaseCreationCompteForm.Meta):
-        model = Administrateur
+        model = Parent
         fields = BaseCreationCompteForm.Meta.fields
 
-
-class ModificationEducateurForm(forms.ModelForm):
+class BaseModificationCompteForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email", "telephone"]
@@ -132,30 +128,19 @@ class ModificationEducateurForm(forms.ModelForm):
             raise forms.ValidationError("Un compte existe déjà avec ce courriel.")
         return email
 
-class ModificationParentForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ["username", "first_name", "last_name", "email", "telephone"]
-        widgets = {
-            "username": forms.TextInput(attrs={"class": "form-control"}),
-            "first_name": forms.TextInput(attrs={"class": "form-control"}),
-            "last_name": forms.TextInput(attrs={"class": "form-control"}),
-            "email": forms.EmailInput(attrs={"class": "form-control"}),
-            "telephone": forms.TextInput(attrs={"class": "form-control"}),
-        }
-        labels = {
-            "username": "Nom d'utilisateur",
-            "first_name": "Prénom",
-            "last_name": "Nom",
-            "email": "Courriel",
-            "telephone": "Téléphone",
-        }
+class ModificationParentForm(BaseModificationCompteForm):
+    class Meta(BaseModificationCompteForm.Meta):
+        model = Parent
+        fields = BaseModificationCompteForm.Meta.fields
 
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        qs = User.objects.filter(email__iexact=email)
-        if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise forms.ValidationError("Un compte existe déjà avec ce courriel.")
-        return email
+
+class ModificationEducateurForm(BaseModificationCompteForm):
+    class Meta(BaseModificationCompteForm.Meta):
+        model = Educateur
+        fields = BaseModificationCompteForm.Meta.fields
+
+
+class ModificationAdministrateurForm(BaseModificationCompteForm):
+    class Meta(BaseModificationCompteForm.Meta):
+        model = Administrateur
+        fields = BaseModificationCompteForm.Meta.fields
