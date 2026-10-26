@@ -14,6 +14,11 @@ class CourrielOuNomUtilisateurBackend(ModelBackend):
                 Q(username__iexact=username) | Q(email__iexact=username)
             )
         except (User.DoesNotExist, User.MultipleObjectsReturned):
+            # On "vérifie" quand même un mot de passe factice, pour que le
+            # temps de réponse soit similaire que l'utilisateur existe ou
+            # non (évite de pouvoir deviner si un email/nom existe via le
+            # délai de réponse). C'est exactement ce que fait ModelBackend.
+            User().set_password(password)
             return None
         if utilisateur.check_password(password) and self.user_can_authenticate(utilisateur):
             return utilisateur

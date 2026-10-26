@@ -159,6 +159,16 @@
             </a>
         </li>
 
+            <li>
+                <a
+                    href="{% url 'liste_activites' %}"
+                    class="{% if url_actif == 'liste_activites' or url_actif == 'ajouter_activite' %}active{% endif %}"
+                >
+                    <i class="bi bi-suit-spade"></i>
+                    Activités
+                </a>
+            </li>
+
         {% elif user.is_educateur %}
 
         <li>
@@ -185,7 +195,7 @@
         </li>
 
         <li>
-            <a href="#">
+            <a href="{% url 'mes_activites' %}" class="{% if url_actif == 'mes_activites' %}active{% endif %}">
                 <i class="bi bi-suit-spade"></i>
                 Activités
             </a>
@@ -232,7 +242,7 @@
         </li>
 
         <li>
-            <a href="#">
+            <a href="{% url 'mes_activites' %}" class="{% if url_actif == 'mes_activites' %}active{% endif %}">
                 <i class="bi bi-suit-spade"></i>
                 Activités
             </a>

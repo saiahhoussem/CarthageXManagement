@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Modifier une activité{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'enfants/fiche_enfant.css' %}">
+{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main>
+
+<div class="container py-5 fiche-enfant">
+
+    <h1 class="fw-semibold mb-4">Modifier l'activité</h1>
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h2 class="h5 mb-0">Informations de l'activité</h2>
+        </div>
+
+        <div class="card-body">
+
+            <form method="post" novalidate enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label for="{{ form.nom.id_for_label }}" class="form-label">
+                            {{ form.nom.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.nom }}
+                        {% for erreur in form.nom.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">
+                            {{ form.date.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.date }}
+                        {% for erreur in form.date.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.lieu.id_for_label }}" class="form-label">
+                            {{ form.lieu.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.lieu }}
+                        {% for erreur in form.lieu.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.frais_inscription.id_for_label }}" class="form-label">
+                            {{ form.frais_inscription.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.frais_inscription }}
+                        {% for erreur in form.frais_inscription.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.places_disponibles.id_for_label }}" class="form-label">
+                            {{ form.places_disponibles.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.places_disponibles }}
+                        {% for erreur in form.places_disponibles.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.photo.id_for_label }}" class="form-label">
+                            {{ form.photo.label }}
+                        </label>
+
+                        {% if activite.photo %}
+                            <div class="mb-2">
+                                <img
+                                    src="{{ activite.photo.url }}"
+                                    alt="Photo actuelle de l'activité"
+                                    class="rounded"
+                                    style="max-height: 100px;"
+                                >
+                                <div class="form-text">Photo actuelle. Choisissez un fichier pour la remplacer.</div>
+                            </div>
+                        {% endif %}
+
+                        {{ form.photo }}
+                        <div class="form-text">Format image, 5 Mo maximum.</div>
+                        {% for erreur in form.photo.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            {{ form.description.label }} <span class="champ-requis">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% for erreur in form.description.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            {{ form.groupes.label }}
+                        </label>
+                        <div class="d-flex flex-column gap-2">
+                            {% for case in form.groupes %}
+                                <div class="form-check">
+                                    {{ case.tag }}
+                                    <label class="form-check-label" for="{{ case.id_for_label }}">
+                                        {{ case.choice_label }}
+                                    </label>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted mb-0">Aucun groupe n'existe pour le moment.</p>
+                            {% endfor %}
+                        </div>
+                        {% for erreur in form.groupes.errors %}
+                            <div class="text-danger small mt-1">{{ erreur }}</div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                {% for erreur in form.non_field_errors %}
+                    <div class="text-danger small mt-3">
+                        {{ erreur }}
+                    </div>
+                {% endfor %}
+
+                <div class="mt-4">
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Enregistrer les modifications
+                    </button>
+
+                    <a href="{% url 'liste_activites' %}" class="btn btn-secondary">
+                        Annuler
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+{% endblock %}

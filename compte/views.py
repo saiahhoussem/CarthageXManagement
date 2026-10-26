@@ -1,11 +1,26 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Count
 from django.shortcuts import redirect, render, get_object_or_404
-from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm,CreationParentForm, ModificationParentForm
 from .models import Educateur, User, Parent
-from enfants.models import Enfant, Groupe
+from .forms import ( 
+    ConnexionForm, 
+    CreationAdministrateurForm, 
+    CreationEducateurForm, 
+    ModificationEducateurForm,
+    CreationParentForm, 
+    ModificationParentForm
+)
+from django.utils import timezone
 
+from enfants.models import (
+    Activite,
+    Enfant,
+    Groupe,
+    groupes_pertinents_pour_utilisateur,
+    activite_visible_par,
+)
 
 def est_administrateur(user):
     return user.is_authenticated and (
@@ -78,7 +93,30 @@ def tableau_bord_educateur(request):
 def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
         return redirect(url_tableau_bord(request.user))
-    return render(request, "compte/tableau_bord.html", {"titre": "Parent"})
+
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    activites_a_venir = (
+        Activite.objects
+        .filter(date__gte=timezone.now().date())
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
+    )
+
+    activites = [
+        activite
+        for activite in activites_a_venir
+        if activite_visible_par(
+            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ][:12]
+
+    return render(request, "compte/tableau_bord.html", {
+        "titre": "Parent",
+        "activites": activites,
+    })
 
 # CRUD Administrateur
 

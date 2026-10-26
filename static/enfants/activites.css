@@ -1,0 +1,42 @@
+.ck-carte-activite-lien {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ck-carte-activite-lien:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13, 39, 79, 0.12);
+}
+
+/* Affichage des images : spinner pendant le chargement, fondu à l'arrivée */
+.ck-img-conteneur {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f3f6;
+}
+
+.ck-img-spinner {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.ck-img-conteneur.ck-img-pret .ck-img-spinner {
+  display: none;
+}
+
+.ck-img-conteneur-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.ck-img-conteneur-media.ck-img-chargee {
+  opacity: 1;
+}
