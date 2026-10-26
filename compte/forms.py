@@ -59,30 +59,25 @@ class BaseCreationCompteForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["role"].choices = [
-            choix for choix in User.Role.choices
-            if choix[0] != User.Role.ADMINISTRATEUR
-        ]
+        # Les labels sont forcés ici pour garantir l'héritage
+        self.fields["username"].label = "Nom d'utilisateur"
+        self.fields["first_name"].label = "Prénom"
+        self.fields["last_name"].label = "Nom"
+        self.fields["email"].label = "Courriel"
+        self.fields["telephone"].label = "Téléphone"
+        self.fields["password1"].label = "Mot de passe"
+        self.fields["password2"].label = "Confirmation du mot de passe"
 
         for name, field in self.fields.items():
             field.widget.attrs.setdefault("class", "form-control")
             field.help_text = self.AIDE_CHAMPS.get(name, "")
             field.required = True
 
-        self.fields["password1"].label = "Mot de passe"
-        self.fields["password2"].label = "Confirmation du mot de passe"
-
     def clean_email(self):
         email = self.cleaned_data["email"]
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Un compte existe déjà avec ce courriel.")
         return email
-
-    def clean_role(self):
-        role = self.cleaned_data["role"]
-        if role == User.Role.ADMINISTRATEUR:
-            raise forms.ValidationError("Vous ne pouvez pas créer de compte administrateur.")
-        return role
 
     def save(self, commit=True):
         utilisateur = super().save(commit=False)
