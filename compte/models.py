@@ -16,6 +16,10 @@ class User(AbstractUser):
         EDUCATEUR = "educateur(trice)", "Éducateur(trice)"
         PARENT = "parent", "Parent"
 
+    email = models.EmailField(
+        verbose_name="Adresse courriel",
+        unique=True,
+    )
     role = models.CharField(
         max_length=30,
         choices=Role.choices,

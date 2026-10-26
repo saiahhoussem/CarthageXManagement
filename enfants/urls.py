@@ -123,4 +123,34 @@ urlpatterns = [
         views.accepter_demande_inscription,
         name="accepter_demande_inscription",
     ),
+    path(
+        "activites/",
+        views.liste_activites,
+        name="liste_activites",
+    ),
+    path(
+        "activites/ajouter/",
+        views.ajouter_activite,
+        name="ajouter_activite",
+    ),
+    path(
+        "activites/<int:activite_id>/",
+        views.detail_activite,
+        name="detail_activite",
+    ),
+    path(
+        "activites/<int:activite_id>/modifier/",
+        views.modifier_activite,
+        name="modifier_activite",
+    ),
+    path(
+        "activites/<int:activite_id>/supprimer/",
+        views.supprimer_activite,
+        name="supprimer_activite",
+    ),
+    path(
+        "mes-activites/",
+        views.mes_activites,
+        name="mes_activites",
+    ),
 ]

@@ -1,12 +1,30 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-from .models import Enfant, Allergie, ContactUrgence, PersonneAutorisee, Groupe, DemandeInscription
-from .forms import AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from .models import (
+    Activite,
+    Enfant,
+    Allergie,
+    ContactUrgence,
+    PersonneAutorisee,
+    Groupe,
+    DemandeInscription,
+    groupes_pertinents_pour_utilisateur,
+    activite_visible_par,
+)
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+
+from .decorators import (
+    administrateur_requis,
+    parent_requis,
+    educateur_requis,
+    educateur_ou_parent_requis,
+)
 
 
 def obtenir_retour(request):
@@ -367,11 +385,8 @@ def supprimer_personne_autorisee(request, personne_id):
 
 
 @login_required
+@educateur_requis
 def mon_groupe(request):
-    if not request.user.is_educateur:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     groupes = Groupe.objects.filter(
         educateur__pk=request.user.pk
@@ -383,11 +398,8 @@ def mon_groupe(request):
 
 
 @login_required
+@parent_requis
 def mes_enfants(request):
-    if not request.user.is_parent:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     enfants = Enfant.objects.filter(
         parents__pk=request.user.pk
@@ -399,10 +411,8 @@ def mes_enfants(request):
 
 
 @login_required
+@administrateur_requis
 def ajouter_groupe(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     form = GroupeForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -416,10 +426,8 @@ def ajouter_groupe(request):
     )
 
 @login_required
+@administrateur_requis
 def liste_groupes(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     groupes = Groupe.objects.select_related("educateur").all()
 
     return render(
@@ -429,10 +437,8 @@ def liste_groupes(request):
     )
 
 @login_required
+@administrateur_requis
 def modifier_groupe(request, groupe_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     groupe = get_object_or_404(Groupe, id=groupe_id)
 
     if request.method == "POST":
@@ -454,10 +460,8 @@ def modifier_groupe(request, groupe_id):
     )
 
 @login_required
+@administrateur_requis
 def supprimer_groupe(request, groupe_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     groupe = get_object_or_404(Groupe, id=groupe_id)
 
     if request.method == "POST":
@@ -498,11 +502,8 @@ def supprimer_groupe(request, groupe_id):
 
 
 @login_required
+@parent_requis
 def mes_demandes_inscription(request):
-    if not request.user.is_parent:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     demandes = DemandeInscription.objects.filter(
         parent__pk=request.user.pk
@@ -514,11 +515,8 @@ def mes_demandes_inscription(request):
 
 
 @login_required
+@parent_requis
 def creer_demande_inscription(request):
-    if not request.user.is_parent:
-        raise PermissionDenied(
-            "Vous n'avez pas accès à cette page."
-        )
 
     if request.method == "POST":
         form = DemandeInscriptionForm(request.POST)
@@ -600,10 +598,8 @@ def supprimer_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def liste_demandes_inscription(request):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demandes = DemandeInscription.objects.select_related("parent").order_by(
         "-date_creation"
     )
@@ -614,10 +610,8 @@ def liste_demandes_inscription(request):
 
 
 @login_required
+@administrateur_requis
 def detail_demande_inscription(request, demande_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demande = get_object_or_404(DemandeInscription, id=demande_id)
 
     return render(request, "enfants/detail_demande_inscription.html", {
@@ -626,10 +620,8 @@ def detail_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def refuser_demande_inscription(request, demande_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demande = get_object_or_404(DemandeInscription, id=demande_id)
 
     if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
@@ -651,10 +643,8 @@ def refuser_demande_inscription(request, demande_id):
 
 
 @login_required
+@administrateur_requis
 def accepter_demande_inscription(request, demande_id):
-    if not (request.user.is_administrateur or request.user.is_superuser):
-        raise PermissionDenied("Vous n'avez pas accès à cette page.")
-
     demande = get_object_or_404(DemandeInscription, id=demande_id)
 
     if demande.statut != DemandeInscription.Statut.EN_ATTENTE:
@@ -695,3 +685,154 @@ def accepter_demande_inscription(request, demande_id):
         "form": form,
         "demande": demande,
     })
+
+
+@login_required
+@administrateur_requis
+def ajouter_activite(request):
+
+    form = ActiviteForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(
+            request,
+            f"L'activité « {form.cleaned_data['nom']} » a été créée avec succès."
+        )
+        return redirect("liste_activites")
+
+    return render(
+        request,
+        "activites/ajouter_activite.html",
+        {"form": form}
+    )
+
+
+@login_required
+@administrateur_requis
+def liste_activites(request):
+    activites = (
+        Activite.objects
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
+    )
+
+    return render(
+        request,
+        "activites/liste_activites.html",
+        {
+            "activites": activites,
+            "total_groupes": Groupe.objects.count(),
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def modifier_activite(request, activite_id):
+    activite = get_object_or_404(Activite, id=activite_id)
+
+    if request.method == "POST":
+        form = ActiviteForm(request.POST, request.FILES, instance=activite)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                f"L'activité « {activite.nom} » a été modifiée avec succès."
+            )
+            return redirect("liste_activites")
+    else:
+        form = ActiviteForm(instance=activite)
+
+    return render(
+        request,
+        "activites/modifier_activite.html",
+        {
+            "form": form,
+            "activite": activite,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def supprimer_activite(request, activite_id):
+    activite = get_object_or_404(Activite, id=activite_id)
+
+    if request.method == "POST":
+        nom_activite = activite.nom
+        activite.delete()
+
+        messages.success(
+            request,
+            f"L'activité « {nom_activite} » a été supprimée avec succès."
+        )
+        return redirect("liste_activites")
+
+    return render(
+        request,
+        "activites/supprimer_activite.html",
+        {"activite": activite}
+    )
+
+
+@login_required
+@educateur_ou_parent_requis
+def mes_activites(request):
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    toutes_les_activites = (
+        Activite.objects
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
+    )
+
+    # Filtré en Python (pas en SQL) pour pouvoir réutiliser nb_groupes/
+    # total_groupes déjà annotés/calculés, sans requête supplémentaire par
+    # activité ni double comptage via une jointure sur groupes.
+    activites = [
+        activite
+        for activite in toutes_les_activites
+        if activite_visible_par(
+            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ]
+
+    return render(
+        request,
+        "activites/mes_activites.html",
+        {
+            "activites": activites,
+            "total_groupes": total_groupes,
+        }
+    )
+
+
+@login_required
+@educateur_ou_parent_requis
+def detail_activite(request, activite_id):
+    activite = get_object_or_404(
+        Activite.objects.prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes")),
+        id=activite_id,
+    )
+
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    if not activite_visible_par(
+        activite, activite.nb_groupes, total_groupes, groupes_pertinents
+    ):
+        raise PermissionDenied(
+            "Cette activité ne concerne pas votre groupe."
+        )
+
+    return render(
+        request,
+        "activites/detail_activite.html",
+        {"activite": activite}
+    )

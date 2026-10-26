@@ -190,3 +190,155 @@
     grid-template-columns: 1fr;
   }
 }
+
+.ck-section-activites {
+  margin-top: 2.5rem;
+}
+
+.ck-voir-tout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ck-bleu-clair);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ck-voir-tout:hover {
+  text-decoration: underline;
+}
+
+.ck-carrousel {
+  position: relative;
+}
+
+.ck-carrousel-piste {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  padding-bottom: 0.25rem;
+  /* Masque la scrollbar native : la navigation se fait avec les flèches. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ck-carrousel-piste::-webkit-scrollbar {
+  display: none;
+}
+
+.ck-carrousel-carte {
+  flex: 0 0 260px;
+  scroll-snap-align: start;
+  background: #fff;
+  border: 1px solid #e8ecf2;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(13, 39, 79, 0.04);
+}
+
+.ck-carrousel-carte-image {
+  height: 130px;
+}
+
+/* Affichage des images : spinner pendant le chargement, fondu à l'arrivée */
+.ck-img-conteneur {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f3f6;
+}
+
+.ck-img-spinner {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.ck-img-conteneur.ck-img-pret .ck-img-spinner {
+  display: none;
+}
+
+.ck-img-conteneur-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.ck-img-conteneur-media.ck-img-chargee {
+  opacity: 1;
+}
+
+.ck-carrousel-carte-corps {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.ck-carrousel-carte-date {
+  color: var(--ck-vert);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin: 0 0 0.3rem;
+}
+
+.ck-carrousel-carte-titre {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ck-bleu-fonce);
+  margin: 0 0 0.3rem;
+}
+
+.ck-carrousel-carte-lieu {
+  color: #5a6b85;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.ck-carrousel-fleche {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #e8ecf2;
+  background: #fff;
+  color: var(--ck-bleu-fonce);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(13, 39, 79, 0.12);
+  z-index: 1;
+}
+
+.ck-carrousel-fleche:hover {
+  background: var(--ck-bleu-fonce);
+  color: #fff;
+}
+
+.ck-carrousel-fleche--gauche {
+  left: -14px;
+}
+
+.ck-carrousel-fleche--droite {
+  right: -14px;
+}
+
+@media (max-width: 600px) {
+  .ck-carrousel-fleche {
+    display: none;
+  }
+
+  .ck-carrousel-piste {
+    scroll-snap-type: x mandatory;
+  }
+}
