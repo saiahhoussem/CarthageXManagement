@@ -3,7 +3,6 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import Administrateur, Educateur, Parent, User
 
-
 class ConnexionForm(AuthenticationForm):
     username = forms.CharField(
         label="Adresse courriel ou nom d'utilisateur",
@@ -25,26 +24,23 @@ class ConnexionForm(AuthenticationForm):
         widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
     )
 
-
-class CreationCompteForm(UserCreationForm):
-
+class BaseCreationCompteForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Courriel")
 
-    class Meta(UserCreationForm.Meta):
+    class Meta:
         model = User
         fields = [
             "username",
             "first_name",
             "last_name",
             "email",
-            "role",
             "telephone",
         ]
         labels = {
             "username": "Nom d'utilisateur",
             "first_name": "Prénom",
             "last_name": "Nom",
-            "role": "Rôle",
+            "email": "Courriel",
             "telephone": "Téléphone",
         }
 
@@ -53,11 +49,12 @@ class CreationCompteForm(UserCreationForm):
         "first_name": "Veuillez entrer le prénom de l'utilisateur.",
         "last_name": "Veuillez entrer le nom de l'utilisateur.",
         "email": "Veuillez entrer l'adresse courriel de l'utilisateur.",
-        "role": "Veuillez choisir le rôle que voulez attribuer à l'utilisateur.",
         "telephone": "Veuillez entrer le numéro de téléphone de l'utilisateur.",
         "password1": "Veuillez choisir un mot de passe du compte.",
         "password2": "Veuillez confirmer le mot de passe du compte.",
     }
+
+    role = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,12 +66,6 @@ class CreationCompteForm(UserCreationForm):
         self.fields["password1"].label = "Mot de passe"
         self.fields["password2"].label = "Confirmation du mot de passe"
 
-    ROLE_MODELES = {
-        User.Role.ADMINISTRATEUR: Administrateur,
-        User.Role.EDUCATEUR: Educateur,
-        User.Role.PARENT: Parent,
-    }
-
     def clean_email(self):
         email = self.cleaned_data["email"]
         if User.objects.filter(email__iexact=email).exists():
@@ -82,19 +73,35 @@ class CreationCompteForm(UserCreationForm):
         return email
 
     def save(self, commit=True):
-        modele = self.ROLE_MODELES.get(self.cleaned_data["role"], User)
-        utilisateur = modele(
-            username=self.cleaned_data["username"],
-            first_name=self.cleaned_data["first_name"],
-            last_name=self.cleaned_data["last_name"],
-            email=self.cleaned_data["email"],
-            role=self.cleaned_data["role"],
-            telephone=self.cleaned_data["telephone"],
-        )
-        utilisateur.set_password(self.cleaned_data["password1"])
+        utilisateur = super().save(commit=False)
+        utilisateur.role = self.role  
         if commit:
             utilisateur.save()
         return utilisateur
+
+
+class CreationParentForm(BaseCreationCompteForm):
+    role = User.Role.PARENT
+
+    class Meta(BaseCreationCompteForm.Meta):
+        model = Parent
+        fields = BaseCreationCompteForm.Meta.fields
+
+
+class CreationEducateurForm(BaseCreationCompteForm):
+    role = User.Role.EDUCATEUR
+
+    class Meta(BaseCreationCompteForm.Meta):
+        model = Educateur
+        fields = BaseCreationCompteForm.Meta.fields
+
+
+class CreationAdministrateurForm(BaseCreationCompteForm):
+    role = User.Role.ADMINISTRATEUR
+
+    class Meta(BaseCreationCompteForm.Meta):
+        model = Administrateur
+        fields = BaseCreationCompteForm.Meta.fields
 
 
 class ModificationEducateurForm(forms.ModelForm):
