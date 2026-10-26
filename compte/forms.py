@@ -100,6 +100,7 @@ class CreationParentForm(BaseCreationCompteForm):
         model = Parent
         fields = BaseCreationCompteForm.Meta.fields
 
+
 class BaseModificationCompteForm(forms.ModelForm):
     class Meta:
         model = User
