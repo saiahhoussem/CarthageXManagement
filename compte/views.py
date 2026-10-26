@@ -2,8 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
-from django.urls import reverse
-from .forms import ConnexionForm,CreationParentForm, ModificationEducateurForm, ModificationParentForm
+from .forms import ConnexionForm,CreationEducateurForm, ModificationEducateurForm,CreationParentForm, ModificationParentForm
 from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
 
@@ -57,30 +56,6 @@ TITRES_CREATION = {
 }
 
 @login_required
-@user_passes_test(est_administrateur)
-def creer_parent(request):
-    if request.method == "POST":
-        form = CreationParentForm(request.POST)
-        if form.is_valid():
-            utilisateur = form.save()
-            messages.success(
-                request,
-                f"Le compte parent de {utilisateur.get_full_name() or utilisateur.username} a été créé avec succès."
-            )
-            return redirect("compte:liste_parents")
-        else:
-            messages.error(request, "Impossible de créer le compte parent.")
-    else:
-        form = CreationParentForm()
-
-    return render(
-        request,
-        "compte/creer_parent.html",
-        {"form": form, "titre_page": "Créer un compte parent"},
-    )
-
-
-@login_required
 def tableau_bord_admin(request):
     if not est_administrateur(request.user):
         return redirect(url_tableau_bord(request.user))
@@ -105,6 +80,8 @@ def tableau_bord_parent(request):
         return redirect(url_tableau_bord(request.user))
     return render(request, "compte/tableau_bord.html", {"titre": "Parent"})
 
+# CRUD Educateur
+
 @login_required
 @user_passes_test(est_administrateur)
 def liste_educateurs(request):
@@ -123,6 +100,29 @@ def detail_educateur(request, pk):
         request,
         "compte/detail_educateur.html",
         {"educateur": educateur},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def creer_educateur(request):
+    if request.method == "POST":
+        form = CreationEducateurForm(request.POST)
+        if form.is_valid():
+            utilisateur = form.save()
+            messages.success(
+                request,
+                f"Le compte educateur de {utilisateur.get_full_name() or utilisateur.username} a été créé avec succès."
+            )
+            return redirect("compte:liste_educateurs")
+        else:
+            messages.error(request, "Impossible de créer le compte educateur.")
+    else:
+        form = CreationEducateurForm()
+
+    return render(
+        request,
+        "compte/creer_educateur.html",
+        {"form": form, "titre_page": "Créer un compte educateur"},
     )
 
 @login_required
@@ -161,6 +161,7 @@ def basculer_statut_educateur(request, pk):
     messages.success(request, f"Le compte de {educateur} a été {statut}.")
     return redirect("compte:detail_educateur", pk=pk)
 
+# CRUD Parent
 
 @login_required
 @user_passes_test(est_administrateur)
@@ -184,6 +185,29 @@ def detail_parent(request, pk):
 
 @login_required
 @user_passes_test(est_administrateur)
+def creer_parent(request):
+    if request.method == "POST":
+        form = CreationParentForm(request.POST)
+        if form.is_valid():
+            utilisateur = form.save()
+            messages.success(
+                request,
+                f"Le compte parent de {utilisateur.get_full_name() or utilisateur.username} a été créé avec succès."
+            )
+            return redirect("compte:liste_parents")
+        else:
+            messages.error(request, "Impossible de créer le compte parent.")
+    else:
+        form = CreationParentForm()
+
+    return render(
+        request,
+        "compte/creer_parent.html",
+        {"form": form, "titre_page": "Créer un compte parent"},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
 def modifier_parent(request, pk):
     parent = get_object_or_404(Parent, pk=pk)
 
@@ -196,7 +220,7 @@ def modifier_parent(request, pk):
         else:
             messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
     else:
-        form = ModificationEducateurForm(instance=parent)
+        form = ModificationParentForm(instance=parent)
 
     return render(
         request,
