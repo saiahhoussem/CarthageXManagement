@@ -6,8 +6,22 @@ from . import views
 app_name = "compte"
 
 urlpatterns = [
-    path("connexion/", views.connexion, name="connexion"),
-    path("creer/", views.creer_compte, name="creer_compte"),
+    path("connexion/", 
+         views.connexion, 
+         name="connexion"
+    ),
+    path("parents/creer/", 
+         views.creer_parent, 
+         name="creer_parent"
+    ),
+    path("educateurs/creer/", 
+         views.creer_educateur, 
+         name="creer_educateur"
+    ),
+    path("administrateurs/creer/", 
+         views.creer_administrateur, 
+         name="creer_administrateur"
+    ),
     path(
         "deconnexion/",
         auth_views.LogoutView.as_view(next_page="compte:connexion"),
