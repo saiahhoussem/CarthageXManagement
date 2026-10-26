@@ -6,27 +6,21 @@ from . import views
 app_name = "compte"
 
 urlpatterns = [
+
+    # authentification
+
     path("connexion/", 
          views.connexion, 
          name="connexion"
-    ),
-    path("parents/creer/", 
-         views.creer_parent, 
-         name="creer_parent"
-    ),
-    path("educateurs/creer/", 
-         views.creer_educateur, 
-         name="creer_educateur"
-    ),
-    path("administrateurs/creer/", 
-         views.creer_administrateur, 
-         name="creer_administrateur"
     ),
     path(
         "deconnexion/",
         auth_views.LogoutView.as_view(next_page="compte:connexion"),
         name="deconnexion",
     ),
+
+    # tableaux de bord
+
     path(
         "tableau-de-bord/administrateur/",
         views.tableau_bord_admin,
@@ -42,6 +36,9 @@ urlpatterns = [
         views.tableau_bord_parent,
         name="tableau_bord_parent",
     ),
+
+    # CRUD educateur
+
     path(
         "educateurs/",
         views.liste_educateurs,
@@ -52,6 +49,10 @@ urlpatterns = [
         views.detail_educateur,
         name="detail_educateur",
     ),
+    path("educateurs/creer/", 
+             views.creer_educateur, 
+             name="creer_educateur"
+        ),
     path(
         "educateurs/<int:pk>/modifier/",
         views.modifier_educateur,
@@ -63,6 +64,8 @@ urlpatterns = [
         name="basculer_statut_educateur",
     ),
 
+    # CRUD parent
+
     path(
         "parents/",
         views.liste_parents,
@@ -73,12 +76,16 @@ urlpatterns = [
         views.detail_parent,
         name="detail_parent",
     ),
+    path("parents/creer/", 
+             views.creer_parent, 
+             name="creer_parent"
+        ),
     path(
         "parents/<int:pk>/modifier/",
         views.modifier_parent,
         name="modifier_parent",
     ),
-        path(
+    path(
         "parents/<int:pk>/basculer/",
         views.basculer_statut_parent,
         name="basculer_statut_parent",
