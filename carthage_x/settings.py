@@ -1,12 +1,19 @@
+import os
 from pathlib import Path
 
 from django.contrib.messages import constants as message_levels
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-s=j(^!do!uh(dbr#=ek4_9s&)c$@bmgkt2ht1vkiw9dxi1r&v7'
+# En production, définir DJANGO_SECRET_KEY et DJANGO_DEBUG=0 comme variables
+# d'environnement (ex. dans la config de l'application sur PythonAnywhere).
+# En local, sans ces variables, le comportement reste identique à avant.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    'django-insecure-s=j(^!do!uh(dbr#=ek4_9s&)c$@bmgkt2ht1vkiw9dxi1r&v7',
+)
 
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 ALLOWED_HOSTS = ['Houssem.pythonanywhere.com', '127.0.0.1', 'localhost']
@@ -19,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'compte',
     'enfants',
 ]
@@ -49,6 +57,11 @@ TEMPLATES = [
         },
     },
 ]
+
+# Permet aux widgets de formulaire personnalisés (ex. PhotoFileInput) d'utiliser
+# des templates placés dans templates/widgets/, comme n'importe quel autre template
+# du projet, plutôt que d'être limité aux dossiers templates/ internes à chaque app.
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -97,6 +110,9 @@ USE_TZ = True
 
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 MESSAGE_TAGS = {

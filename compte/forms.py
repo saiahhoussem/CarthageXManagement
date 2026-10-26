@@ -61,6 +61,12 @@ class CreationCompteForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["role"].choices = [
+            choix for choix in User.Role.choices
+            if choix[0] != User.Role.ADMINISTRATEUR
+        ]
+
         for name, field in self.fields.items():
             field.widget.attrs.setdefault("class", "form-control")
             field.help_text = self.AIDE_CHAMPS.get(name, "")
@@ -80,6 +86,12 @@ class CreationCompteForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Un compte existe déjà avec ce courriel.")
         return email
+
+    def clean_role(self):
+        role = self.cleaned_data["role"]
+        if role == User.Role.ADMINISTRATEUR:
+            raise forms.ValidationError("Vous ne pouvez pas créer de compte administrateur.")
+        return role
 
     def save(self, commit=True):
         modele = self.ROLE_MODELES.get(self.cleaned_data["role"], User)

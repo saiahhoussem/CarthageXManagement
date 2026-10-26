@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}{{ activite.nom }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'enfants/activites.css' %}">
+{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5 px-4 px-xl-5">
+
+    <a
+        href="{% url 'mes_activites' %}"
+        class="d-inline-flex align-items-center gap-1 mb-4 text-decoration-none fw-semibold"
+        style="color: #1c88eb;"
+    >
+        <i class="bi bi-arrow-left"></i>
+        Retour aux activités
+    </a>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+        <div class="ck-img-conteneur" style="height: 340px;">
+
+            <div class="spinner-border ck-img-spinner" style="color: #289b7b;" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+
+            <img
+                src="{{ activite.photo_url }}"
+                alt="{{ activite.nom }}"
+                class="ck-img-conteneur-media"
+                loading="lazy"
+                onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+            >
+
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+
+            <h1 class="fw-bold mb-2" style="color: #0d274d;">
+                {{ activite.nom }}
+            </h1>
+
+            <p class="text-muted mb-4">
+                <i class="bi bi-calendar-event me-1"></i>
+                {{ activite.date|date:"d F Y" }}
+
+                <span class="mx-2">·</span>
+
+                <i class="bi bi-geo-alt me-1"></i>
+                {{ activite.lieu }}
+
+                <span class="mx-2">·</span>
+
+                <i class="bi bi-people me-1"></i>
+                {{ activite.places_disponibles }} places disponibles
+            </p>
+
+            <p class="mb-4" style="white-space: pre-line;">
+                {{ activite.description }}
+            </p>
+
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+
+                <span class="fs-5 fw-bold" style="color: #289b7b;">
+                    {{ activite.frais_affichage }}
+                </span>
+
+                <div>
+                    {% if activite.applique_a_tous_les_groupes %}
+                        <span class="badge rounded-pill px-3 py-2" style="background-color: #289b7b;">
+                            Tous les groupes
+                        </span>
+                    {% else %}
+                        {% for groupe in activite.groupes.all %}
+                            <span
+                                class="badge rounded-pill px-3 py-2 me-1"
+                                style="background-color: #289b7b;"
+                            >
+                                {{ groupe.nom }}
+                            </span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+            </div>
+
+            {% if user.is_parent %}
+
+                <hr class="my-4">
+
+                <button
+                    type="button"
+                    class="btn text-white px-4"
+                    style="background-color: #289b7b;"
+                    disabled
+                    title="Fonctionnalité à venir"
+                >
+                    <i class="bi bi-credit-card me-2"></i>
+                    S'inscrire et payer
+                </button>
+
+                <p class="text-muted small mt-2 mb-0">
+                    L'inscription et le paiement en ligne seront bientôt disponibles.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</main>
+{% endblock %}

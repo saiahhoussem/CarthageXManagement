@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Count, F
 
-from .models import Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
+from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
 from compte.models import Educateur
 
 
@@ -154,6 +154,76 @@ class GroupeForm(forms.ModelForm):
         self.aucun_educateur_disponible = (
             not educateurs_disponibles.exists()
         )
+
+    def clean_educateur(self):
+        educateur = self.cleaned_data.get("educateur")
+
+        if self.instance and self.instance.pk and educateur is None:
+            if self.instance.enfant_set.exists():
+                raise forms.ValidationError(
+                    "Impossible de retirer l'éducateur : ce groupe a encore des enfants assignés."
+                )
+
+        return educateur
+
+
+class PhotoFileInput(forms.ClearableFileInput):
+    """
+    ClearableFileInput sans le texte "Actuellement : <lien>" par défaut de Django :
+    la photo actuelle est déjà affichée en aperçu par le template, donc seule la
+    case à cocher "Supprimer la photo actuelle" (quand une photo existe) est utile ici.
+    """
+    template_name = "widgets/photo_file_input.html"
+
+
+class ActiviteForm(forms.ModelForm):
+    class Meta:
+        model = Activite
+        fields = ["nom", "date", "lieu", "frais_inscription", "places_disponibles", "description", "photo", "groupes"]
+
+        labels = {
+            "nom": "Nom de l'activité",
+            "date": "Date",
+            "lieu": "Lieu",
+            "frais_inscription": "Frais d'inscription ($)",
+            "places_disponibles": "Nombre de places disponibles",
+            "description": "Description",
+            "photo": "Photo",
+            "groupes": "Groupes concernés",
+        }
+
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+            "places_disponibles": forms.NumberInput(attrs={"min": "1"}),
+            "description": forms.Textarea(attrs={
+                "rows": 4,
+                "placeholder": "Décrivez l'activité."
+            }),
+            "photo": PhotoFileInput(),
+            "groupes": forms.CheckboxSelectMultiple(),
+        }
+
+        error_messages = {
+            "nom": {"required": "Veuillez indiquer le nom de l'activité."},
+            "date": {"required": "Veuillez indiquer la date de l'activité."},
+            "lieu": {"required": "Veuillez indiquer le lieu de l'activité."},
+            "frais_inscription": {"required": "Veuillez indiquer les frais d'inscription."},
+            "places_disponibles": {"required": "Veuillez indiquer le nombre de places disponibles."},
+            "description": {"required": "Veuillez indiquer une description de l'activité."},
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            if name != "groupes":
+                field.widget.attrs.setdefault("class", "form-control")
+
+        # PositiveIntegerField force min="0" sur le widget par défaut (son
+        # propre plancher), ce qui écrase l'attribut "min" du widget passé
+        # dans Meta.widgets. On le corrige ici pour refléter le vrai
+        # minimum métier (MinValueValidator(1) sur le modèle).
+        self.fields["places_disponibles"].widget.attrs["min"] = "1"
 
 
 class AccepterDemandeInscriptionForm(forms.Form):
