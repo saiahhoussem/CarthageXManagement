@@ -6,6 +6,7 @@ from django.urls import reverse
 from .forms import ConnexionForm, CreationCompteForm, ModificationEducateurForm
 from .models import Educateur, User, Parent
 from enfants.models import Enfant, Groupe
+from .forms import CreationParentForm
 
 def est_administrateur(user):
     return user.is_authenticated and (
@@ -56,33 +57,31 @@ TITRES_CREATION = {
 }
 
 
+from .forms import CreationParentForm
+
 @login_required
 @user_passes_test(est_administrateur)
-def creer_compte(request):
-    role_predefini = request.GET.get('role')
-    
+def creer_parent(request):
     if request.method == "POST":
-        form = CreationCompteForm(request.POST)
+        form = CreationParentForm(request.POST)
         if form.is_valid():
             utilisateur = form.save()
             messages.success(
                 request,
-                f"Le compte de {utilisateur.get_full_name() or utilisateur.username} "
-                f"a été créé avec succès.",
+                f"Le compte parent de {utilisateur.get_full_name() or utilisateur.username} a été créé avec succès."
             )
-            url_retour = reverse("compte:creer_compte")
-            if role_param:
-                url_retour += f"?role={role_param}"
-            return redirect(url_retour)
+            return redirect("compte:liste_parents")
         else:
-            messages.error(request, "Impossible de créer le compte.")
+            messages.error(request, "Impossible de créer le compte parent.")
     else:
-        initial_data = {}
-        if role_predefini:
-            initial_data['role'] = role_predefini
-        form = CreationCompteForm(initial=initial_data)
+        form = CreationParentForm()
 
-    return render(request, "compte/creer_compte.html", {"form": form})
+    return render(
+        request,
+        "compte/creer_parent.html",
+        {"form": form, "titre_page": "Créer un compte parent"},
+    )
+
 
 @login_required
 def tableau_bord_admin(request):
