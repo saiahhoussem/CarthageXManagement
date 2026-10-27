@@ -30,6 +30,7 @@ h1 {
 .conteneur-bouton-creer {
   display: flex;
   justify-content: center;
+  gap: 1rem; /
 }
 .bouton-creer-compte {
   padding: 0.5rem 2.5rem;

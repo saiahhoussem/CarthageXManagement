@@ -13,7 +13,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Liste des parents</h2>
-            <a href="{% url 'compte:creer_compte' %}" class="btn btn-carthage">
+            <a href="{% url 'compte:creer_parent' %}" class="btn btn-carthage">
                 <i class="bi bi-plus-circle"></i> Nouveau parent
             </a>
         </div>
@@ -48,7 +48,9 @@
                         <a href="{% url 'compte:detail_parent' parent.pk %}" class="btn btn-sm btn-ck-bleu-fonce">
                             <i class="bi bi-eye"></i> Voir
                         </a>
-                        <!-- Le bouton modifier sera ajouté plus tard -->
+                        <a href="{% url 'compte:modifier_parent' parent.pk %}" class="btn btn-sm btn-ck-orange">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}

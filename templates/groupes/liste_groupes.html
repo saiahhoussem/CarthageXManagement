@@ -4,7 +4,7 @@
 {% block title %}Liste des groupes - CarthageKids{% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
@@ -22,94 +22,78 @@
 
         {% if groupes %}
 
-            <table class="table table-striped table-hover align-middle">
+        <table class="table table-striped table-hover align-middle">
 
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nom</th>
-                        <th>Tranche d'âge</th>
-                        <th>Capacité</th>
-                        <th>Éducateur</th>
-                        <th>Places restantes</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom</th>
+                    <th>Tranche d'âge</th>
+                    <th>Capacité</th>
+                    <th>Éducateur</th>
+                    <th>Places restantes</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
 
-                <tbody>
+            <tbody>
 
-                    {% for groupe in groupes %}
+                {% for groupe in groupes %}
 
-                        <tr>
+                <tr>
 
-                            <td>
-                                {{ groupe.nom }}
-                            </td>
+                    <td>
+                        {{ groupe.nom }}
+                    </td>
 
-                            <td>
-                                {{ groupe.get_tranche_age_display }}
-                            </td>
+                    <td>
+                        {{ groupe.get_tranche_age_display }}
+                    </td>
 
-                            <td>
-                                {{ groupe.capacite }}
-                            </td>
+                    <td>
+                        {{ groupe.capacite }}
+                    </td>
 
-                            <td>
-                                {% if groupe.educateur %}
-                                    {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
-                                {% else %}
-                                    <span class="text-muted">
-                                        Non assigné
-                                    </span>
-                                {% endif %}
-                            </td>
+                    <td>
+                        {% if groupe.educateur %}
+                        {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
+                        {% else %}
+                        <span class="text-muted">
+                            Non assigné
+                        </span>
+                        {% endif %}
+                    </td>
 
-                            <td>
-                                {{ groupe.places_restantes }}
-                            </td>
+                    <td>
+                        {{ groupe.places_restantes }}
+                    </td>
 
-                            <td class="text-end">
+                    <td class="text-end">
 
-                                <a
-                                    href="{% url 'modifier_groupe' groupe.id %}"
-                                    class="btn btn-sm btn-ck-orange"
-                                >
-                                    <i class="bi bi-pencil"></i>
-                                    Modifier
-                                </a>
+                        <a href="{% url 'modifier_groupe' groupe.id %}" class="btn btn-sm btn-ck-orange">
+                            <i class="bi bi-pencil"></i>
+                            Modifier
+                        </a>
 
-                                <a
-                                    href="{% url 'supprimer_groupe' groupe.id %}"
-                                    class="btn btn-sm btn-danger"
-                                >
-                                    <i class="bi bi-trash"></i>
-                                    Supprimer
-                                </a>
+                        <a href="{% url 'supprimer_groupe' groupe.id %}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                            Supprimer
+                        </a>
 
-                            </td>
+                    </td>
 
-                        </tr>
+                </tr>
 
-                    {% endfor %}
+                {% endfor %}
 
-                </tbody>
+            </tbody>
 
-                                    <a
-                                        href="{% url 'supprimer_groupe' groupe.id %}"
-                                        class="btn btn-sm btn-danger"
-                                    >
-                                        <i class="bi bi-trash me-1"></i>
-                                        Supprimer
-                                    </a>
-
-                                </td>
-
-        {% else %}
+            {% else %}
 
             <div class="alert alert-info">
                 Aucun groupe enregistré pour le moment.
             </div>
 
-        {% endif %}
+            {% endif %}
 
     </div>
 </main>
