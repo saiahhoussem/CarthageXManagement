@@ -59,7 +59,6 @@ class BaseCreationCompteForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Les labels sont forcés ici pour garantir l'héritage
         self.fields["username"].label = "Nom d'utilisateur"
         self.fields["first_name"].label = "Prénom"
         self.fields["last_name"].label = "Nom"

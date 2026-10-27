@@ -128,7 +128,18 @@ class PersonneAutoriseeForm(forms.ModelForm):
 class GroupeForm(forms.ModelForm):
     class Meta:
         model = Groupe
-        fields = ["nom", "tranche_age", "capacite", "educateur"]
+        fields = [
+            "nom", 
+            "tranche_age", 
+            "capacite", 
+            "educateur"
+            ]
+        labels ={
+            "nom":"Nom", 
+            "tranche_age":"Tranche d'âge", 
+            "capacite":"Capacité", 
+            "educateur":"Éducateur",
+            }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

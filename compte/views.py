@@ -4,14 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Educateur, User, Parent
-from .forms import ( 
-    ConnexionForm, 
-    CreationAdministrateurForm, 
-    CreationEducateurForm, 
-    ModificationEducateurForm,
-    CreationParentForm, 
-    ModificationParentForm
-)
+from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
 from django.utils import timezone
 
 from enfants.models import (
