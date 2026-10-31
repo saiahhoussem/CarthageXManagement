@@ -20,6 +20,9 @@ def est_administrateur(user):
         user.is_superuser or user.role == User.Role.ADMINISTRATEUR
     )
 
+def est_superutilisateur(user):
+    return user.is_authenticated and user.is_superuser
+
 def url_tableau_bord(utilisateur):
     if utilisateur.is_superuser or utilisateur.role == User.Role.ADMINISTRATEUR:
         return "compte:tableau_bord_admin"
@@ -53,16 +56,6 @@ def connexion(request):
 
     return render(request, "compte/connexion.html", {"form": form})
 
-ROLES_CREATION = {
-    "educateur": User.Role.EDUCATEUR,
-    "parent": User.Role.PARENT,
-}
-
-TITRES_CREATION = {
-    User.Role.EDUCATEUR: "Créer un compte éducateur",
-    User.Role.PARENT: "Créer un compte parent",
-}
-
 @login_required
 def tableau_bord_admin(request):
     if not est_administrateur(request.user):
@@ -71,7 +64,7 @@ def tableau_bord_admin(request):
         "titre": "Administrateur",
         "nb_educateurs": User.objects.filter(role=User.Role.EDUCATEUR).count(),
         "nb_parents": User.objects.filter(role=User.Role.PARENT).count(),
-        "nb_enfants": Enfant.objects.count(),
+        "nb_enfants": Enfant.objects.filter(actif=True).count(),
         "nb_groupes": Groupe.objects.count(),
     }
     return render(request, "compte/tableau_bord.html", contexte)
@@ -114,7 +107,7 @@ def tableau_bord_parent(request):
 # CRUD Administrateur
 
 @login_required
-@user_passes_test(est_administrateur)
+@user_passes_test(est_superutilisateur)
 def creer_administrateur(request):
     if request.method == "POST":
         form = CreationAdministrateurForm(request.POST)

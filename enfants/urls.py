@@ -34,9 +34,19 @@ urlpatterns = [
         name="supprimer_demande_inscription",
     ),
     path(
+        "enfants/",
+        views.liste_enfants,
+        name="liste_enfants",
+    ),
+    path(
         "enfant/<int:enfant_id>/",
         views.fiche_enfant,
         name="fiche_enfant",
+    ),
+    path(
+        "enfant/<int:enfant_id>/basculer/",
+        views.basculer_statut_enfant,
+        name="basculer_statut_enfant",
     ),
     path(
         "enfant/<int:enfant_id>/allergie/ajouter/",
