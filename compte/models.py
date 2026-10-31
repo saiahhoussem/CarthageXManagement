@@ -64,3 +64,29 @@ class Parent(User):
     class Meta:
         verbose_name = "Parent"
         verbose_name_plural = "Parents"
+
+
+class Notification(models.Model):
+    destinataire = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+    )
+    message = models.CharField(max_length=255)
+    lien = models.CharField(max_length=255, blank=True)
+    lue = models.BooleanField(default=False)
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date_creation"]
+
+    def __str__(self):
+        return self.message
+
+
+def creer_notification(destinataire, message, lien=""):
+    return Notification.objects.create(
+        destinataire=destinataire,
+        message=message,
+        lien=lien,
+    )
