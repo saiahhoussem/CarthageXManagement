@@ -72,12 +72,14 @@
                         </a>
                     </li>
 
+                    {% if request.user.is_superuser %}
                     <li>
                         <a href="{% url 'compte:creer_administrateur' %}"
                             class="{% if url_actif == 'creer_administrateur' %}active{% endif %}">
                             Ajouter un administrateur
                         </a>
                     </li>
+                    {% endif %}
 
                 </ul>
             </div>
@@ -149,6 +151,14 @@
 
                 </ul>
             </div>
+        </li>
+
+        <li>
+            <a href="{% url 'liste_enfants' %}"
+                class="{% if url_actif == 'liste_enfants' or url_actif == 'fiche_enfant' %}active{% endif %}">
+                <i class="bi bi-person-lines-fill"></i>
+                Enfants
+            </a>
         </li>
 
         <li>
