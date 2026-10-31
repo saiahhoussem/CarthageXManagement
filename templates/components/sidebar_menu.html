@@ -212,9 +212,15 @@
         </li>
 
         <li>
-            <a href="#">
-                <i class="bi bi-bell"></i>
-                Notifications
+            <a href="{% url 'compte:liste_notifications' %}"
+                class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_notifications' %}active{% endif %}">
+                <span>
+                    <i class="bi bi-bell"></i>
+                    Notifications
+                </span>
+                {% if nb_notifications_non_lues %}
+                <span class="badge bg-danger rounded-pill">{{ nb_notifications_non_lues }}</span>
+                {% endif %}
             </a>
         </li>
 
@@ -259,9 +265,15 @@
         </li>
 
         <li>
-            <a href="#">
-                <i class="bi bi-bell"></i>
-                Notifications
+            <a href="{% url 'compte:liste_notifications' %}"
+                class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_notifications' %}active{% endif %}">
+                <span>
+                    <i class="bi bi-bell"></i>
+                    Notifications
+                </span>
+                {% if nb_notifications_non_lues %}
+                <span class="badge bg-danger rounded-pill">{{ nb_notifications_non_lues }}</span>
+                {% endif %}
             </a>
         </li>
 
