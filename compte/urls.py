@@ -37,6 +37,19 @@ urlpatterns = [
         name="tableau_bord_parent",
     ),
 
+    # notifications
+
+    path(
+        "notifications/",
+        views.liste_notifications,
+        name="liste_notifications",
+    ),
+    path(
+        "notifications/<int:pk>/lue/",
+        views.marquer_notification_lue,
+        name="marquer_notification_lue",
+    ),
+
     # CRUD Administrateur
 
     path(

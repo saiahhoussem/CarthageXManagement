@@ -2,6 +2,8 @@ from functools import wraps
 
 from django.core.exceptions import PermissionDenied
 
+from compte.models import est_administrateur
+
 
 def _acces_reserve(condition, message="Vous n'avez pas accès à cette page."):
     """
@@ -29,9 +31,7 @@ def _acces_reserve(condition, message="Vous n'avez pas accès à cette page."):
 
 
 # Réservé aux administrateurs (et superutilisateurs).
-administrateur_requis = _acces_reserve(
-    lambda user: user.is_administrateur or user.is_superuser
-)
+administrateur_requis = _acces_reserve(est_administrateur)
 
 # Réservé aux parents.
 parent_requis = _acces_reserve(lambda user: user.is_parent)
