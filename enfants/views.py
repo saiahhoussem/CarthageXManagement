@@ -11,6 +11,7 @@ from .models import (
     PersonneAutorisee,
     Groupe,
     DemandeInscription,
+    InscriptionActivite,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
 )
@@ -25,6 +26,7 @@ from .decorators import (
     parent_requis,
     educateur_requis,
     educateur_ou_parent_requis,
+    administrateur_educateur_ou_parent_requis,
 )
 
 
@@ -777,7 +779,10 @@ def liste_activites(request):
     activites = (
         Activite.objects
         .prefetch_related("groupes")
-        .annotate(nb_groupes=Count("groupes"))
+        .annotate(
+            nb_groupes=Count("groupes", distinct=True),
+            nb_inscriptions=Count("inscriptions", distinct=True),
+        )
         .order_by("date")
     )
 
@@ -850,7 +855,10 @@ def mes_activites(request):
     toutes_les_activites = (
         Activite.objects
         .prefetch_related("groupes")
-        .annotate(nb_groupes=Count("groupes"))
+        .annotate(
+            nb_groupes=Count("groupes", distinct=True),
+            nb_inscriptions=Count("inscriptions", distinct=True),
+        )
         .order_by("date")
     )
 
@@ -876,26 +884,130 @@ def mes_activites(request):
 
 
 @login_required
-@educateur_ou_parent_requis
+@administrateur_educateur_ou_parent_requis
 def detail_activite(request, activite_id):
     activite = get_object_or_404(
-        Activite.objects.prefetch_related("groupes")
-        .annotate(nb_groupes=Count("groupes")),
+        Activite.objects.prefetch_related("groupes", "inscriptions__enfant")
+        .annotate(
+            nb_groupes=Count("groupes", distinct=True),
+            nb_inscriptions=Count("inscriptions", distinct=True),
+        ),
         id=activite_id,
     )
 
-    total_groupes = Groupe.objects.count()
-    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+    est_admin = request.user.is_superuser or request.user.is_administrateur
 
-    if not activite_visible_par(
-        activite, activite.nb_groupes, total_groupes, groupes_pertinents
-    ):
-        raise PermissionDenied(
-            "Cette activité ne concerne pas votre groupe."
-        )
+    if not est_admin:
+        total_groupes = Groupe.objects.count()
+        groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+        if not activite_visible_par(
+            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+        ):
+            raise PermissionDenied(
+                "Cette activité ne concerne pas votre groupe."
+            )
+
+    contexte = {"activite": activite}
+
+    if est_admin:
+        contexte["inscriptions"] = activite.inscriptions.all()
+    elif request.user.is_parent:
+        groupes_ids_activite = {groupe.pk for groupe in activite.groupes.all()}
+
+        enfants_eligibles = [
+            enfant
+            for enfant in Enfant.objects.filter(
+                parents__pk=request.user.pk, actif=True
+            ).select_related("groupe")
+            if activite.applique_a_tous_les_groupes
+            or enfant.groupe_id in groupes_ids_activite
+        ]
+
+        inscriptions_existantes = {
+            inscription.enfant_id: inscription
+            for inscription in activite.inscriptions.all()
+        }
+
+        contexte["enfants_inscription"] = [
+            {
+                "enfant": enfant,
+                "inscription": inscriptions_existantes.get(enfant.id),
+            }
+            for enfant in enfants_eligibles
+        ]
 
     return render(
         request,
         "activites/detail_activite.html",
-        {"activite": activite}
+        contexte,
     )
+
+
+@login_required
+@parent_requis
+def inscrire_activite(request, activite_id):
+    activite = get_object_or_404(Activite, id=activite_id)
+
+    if request.method != "POST":
+        return redirect("detail_activite", activite_id=activite.id)
+
+    enfant = get_object_or_404(
+        Enfant,
+        id=request.POST.get("enfant_id"),
+        parents__pk=request.user.pk,
+        actif=True,
+    )
+
+    groupes_ids_activite = {groupe.pk for groupe in activite.groupes.all()}
+
+    if not (
+        activite.applique_a_tous_les_groupes
+        or enfant.groupe_id in groupes_ids_activite
+    ):
+        raise PermissionDenied(
+            "Cette activité ne concerne pas le groupe de cet enfant."
+        )
+
+    if InscriptionActivite.objects.filter(activite=activite, enfant=enfant).exists():
+        messages.info(
+            request,
+            f"{enfant} est déjà inscrit(e) à l'activité « {activite.nom} »."
+        )
+    elif activite.places_restantes <= 0:
+        messages.error(
+            request,
+            f"L'activité « {activite.nom} » est complète, il ne reste plus de place disponible."
+        )
+    else:
+        InscriptionActivite.objects.create(activite=activite, enfant=enfant)
+        messages.success(
+            request,
+            f"{enfant} a été inscrit(e) à l'activité « {activite.nom} »."
+        )
+
+    return redirect("detail_activite", activite_id=activite.id)
+
+
+@login_required
+@parent_requis
+def desinscrire_activite(request, inscription_id):
+    inscription = get_object_or_404(
+        InscriptionActivite,
+        id=inscription_id,
+        enfant__parents__pk=request.user.pk,
+    )
+
+    if request.method == "POST":
+        activite_id = inscription.activite_id
+        enfant = inscription.enfant
+        nom_activite = inscription.activite.nom
+        inscription.delete()
+
+        messages.success(
+            request,
+            f"{enfant} a été désinscrit(e) de l'activité « {nom_activite} »."
+        )
+        return redirect("detail_activite", activite_id=activite_id)
+
+    return redirect("detail_activite", activite_id=inscription.activite_id)
