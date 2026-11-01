@@ -81,7 +81,7 @@
                                 </td>
 
                                 <td>
-                                    {{ activite.places_disponibles }}
+                                    {{ activite.places_restantes }} / {{ activite.places_disponibles }}
                                 </td>
 
                                 <td>
@@ -100,6 +100,14 @@
                                 </td>
 
                                 <td class="text-end">
+                                    <a
+                                        href="{% url 'detail_activite' activite.id %}"
+                                        class="btn btn-sm btn-outline-secondary me-1"
+                                    >
+                                        <i class="bi bi-eye me-1"></i>
+                                        Voir
+                                    </a>
+
                                     <a
                                         href="{% url 'modifier_activite' activite.id %}"
                                         class="btn btn-sm text-white me-1"
