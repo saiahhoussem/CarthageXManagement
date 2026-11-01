@@ -90,3 +90,7 @@ def creer_notification(destinataire, message, lien=""):
         message=message,
         lien=lien,
     )
+
+
+def est_administrateur(user):
+    return user.is_authenticated and (user.is_superuser or user.is_administrateur)

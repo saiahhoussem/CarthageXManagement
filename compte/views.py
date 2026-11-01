@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Educateur, User, Parent, Notification
+from .models import Educateur, User, Parent, Notification, est_administrateur
 from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
 from django.utils import timezone
 
@@ -14,11 +14,6 @@ from enfants.models import (
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
 )
-
-def est_administrateur(user):
-    return user.is_authenticated and (
-        user.is_superuser or user.role == User.Role.ADMINISTRATEUR
-    )
 
 def est_superutilisateur(user):
     return user.is_authenticated and user.is_superuser
