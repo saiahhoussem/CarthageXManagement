@@ -43,3 +43,8 @@ educateur_requis = _acces_reserve(lambda user: user.is_educateur)
 educateur_ou_parent_requis = _acces_reserve(
     lambda user: user.is_educateur or user.is_parent
 )
+
+# Réservé aux administrateurs, éducateurs(trices) et parents.
+administrateur_educateur_ou_parent_requis = _acces_reserve(
+    lambda user: est_administrateur(user) or user.is_educateur or user.is_parent
+)
