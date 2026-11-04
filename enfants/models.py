@@ -478,3 +478,69 @@ def activite_visible_par(activite, nb_groupes, total_groupes, groupes_pertinents
     ids_groupes_activite = {groupe.pk for groupe in activite.groupes.all()}
 
     return bool(ids_groupes_activite & groupes_pertinents)
+
+class Presence(models.Model):
+    class Type(models.TextChoices):
+        ABSENCE = "absence", "Absence"
+        RETARD = "retard", "Retard"
+
+    class SourceSignalement(models.TextChoices):
+        PARENT = "parent", "Parent"
+        EDUCATEUR = "educateur", "Éducateur(trice)"
+
+    enfant = models.ForeignKey(
+        Enfant,
+        on_delete=models.CASCADE,
+        related_name="presences"
+    )
+
+    type = models.CharField(
+        max_length=20,
+        choices=Type.choices
+    )
+
+    date = models.DateField()
+
+    heure = models.TimeField()
+
+    motif = models.TextField(
+        max_length=500
+    )
+
+    source_signalement = models.CharField(
+        max_length=20,
+        choices=SourceSignalement.choices
+    )
+
+    parent = models.ForeignKey(
+        "compte.Parent",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="signalements_presence"
+    )
+
+    educateur = models.ForeignKey(
+        "compte.Educateur",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="signalements_presence"
+    )
+
+    date_signalement = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enfant", "date", "type"],
+                name="unique_presence_enfant_date_type"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.enfant} - "
+            f"{self.get_type_display()} - "
+            f"{self.date} {self.heure}"
+        )
