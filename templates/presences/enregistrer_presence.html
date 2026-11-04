@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Enregistrer une absence ou un retard{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main>
+<div class="container py-5">
+
+    <h1 class="fw-semibold mb-4">
+        Enregistrer une absence ou un retard
+    </h1>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h2 class="h5 mb-0">
+                Informations de présence
+            </h2>
+        </div>
+
+        <div class="card-body">
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label for="{{ form.enfant.id_for_label }}" class="form-label">
+                            {{ form.enfant.label }}
+                        </label>
+
+                        {{ form.enfant }}
+
+                        {% for erreur in form.enfant.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.type.id_for_label }}" class="form-label">
+                            {{ form.type.label }}
+                        </label>
+
+                        {{ form.type }}
+
+                        {% for erreur in form.type.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">
+                            {{ form.date.label }}
+                        </label>
+
+                        {{ form.date }}
+
+                        {% for erreur in form.date.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.heure.id_for_label }}" class="form-label">
+                            {{ form.heure.label }}
+                        </label>
+
+                        {{ form.heure }}
+
+                        {% for erreur in form.heure.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        <label for="{{ form.motif.id_for_label }}" class="form-label">
+                            {{ form.motif.label }}
+                        </label>
+
+                        {{ form.motif }}
+
+                        {% for erreur in form.motif.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                {% for erreur in form.non_field_errors %}
+                    <div class="text-danger small mt-3">
+                        {{ erreur }}
+                    </div>
+                {% endfor %}
+
+                <div class="mt-4 d-flex gap-2">
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Enregistrer
+                    </button>
+
+                    <a
+                        href="{% url 'historique_presences_educateur' %}"
+                        class="btn btn-secondary"
+                    >
+                        Annuler
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</main>
+{% endblock %}

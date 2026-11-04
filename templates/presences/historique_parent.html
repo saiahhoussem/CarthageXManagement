@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Historique des signalements{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main>
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-semibold mb-0">
+            Historique des absences et retards
+        </h1>
+
+        <a
+            href="{% url 'signaler_presence' %}"
+            class="btn btn-success"
+        >
+            Nouveau signalement
+        </a>
+    </div>
+
+    {% if presences %}
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Enfant</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Heure</th>
+                        <th>Motif</th>
+                        <th>Signalé le</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for presence in presences %}
+                        <tr>
+                            <td>
+                                {{ presence.enfant.prenom }}
+                                {{ presence.enfant.nom }}
+                            </td>
+
+                            <td>
+                                {{ presence.get_type_display }}
+                            </td>
+
+                            <td>
+                                {{ presence.date|date:"d/m/Y" }}
+                            </td>
+
+                            <td>
+                                {{ presence.heure|time:"H:i" }}
+                            </td>
+
+                            <td>
+                                {{ presence.motif }}
+                            </td>
+
+                            <td>
+                                {{ presence.date_signalement|date:"d/m/Y H:i" }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            Aucun signalement enregistré pour le moment.
+        </div>
+
+    {% endif %}
+
+</div>
+</main>
+{% endblock %}
