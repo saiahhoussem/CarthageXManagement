@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
+
 from .models import (
     Activite,
     Enfant,
@@ -13,8 +14,9 @@ from .models import (
     DemandeInscription,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
+    Presence,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm,PresenceParentForm, PresenceEducateurForm
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -836,3 +838,182 @@ def detail_activite(request, activite_id):
         "activites/detail_activite.html",
         {"activite": activite}
     )
+
+@login_required
+@parent_requis
+def signaler_presence(request):
+    parent = request.user.parent
+
+    if request.method == "POST":
+        form = PresenceParentForm(
+            request.POST,
+            parent=parent
+        )
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.parent = parent
+            presence.source_signalement = Presence.SourceSignalement.PARENT
+
+            presence.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été enregistré."
+            )
+
+            return redirect("historique_presences_parent")
+
+    else:
+        form = PresenceParentForm(
+            parent=parent
+        )
+
+    return render(
+        request,
+        "presences/signaler_presence.html",
+        {
+            "form": form,
+        }
+    )
+
+@login_required
+@parent_requis
+def historique_presences_parent(request):
+    parent = request.user.parent
+
+    presences = (
+        Presence.objects
+        .filter(parent=parent)
+        .select_related("enfant")
+        .order_by("-date_signalement")
+    )
+
+    return render(
+        request,
+        "presences/historique_parent.html",
+        {
+            "presences": presences,
+        }
+    )
+
+@login_required
+@educateur_requis
+def enregistrer_presence(request):
+    educateur = request.user.educateur
+
+    if request.method == "POST":
+        form = PresenceEducateurForm(
+            request.POST,
+            educateur=educateur
+        )
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.educateur = educateur
+            presence.source_signalement = (
+                Presence.SourceSignalement.EDUCATEUR
+            )
+
+            presence.save()
+
+            messages.success(
+                request,
+                "L'absence ou le retard a bien été enregistré."
+            )
+
+            return redirect("historique_presences_educateur")
+
+    else:
+        form = PresenceEducateurForm(
+            educateur=educateur
+        )
+
+    return render(
+        request,
+        "presences/enregistrer_presence.html",
+        {
+            "form": form,
+        }
+    )
+
+
+@login_required
+@educateur_requis
+def historique_presences_educateur(request):
+    educateur = request.user.educateur
+
+    presences = (
+        Presence.objects
+        .filter(enfant__groupe__educateur=educateur)
+        .select_related("enfant")
+        .order_by("-date", "-heure")
+    )
+
+    return render(
+        request,
+        "presences/historique_educateur.html",
+        {
+            "presences": presences,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def registre_presences(request):
+    presences = (
+        Presence.objects
+        .select_related(
+            "enfant",
+            "enfant__groupe",
+        )
+        .order_by("-date", "-heure")
+    )
+
+    groupe_id = request.GET.get("groupe")
+    date = request.GET.get("date")
+    enfant_id = request.GET.get("enfant")
+
+    if groupe_id:
+        presences = presences.filter(
+            enfant__groupe_id=groupe_id
+        )
+
+    if date:
+        presences = presences.filter(
+            date=date
+        )
+
+    if enfant_id:
+        presences = presences.filter(
+            enfant_id=enfant_id
+        )
+
+    groupes = Groupe.objects.order_by("nom")
+
+    enfants = Enfant.objects.order_by(
+        "nom",
+        "prenom"
+    )
+
+    if groupe_id:
+        enfants = enfants.filter(
+            groupe_id=groupe_id
+        )
+
+    return render(
+        request,
+        "presences/registre_presences.html",
+        {
+            "presences": presences,
+            "groupes": groupes,
+            "enfants": enfants,
+            "groupe_selectionne": groupe_id,
+            "date_selectionnee": date,
+            "enfant_selectionne": enfant_id,
+        }
+    )
+

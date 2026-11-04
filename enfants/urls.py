@@ -153,4 +153,30 @@ urlpatterns = [
         views.mes_activites,
         name="mes_activites",
     ),
+    path(
+        "presences/signaler/",
+        views.signaler_presence,
+        name="signaler_presence",
+    ),
+    path(
+    "presences/historique/",
+    views.historique_presences_parent,
+    name="historique_presences_parent",
+    ),
+    path(
+    "presences/enregistrer/",
+    views.enregistrer_presence,
+    name="enregistrer_presence",
+    ),
+    path(
+    "presences/historique-educateur/",
+    views.historique_presences_educateur,
+    name="historique_presences_educateur",
+    ),
+    path(
+    "presences/registre/",
+    views.registre_presences,
+    name="registre_presences",
+    ),
+
 ]
