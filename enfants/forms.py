@@ -1,7 +1,8 @@
 from django import forms
+from django.utils import timezone
 from django.db.models import Count, F
 
-from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
+from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription, Presence, Enfant
 from compte.models import Educateur
 
 
@@ -252,3 +253,110 @@ class AccepterDemandeInscriptionForm(forms.Form):
             .annotate(nb_enfants=Count("enfant"))
             .filter(nb_enfants__lt=F("capacite"))
         )
+
+class PresenceParentForm(forms.ModelForm):
+    class Meta:
+        model = Presence
+        fields = [
+            "enfant",
+            "type",
+            "date",
+            "heure",
+            "motif",
+        ]
+
+        widgets = {
+            "date": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "motif": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Indiquez le motif du signalement."
+                }
+            ),
+        }
+
+        labels = {
+            "enfant": "Enfant",
+            "type": "Type de signalement",
+            "date": "Date",
+            "heure": "Heure",
+            "motif": "Motif",
+        }
+
+    def __init__(self, *args, parent=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if parent is not None:
+            self.fields["enfant"].queryset = Enfant.objects.filter(
+                parents=parent
+            )
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+
+        if date and date < timezone.now().date():
+            raise forms.ValidationError(
+                "Vous ne pouvez pas signaler une absence ou un retard "
+                "pour une date passée."
+            )
+
+        return date
+
+
+class PresenceEducateurForm(forms.ModelForm):
+    class Meta:
+        model = Presence
+        fields = [
+            "enfant",
+            "type",
+            "date",
+            "heure",
+            "motif",
+        ]
+
+        widgets = {
+            "date": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "motif": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Indiquez le motif du signalement."
+                }
+            ),
+        }
+
+        labels = {
+            "enfant": "Enfant",
+            "type": "Type de présence",
+            "date": "Date",
+            "heure": "Heure",
+            "motif": "Motif",
+        }
+
+    def __init__(self, *args, educateur=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if educateur is not None:
+            self.fields["enfant"].queryset = Enfant.objects.filter(
+                groupe__educateur=educateur
+            )
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+
+        if date and date > timezone.now().date():
+            raise forms.ValidationError(
+                "Vous ne pouvez pas enregistrer une absence ou un retard "
+                "pour une date future."
+            )
+
+        return date
