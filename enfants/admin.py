@@ -7,6 +7,7 @@ from .models import (
     PersonneAutorisee,
     DemandeInscription,
     Activite,
+    PlanificationActivite,
 )
 
 
@@ -16,6 +17,7 @@ admin.site.register(Allergie)
 admin.site.register(ContactUrgence)
 admin.site.register(PersonneAutorisee)
 admin.site.register(DemandeInscription)
+admin.site.register(PlanificationActivite)
 
 
 @admin.register(Activite)

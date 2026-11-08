@@ -461,6 +461,59 @@ def groupes_pertinents_pour_utilisateur(utilisateur):
     return set()
 
 
+class PlanificationActivite(models.Model):
+    class Jour(models.TextChoices):
+        LUNDI = "lundi", "Lundi"
+        MARDI = "mardi", "Mardi"
+        MERCREDI = "mercredi", "Mercredi"
+        JEUDI = "jeudi", "Jeudi"
+        VENDREDI = "vendredi", "Vendredi"
+
+    class StatutValidation(models.TextChoices):
+        EN_ATTENTE = "en_attente", "En attente"
+        VALIDE = "valide", "Validé"
+        REFUSE = "refuse", "Refusé"
+
+    groupe = models.ForeignKey(
+        Groupe,
+        on_delete=models.CASCADE,
+        related_name="planifications"
+    )
+    activite = models.ForeignKey(
+        Activite,
+        on_delete=models.CASCADE,
+        related_name="planifications"
+    )
+    jour = models.CharField(
+        max_length=10,
+        choices=Jour.choices,
+        default=Jour.LUNDI
+    )
+    heure_debut = models.TimeField()
+    heure_fin = models.TimeField()
+
+    statut_validation = models.CharField(
+        max_length=20,
+        choices=StatutValidation.choices,
+        default=StatutValidation.EN_ATTENTE
+    )
+
+    class Meta:
+        ordering = ["jour", "heure_debut"]
+        verbose_name = "Planification d'activité"
+        verbose_name_plural = "Planifications d'activités"
+
+    def clean(self):
+        super().clean()
+        if self.heure_debut and self.heure_fin and self.heure_fin <= self.heure_debut:
+            raise ValidationError({
+                "heure_fin": "L'heure de fin doit être après l'heure de début."
+            })
+
+    def __str__(self):
+        return f"{self.groupe.nom} - {self.activite.nom} ({self.get_jour_display()} {self.heure_debut:%H:%M})"
+
+
 def activite_visible_par(activite, nb_groupes, total_groupes, groupes_pertinents):
     """
     True si `activite` (dont le nombre de groupes ciblés, déjà annoté sur
