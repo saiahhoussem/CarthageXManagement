@@ -11,10 +11,20 @@ from .models import (
     PersonneAutorisee,
     Groupe,
     DemandeInscription,
+    PlanificationActivite,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from .forms import  (
+    ActiviteForm, 
+    AllergieForm, 
+    ContactUrgenceForm, 
+    PersonneAutoriseeForm, 
+    GroupeForm, 
+    DemandeInscriptionForm, 
+    AccepterDemandeInscriptionForm,
+    PlanificationActiviteForm,
+)
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -836,3 +846,53 @@ def detail_activite(request, activite_id):
         "activites/detail_activite.html",
         {"activite": activite}
     )
+
+@login_required
+def ajouter_planification(request, groupe_id):
+    groupe = get_object_or_404(Groupe, id=groupe_id)
+
+    # Seule la directrice (admin) ou l'éducatrice du groupe peut ajouter
+    if not (request.user.is_superuser or request.user.is_administrateur or groupe.educateur_id == request.user.pk):
+        raise PermissionDenied("Vous n'avez pas l'autorisation d'ajouter une activité à ce groupe.")
+
+    if request.method == "POST":
+        form = PlanificationActiviteForm(request.POST, groupe=groupe)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "L'activité a été ajoutée au planning du groupe.")
+            return redirect("mon_groupe") # À adapter selon ta page de retour
+        else:
+            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
+    else:
+        form = PlanificationActiviteForm(groupe=groupe)
+
+    return render(request, "activites/ajouter_planification.html", {
+        "form": form,
+        "groupe": groupe
+    })
+
+
+@login_required
+def modifier_planification(request, planification_id):
+    planification = get_object_or_404(PlanificationActivite, id=planification_id)
+    groupe = planification.groupe
+
+    if not (request.user.is_superuser or request.user.is_administrateur or groupe.educateur_id == request.user.pk):
+        raise PermissionDenied("Vous n'avez pas l'autorisation de modifier cette planification.")
+
+    if request.method == "POST":
+        form = PlanificationActiviteForm(request.POST, instance=planification, groupe=groupe)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "La planification a été mise à jour.")
+            return redirect("mon_groupe") # À adapter selon ta page de retour
+        else:
+            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
+    else:
+        form = PlanificationActiviteForm(instance=planification, groupe=groupe)
+
+    return render(request, "activites/modifier_planification.html", {
+        "form": form,
+        "groupe": groupe,
+        "planification": planification
+    })
