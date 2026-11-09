@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Count, F
 
-from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
+from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription,PlanificationActivite
 from compte.models import Educateur
 
 
@@ -252,3 +252,29 @@ class AccepterDemandeInscriptionForm(forms.Form):
             .annotate(nb_enfants=Count("enfant"))
             .filter(nb_enfants__lt=F("capacite"))
         )
+
+class PlanificationActiviteForm(forms.ModelForm):
+    class Meta:
+        model = PlanificationActivite
+        fields = ["activite", "jour", "heure_debut", "heure_fin"]
+        
+        widgets = {
+            "heure_debut": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
+            "heure_fin": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
+            "jour": forms.Select(attrs={"class": "form-control"}),
+            "activite": forms.Select(attrs={"class": "form-control"}),
+        }
+        
+        labels = {
+            "activite": "Activité",
+            "jour": "Jour de la semaine",
+            "heure_debut": "Heure de début",
+            "heure_fin": "Heure de fin",
+        }
+
+    def __init__(self, *args, **kwargs):
+        groupe = kwargs.pop('groupe', None)
+        super().__init__(*args, **kwargs)
+        
+        if groupe:
+            self.instance.groupe = groupe
