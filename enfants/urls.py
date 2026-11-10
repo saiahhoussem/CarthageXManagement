@@ -153,4 +153,16 @@ urlpatterns = [
         views.mes_activites,
         name="mes_activites",
     ),
+
+        # Planification des activités
+    path(
+        "groupes/<int:groupe_id>/planification/ajouter/",
+        views.ajouter_planification,
+        name="ajouter_planification"
+    ),
+    path(
+        "planification/<int:planification_id>/modifier/",
+        views.modifier_planification,
+        name="modifier_planification"
+    ),
 ]
