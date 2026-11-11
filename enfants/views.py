@@ -16,7 +16,7 @@ from .models import (
     activite_visible_par,
 )
 from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
-from compte.models import creer_notification
+from compte.models import creer_notification, Parent
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -847,6 +847,47 @@ def supprimer_activite(request, activite_id):
 
 
 @login_required
+@administrateur_requis
+def annuler_activite(request, activite_id):
+    activite = get_object_or_404(Activite, id=activite_id)
+
+    if activite.annulee:
+        raise PermissionDenied(
+            "Cette activité est déjà annulée."
+        )
+
+    parents_a_notifier = Parent.objects.filter(
+        enfants__inscriptions_activites__activite=activite
+    ).distinct()
+
+    if request.method == "POST":
+        activite.annulee = True
+        activite.save(update_fields=["annulee"])
+
+        for parent in parents_a_notifier:
+            creer_notification(
+                parent,
+                f"L'activité « {activite.nom} » du {activite.date:%d/%m/%Y} a été annulée.",
+                reverse("detail_activite", args=[activite.id]),
+            )
+
+        messages.success(
+            request,
+            f"L'activité « {activite.nom} » a été annulée et les parents concernés ont été informés."
+        )
+        return redirect("liste_activites")
+
+    return render(
+        request,
+        "activites/annuler_activite.html",
+        {
+            "activite": activite,
+            "nb_parents_a_notifier": parents_a_notifier.count(),
+        }
+    )
+
+
+@login_required
 @educateur_ou_parent_requis
 def mes_activites(request):
     total_groupes = Groupe.objects.count()
@@ -969,7 +1010,12 @@ def inscrire_activite(request, activite_id):
             "Cette activité ne concerne pas le groupe de cet enfant."
         )
 
-    if InscriptionActivite.objects.filter(activite=activite, enfant=enfant).exists():
+    if activite.annulee:
+        messages.error(
+            request,
+            f"L'activité « {activite.nom} » a été annulée, les inscriptions ne sont plus possibles."
+        )
+    elif InscriptionActivite.objects.filter(activite=activite, enfant=enfant).exists():
         messages.info(
             request,
             f"{enfant} est déjà inscrit(e) à l'activité « {activite.nom} »."
