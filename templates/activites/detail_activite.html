@@ -16,7 +16,7 @@
 <main class="container py-5 px-4 px-xl-5">
 
     <a
-        href="{% url 'mes_activites' %}"
+        href="{% if user.is_administrateur or user.is_superuser %}{% url 'liste_activites' %}{% else %}{% url 'mes_activites' %}{% endif %}"
         class="d-inline-flex align-items-center gap-1 mb-4 text-decoration-none fw-semibold"
         style="color: #1c88eb;"
     >
