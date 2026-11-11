@@ -26,4 +26,5 @@ class InscriptionActiviteAdmin(admin.ModelAdmin):
 
 @admin.register(Activite)
 class ActiviteAdmin(admin.ModelAdmin):
-    list_display = ["nom", "date", "lieu", "frais_inscription", "places_disponibles"]
+    list_display = ["nom", "date", "lieu", "frais_inscription", "places_disponibles", "annulee"]
+    list_filter = ["annulee"]
