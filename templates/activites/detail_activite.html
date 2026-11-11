@@ -49,6 +49,13 @@
                 {{ activite.nom }}
             </h1>
 
+            {% if activite.annulee %}
+                <div class="alert alert-secondary d-inline-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-x-circle"></i>
+                    Cette activité a été annulée.
+                </div>
+            {% endif %}
+
             <p class="text-muted mb-4">
                 <i class="bi bi-calendar-event me-1"></i>
                 {{ activite.date|date:"d F Y" }}
@@ -97,9 +104,23 @@
 
                 <hr class="my-4">
 
-                <h2 class="h5 fw-semibold mb-3" style="color: #0d274d;">
-                    Enfants inscrits
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <h2 class="h5 fw-semibold mb-0" style="color: #0d274d;">
+                        Enfants inscrits
+                    </h2>
+
+                    {% if not activite.annulee %}
+                        <a
+                            href="{% url 'annuler_activite' activite.id %}"
+                            class="btn btn-sm btn-outline-danger"
+                        >
+                            <i class="bi bi-x-circle me-1"></i>
+                            Annuler l'activité
+                        </a>
+                    {% endif %}
+
+                </div>
 
                 {% if inscriptions %}
                     <ul class="list-group">
@@ -124,7 +145,13 @@
                     Inscription
                 </h2>
 
-                {% if enfants_inscription %}
+                {% if activite.annulee %}
+
+                    <p class="text-muted mb-0">
+                        Cette activité a été annulée, l'inscription n'est plus possible.
+                    </p>
+
+                {% elif enfants_inscription %}
 
                     {% for item in enfants_inscription %}
 
