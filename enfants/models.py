@@ -350,6 +350,8 @@ class Activite(models.Model):
         validators=[valider_taille_photo],
     )
 
+    annulee = models.BooleanField(default=False, verbose_name="Annulée")
+
     def clean(self):
         super().clean()
 
