@@ -904,12 +904,35 @@ def enregistrer_presence(request):
     educateur = request.user.educateur
 
     if request.method == "POST":
+        enfant_id = request.POST.get("enfant")
+        type_presence = request.POST.get("type")
+        date = request.POST.get("date")
+
+        presence_existante = Presence.objects.filter(
+            enfant_id=enfant_id,
+            date=date,
+            type=type_presence
+        ).first()
+
         form = PresenceEducateurForm(
             request.POST,
+            instance=presence_existante,
             educateur=educateur
         )
 
         if form.is_valid():
+
+            if presence_existante:
+                messages.warning(
+                    request,
+                    "Une absence ou un retard de ce type a déjà été "
+                    "signalé pour cet enfant à cette date."
+                )
+
+                return redirect(
+                    "historique_presences_educateur"
+                )
+
             presence = form.save(commit=False)
 
             presence.educateur = educateur
@@ -924,7 +947,9 @@ def enregistrer_presence(request):
                 "L'absence ou le retard a bien été enregistré."
             )
 
-            return redirect("historique_presences_educateur")
+            return redirect(
+                "historique_presences_educateur"
+            )
 
     else:
         form = PresenceEducateurForm(
@@ -935,10 +960,9 @@ def enregistrer_presence(request):
         request,
         "presences/enregistrer_presence.html",
         {
-            "form": form,
+            "form": form
         }
     )
-
 
 @login_required
 @educateur_requis
