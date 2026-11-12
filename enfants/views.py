@@ -50,7 +50,7 @@ def rediriger_vers_fiche(enfant, retour):
 
 
 def utilisateur_peut_acceder_enfant(user, enfant):
-    if user.is_superuser:
+    if user.is_superuser or user.is_administrateur:
         return True
 
     if user.is_parent:
@@ -402,12 +402,51 @@ def mon_groupe(request):
 def mes_enfants(request):
 
     enfants = Enfant.objects.filter(
-        parents__pk=request.user.pk
+        parents__pk=request.user.pk,
+        actif=True,
     ).select_related("groupe")
 
     return render(request, "mes_enfants.html", {
         "enfants": enfants
     })
+
+
+@login_required
+@administrateur_requis
+def liste_enfants(request):
+    statut = request.GET.get("statut")
+    actif = statut != "archives"
+
+    enfants = (
+        Enfant.objects
+        .filter(actif=actif)
+        .select_related("groupe")
+        .order_by("nom", "prenom")
+    )
+
+    return render(request, "enfants/liste_enfants.html", {
+        "enfants": enfants,
+        "statut": statut or "actifs",
+    })
+
+
+@login_required
+@administrateur_requis
+def basculer_statut_enfant(request, enfant_id):
+    enfant = get_object_or_404(Enfant, id=enfant_id)
+
+    if request.method != "POST":
+        return redirect("fiche_enfant", enfant_id=enfant.id)
+
+    enfant.actif = not enfant.actif
+    enfant.save(update_fields=["actif"])
+
+    if enfant.actif:
+        messages.success(request, f"Le dossier de {enfant} a été réactivé.")
+    else:
+        messages.success(request, f"Le dossier de {enfant} a été archivé.")
+
+    return redirect("fiche_enfant", enfant_id=enfant.id)
 
 
 @login_required
