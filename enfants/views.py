@@ -15,6 +15,7 @@ from .models import (
     activite_visible_par,
 )
 from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from compte.models import creer_notification
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -88,6 +89,7 @@ def ajouter_allergie(request, enfant_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -125,6 +127,7 @@ def modifier_allergie(request, allergie_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -161,6 +164,7 @@ def supprimer_allergie(request, allergie_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -189,6 +193,7 @@ def ajouter_contact(request, enfant_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -226,6 +231,7 @@ def modifier_contact(request, contact_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -262,6 +268,7 @@ def supprimer_contact(request, contact_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -290,6 +297,7 @@ def ajouter_personne_autorisee(request, enfant_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -327,6 +335,7 @@ def modifier_personne_autorisee(request, personne_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -363,6 +372,7 @@ def supprimer_personne_autorisee(request, personne_id):
     if (
         not request.user.is_parent
         or not utilisateur_peut_acceder_enfant(request.user, enfant)
+        or not enfant.actif
     ):
         raise PermissionDenied(
             "Vous n'avez pas l'autorisation de modifier cette fiche."
@@ -672,6 +682,13 @@ def refuser_demande_inscription(request, demande_id):
         demande.statut = DemandeInscription.Statut.REFUSEE
         demande.save(update_fields=["statut", "date_modification"])
 
+        creer_notification(
+            demande.parent,
+            f"La demande d'inscription de {demande.prenom_enfant} "
+            f"{demande.nom_enfant} a été refusée.",
+            reverse("mes_demandes_inscription"),
+        )
+
         messages.success(
             request,
             f"La demande d'inscription de {demande.prenom_enfant} "
@@ -709,6 +726,13 @@ def accepter_demande_inscription(request, demande_id):
 
             demande.statut = DemandeInscription.Statut.APPROUVEE
             demande.save(update_fields=["statut", "date_modification"])
+
+            creer_notification(
+                demande.parent,
+                f"La demande d'inscription de {demande.prenom_enfant} "
+                f"{demande.nom_enfant} a été acceptée.",
+                reverse("mes_demandes_inscription"),
+            )
 
             messages.success(
                 request,

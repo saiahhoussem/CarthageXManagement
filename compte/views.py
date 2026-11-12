@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Educateur, User, Parent
+from .models import Educateur, User, Parent, Notification, est_administrateur
 from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
 from django.utils import timezone
 
@@ -14,11 +14,6 @@ from enfants.models import (
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
 )
-
-def est_administrateur(user):
-    return user.is_authenticated and (
-        user.is_superuser or user.role == User.Role.ADMINISTRATEUR
-    )
 
 def est_superutilisateur(user):
     return user.is_authenticated and user.is_superuser
@@ -105,6 +100,29 @@ def tableau_bord_parent(request):
     })
 
 # CRUD Administrateur
+
+@login_required
+def liste_notifications(request):
+    notifications = request.user.notifications.all()
+
+    return render(
+        request,
+        "compte/liste_notifications.html",
+        {"notifications": notifications},
+    )
+
+@login_required
+def marquer_notification_lue(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, destinataire=request.user)
+
+    if request.method == "POST":
+        notification.lue = True
+        notification.save(update_fields=["lue"])
+
+        if notification.lien:
+            return redirect(notification.lien)
+
+    return redirect("compte:liste_notifications")
 
 @login_required
 @user_passes_test(est_superutilisateur)
