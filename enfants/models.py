@@ -487,6 +487,7 @@ class Presence(models.Model):
     class SourceSignalement(models.TextChoices):
         PARENT = "parent", "Parent"
         EDUCATEUR = "educateur", "Éducateur(trice)"
+        ADMINISTRATEUR = "administrateur", "Administrateur"
 
     enfant = models.ForeignKey(
         Enfant,
@@ -500,6 +501,10 @@ class Presence(models.Model):
     )
 
     date = models.DateField()
+    date_fin = models.DateField(
+        null=True,
+        blank=True
+    )
 
     heure = models.TimeField()
 
