@@ -16,7 +16,7 @@
 <main class="container py-5 px-4 px-xl-5">
 
     <a
-        href="{% url 'mes_activites' %}"
+        href="{% if user.is_administrateur or user.is_superuser %}{% url 'liste_activites' %}{% else %}{% url 'mes_activites' %}{% endif %}"
         class="d-inline-flex align-items-center gap-1 mb-4 text-decoration-none fw-semibold"
         style="color: #1c88eb;"
     >
@@ -49,6 +49,13 @@
                 {{ activite.nom }}
             </h1>
 
+            {% if activite.annulee %}
+                <div class="alert alert-secondary d-inline-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-x-circle"></i>
+                    Cette activité a été annulée.
+                </div>
+            {% endif %}
+
             <p class="text-muted mb-4">
                 <i class="bi bi-calendar-event me-1"></i>
                 {{ activite.date|date:"d F Y" }}
@@ -61,7 +68,7 @@
                 <span class="mx-2">·</span>
 
                 <i class="bi bi-people me-1"></i>
-                {{ activite.places_disponibles }} places disponibles
+                {{ activite.places_restantes }} place{{ activite.places_restantes|pluralize }} restante{{ activite.places_restantes|pluralize }} sur {{ activite.places_disponibles }}
             </p>
 
             <p class="mb-4" style="white-space: pre-line;">
@@ -93,24 +100,111 @@
 
             </div>
 
-            {% if user.is_parent %}
+            {% if user.is_administrateur or user.is_superuser %}
 
                 <hr class="my-4">
 
-                <button
-                    type="button"
-                    class="btn text-white px-4"
-                    style="background-color: #289b7b;"
-                    disabled
-                    title="Fonctionnalité à venir"
-                >
-                    <i class="bi bi-credit-card me-2"></i>
-                    S'inscrire et payer
-                </button>
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <p class="text-muted small mt-2 mb-0">
-                    L'inscription et le paiement en ligne seront bientôt disponibles.
-                </p>
+                    <h2 class="h5 fw-semibold mb-0" style="color: #0d274d;">
+                        Enfants inscrits
+                    </h2>
+
+                    {% if not activite.annulee %}
+                        <a
+                            href="{% url 'annuler_activite' activite.id %}"
+                            class="btn btn-sm btn-outline-danger"
+                        >
+                            <i class="bi bi-x-circle me-1"></i>
+                            Annuler l'activité
+                        </a>
+                    {% endif %}
+
+                </div>
+
+                {% if inscriptions %}
+                    <ul class="list-group">
+                        {% for inscription in inscriptions %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ inscription.enfant }}
+                                <small class="text-muted">{{ inscription.date_inscription|date:"d/m/Y" }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">
+                        Aucun enfant inscrit pour le moment.
+                    </p>
+                {% endif %}
+
+            {% elif user.is_parent %}
+
+                <hr class="my-4">
+
+                <h2 class="h5 fw-semibold mb-3" style="color: #0d274d;">
+                    Inscription
+                </h2>
+
+                {% if activite.annulee %}
+
+                    <p class="text-muted mb-0">
+                        Cette activité a été annulée, l'inscription n'est plus possible.
+                    </p>
+
+                {% elif enfants_inscription %}
+
+                    {% for item in enfants_inscription %}
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+
+                            <span>{{ item.enfant }}</span>
+
+                            {% if item.inscription %}
+
+                                <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Se désinscrire
+                                    </button>
+                                </form>
+
+                            {% elif activite.places_restantes > 0 %}
+
+                                <form method="post" action="{% url 'inscrire_activite' activite.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="enfant_id" value="{{ item.enfant.id }}">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm text-white"
+                                        style="background-color: #289b7b;"
+                                    >
+                                        S'inscrire
+                                    </button>
+                                </form>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary">Complet</span>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                    {% if activite.frais_inscription > 0 %}
+                        <p class="text-muted small mt-3 mb-0">
+                            Le paiement des frais d'inscription se fera ultérieurement, via le centre de paiement (bientôt disponible).
+                        </p>
+                    {% endif %}
+
+                {% else %}
+
+                    <p class="text-muted mb-0">
+                        Aucun de vos enfants ne fait partie des groupes concernés par cette activité.
+                    </p>
+
+                {% endif %}
 
             {% endif %}
 

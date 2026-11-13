@@ -66,6 +66,9 @@
 
                                 <td class="fw-semibold">
                                     {{ activite.nom }}
+                                    {% if activite.annulee %}
+                                        <span class="badge bg-secondary ms-1">Annulée</span>
+                                    {% endif %}
                                 </td>
 
                                 <td>
@@ -80,41 +83,59 @@
                                     {{ activite.frais_affichage }}
                                 </td>
 
-                                <td>
-                                    {{ activite.places_disponibles }}
+                                <td class="text-nowrap">
+                                    {{ activite.places_restantes }}/{{ activite.places_disponibles }}
                                 </td>
 
-                                <td>
+                                <td class="text-nowrap">
                                     {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
                                         <span class="text-muted">Tous les groupes</span>
                                     {% else %}
-                                        {% for groupe in activite.groupes.all %}
-                                            <span
-                                                class="badge rounded-pill px-3 py-2 me-1"
-                                                style="background-color: #289b7b;"
-                                            >
-                                                {{ groupe.nom }}
-                                            </span>
-                                        {% endfor %}
+                                        <span
+                                            class="badge rounded-pill px-3 py-2"
+                                            style="background-color: #289b7b; cursor: default;"
+                                            title="{% for groupe in activite.groupes.all %}{{ groupe.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                                        >
+                                            <i class="bi bi-diagram-3 me-1"></i>
+                                            {{ activite.nb_groupes }} groupe{{ activite.nb_groupes|pluralize }}
+                                        </span>
                                     {% endif %}
                                 </td>
 
-                                <td class="text-end">
+                                <td class="text-end text-nowrap">
+                                    <a
+                                        href="{% url 'detail_activite' activite.id %}"
+                                        class="btn btn-sm btn-outline-secondary me-1"
+                                        title="Voir"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
                                     <a
                                         href="{% url 'modifier_activite' activite.id %}"
                                         class="btn btn-sm text-white me-1"
                                         style="background-color: #f49f02;"
+                                        title="Modifier"
                                     >
-                                        <i class="bi bi-pencil-square me-1"></i>
-                                        Modifier
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
+
+                                    {% if not activite.annulee %}
+                                        <a
+                                            href="{% url 'annuler_activite' activite.id %}"
+                                            class="btn btn-sm btn-outline-danger me-1"
+                                            title="Annuler"
+                                        >
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    {% endif %}
 
                                     <a
                                         href="{% url 'supprimer_activite' activite.id %}"
                                         class="btn btn-sm btn-danger"
+                                        title="Supprimer"
                                     >
-                                        <i class="bi bi-trash me-1"></i>
-                                        Supprimer
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
 

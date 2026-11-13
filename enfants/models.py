@@ -350,6 +350,8 @@ class Activite(models.Model):
         validators=[valider_taille_photo],
     )
 
+    annulee = models.BooleanField(default=False, verbose_name="Annulée")
+
     def clean(self):
         super().clean()
 
@@ -368,6 +370,15 @@ class Activite(models.Model):
                     "date":
                         "La date de l'activité ne peut pas être dans le passé."
                 })
+
+    @property
+    def places_restantes(self):
+        nb_inscriptions = getattr(self, "nb_inscriptions", None)
+
+        if nb_inscriptions is None:
+            nb_inscriptions = self.inscriptions.count()
+
+        return max(self.places_disponibles - nb_inscriptions, 0)
 
     @property
     def photo_url(self):
@@ -433,6 +444,32 @@ class Activite(models.Model):
 
     def __str__(self):
         return str(self.nom)
+
+
+class InscriptionActivite(models.Model):
+    activite = models.ForeignKey(
+        Activite,
+        on_delete=models.CASCADE,
+        related_name="inscriptions",
+    )
+    enfant = models.ForeignKey(
+        Enfant,
+        on_delete=models.CASCADE,
+        related_name="inscriptions_activites",
+    )
+    date_inscription = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["activite", "enfant"],
+                name="unique_inscription_activite_enfant",
+            )
+        ]
+        ordering = ["-date_inscription"]
+
+    def __str__(self):
+        return f"{self.enfant} - {self.activite}"
 
 
 def groupes_pertinents_pour_utilisateur(utilisateur):
