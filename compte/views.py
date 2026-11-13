@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Educateur, User, Parent
+from .models import Educateur, User, Parent, Notification, est_administrateur
 from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
 from django.utils import timezone
 
@@ -15,10 +15,8 @@ from enfants.models import (
     activite_visible_par,
 )
 
-def est_administrateur(user):
-    return user.is_authenticated and (
-        user.is_superuser or user.role == User.Role.ADMINISTRATEUR
-    )
+def est_superutilisateur(user):
+    return user.is_authenticated and user.is_superuser
 
 def url_tableau_bord(utilisateur):
     if utilisateur.is_superuser or utilisateur.role == User.Role.ADMINISTRATEUR:
@@ -53,16 +51,6 @@ def connexion(request):
 
     return render(request, "compte/connexion.html", {"form": form})
 
-ROLES_CREATION = {
-    "educateur": User.Role.EDUCATEUR,
-    "parent": User.Role.PARENT,
-}
-
-TITRES_CREATION = {
-    User.Role.EDUCATEUR: "Créer un compte éducateur",
-    User.Role.PARENT: "Créer un compte parent",
-}
-
 @login_required
 def tableau_bord_admin(request):
     if not est_administrateur(request.user):
@@ -71,7 +59,7 @@ def tableau_bord_admin(request):
         "titre": "Administrateur",
         "nb_educateurs": User.objects.filter(role=User.Role.EDUCATEUR).count(),
         "nb_parents": User.objects.filter(role=User.Role.PARENT).count(),
-        "nb_enfants": Enfant.objects.count(),
+        "nb_enfants": Enfant.objects.filter(actif=True).count(),
         "nb_groupes": Groupe.objects.count(),
     }
     return render(request, "compte/tableau_bord.html", contexte)
@@ -114,7 +102,30 @@ def tableau_bord_parent(request):
 # CRUD Administrateur
 
 @login_required
-@user_passes_test(est_administrateur)
+def liste_notifications(request):
+    notifications = request.user.notifications.all()
+
+    return render(
+        request,
+        "compte/liste_notifications.html",
+        {"notifications": notifications},
+    )
+
+@login_required
+def marquer_notification_lue(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, destinataire=request.user)
+
+    if request.method == "POST":
+        notification.lue = True
+        notification.save(update_fields=["lue"])
+
+        if notification.lien:
+            return redirect(notification.lien)
+
+    return redirect("compte:liste_notifications")
+
+@login_required
+@user_passes_test(est_superutilisateur)
 def creer_administrateur(request):
     if request.method == "POST":
         form = CreationAdministrateurForm(request.POST)

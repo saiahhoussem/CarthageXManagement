@@ -101,6 +101,7 @@ class Enfant(models.Model):
         related_name="enfants",
         blank=True
     )
+    actif = models.BooleanField(default=True, verbose_name="Actif")
 
     def clean(self):
         super().clean()
