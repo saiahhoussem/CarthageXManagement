@@ -43,3 +43,4 @@ educateur_requis = _acces_reserve(lambda user: user.is_educateur)
 educateur_ou_parent_requis = _acces_reserve(
     lambda user: user.is_educateur or user.is_parent
 )
+
