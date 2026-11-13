@@ -26,7 +26,6 @@ from .decorators import (
     parent_requis,
     educateur_requis,
     educateur_ou_parent_requis,
-    administrateur_educateur_ou_parent_requis,
 )
 
 
@@ -884,7 +883,6 @@ def mes_activites(request):
 
 
 @login_required
-@administrateur_educateur_ou_parent_requis
 def detail_activite(request, activite_id):
     activite = get_object_or_404(
         Activite.objects.prefetch_related("groupes", "inscriptions__enfant")
