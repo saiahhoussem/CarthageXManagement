@@ -3,6 +3,9 @@ from django.urls import reverse
 from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
+from django.utils import timezone
+from django.http import JsonResponse
+
 from .models import (
     Activite,
     Enfant,
@@ -13,8 +16,9 @@ from .models import (
     DemandeInscription,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
+    Presence,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm,PresenceParentForm, PresenceEducateurForm, PresenceAdminForm
 from compte.models import creer_notification
 
 from django.contrib.auth.decorators import login_required
@@ -899,3 +903,504 @@ def detail_activite(request, activite_id):
         "activites/detail_activite.html",
         {"activite": activite}
     )
+
+@login_required
+@parent_requis
+def signaler_presence(request):
+    parent = request.user.parent
+
+    if request.method == "POST":
+        form = PresenceParentForm(
+            request.POST,
+            parent=parent
+        )
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.parent = parent
+            presence.source_signalement = Presence.SourceSignalement.PARENT
+
+            presence.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été enregistré."
+            )
+
+            return redirect("historique_presences_parent")
+
+    else:
+        form = PresenceParentForm(
+            parent=parent
+        )
+
+    return render(
+        request,
+        "presences/signaler_presence.html",
+        {
+            "form": form,
+        }
+    )
+
+@login_required
+@parent_requis
+def historique_presences_parent(request):
+    parent = request.user.parent
+
+    presences = (
+        Presence.objects
+        .filter(parent=parent)
+        .select_related("enfant")
+        .order_by("-date_signalement")
+    )
+
+    return render(
+        request,
+        "presences/historique_parent.html",
+        {
+            "presences": presences,
+            "today": timezone.now().date(),
+        }
+)
+
+@login_required
+@educateur_requis
+def enregistrer_presence(request):
+    educateur = request.user.educateur
+
+    if request.method == "POST":
+        enfant_id = request.POST.get("enfant")
+        type_presence = request.POST.get("type")
+        date = request.POST.get("date")
+
+        presence_existante = Presence.objects.filter(
+            enfant_id=enfant_id,
+            date=date,
+            type=type_presence
+        ).first()
+
+        form = PresenceEducateurForm(
+            request.POST,
+            instance=presence_existante,
+            educateur=educateur
+        )
+
+        if form.is_valid():
+
+            if presence_existante:
+                messages.warning(
+                    request,
+                    "Une absence ou un retard de ce type a déjà été "
+                    "signalé pour cet enfant à cette date."
+                )
+
+                return redirect(
+                    "historique_presences_educateur"
+                )
+
+            presence = form.save(commit=False)
+
+            presence.educateur = educateur
+            presence.source_signalement = (
+                Presence.SourceSignalement.EDUCATEUR
+            )
+
+            presence.save()
+
+            messages.success(
+                request,
+                "L'absence ou le retard a bien été enregistré."
+            )
+
+            return redirect(
+                "historique_presences_educateur"
+            )
+
+    else:
+        form = PresenceEducateurForm(
+            educateur=educateur
+        )
+
+    return render(
+        request,
+        "presences/enregistrer_presence.html",
+        {
+            "form": form
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def enregistrer_presence_admin(request):
+
+    if request.method == "POST":
+        form = PresenceAdminForm(request.POST)
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.source_signalement = (
+                Presence.SourceSignalement.ADMINISTRATEUR
+            )
+
+            presence.save()
+
+            messages.success(
+                request,
+                "L'absence ou le retard a bien été enregistré."
+            )
+
+            return redirect("registre_presences")
+
+    else:
+        form = PresenceAdminForm()
+
+    return render(
+        request,
+        "presences/enregistrer_presence_admin.html",
+        {
+            "form": form,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def modifier_presence_admin(request, presence_id):
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id
+    )
+
+    if request.method == "POST":
+        form = PresenceAdminForm(
+            request.POST,
+            instance=presence
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été modifié."
+            )
+
+            return redirect("registre_presences")
+
+    else:
+        form = PresenceAdminForm(
+            instance=presence
+        )
+
+    return render(
+        request,
+        "presences/modifier_presence_admin.html",
+        {
+            "form": form,
+            "presence": presence,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def supprimer_presence_admin(request, presence_id):
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id
+    )
+
+    if request.method == "POST":
+        presence.delete()
+
+        messages.success(
+            request,
+            "Le signalement a bien été supprimé."
+        )
+
+        return redirect("registre_presences")
+
+    return render(
+        request,
+        "presences/supprimer_presence_admin.html",
+        {
+            "presence": presence,
+        }
+    )
+
+
+
+@login_required
+@educateur_requis
+def historique_presences_educateur(request):
+    educateur = request.user.educateur
+
+    presences = (
+        Presence.objects
+        .filter(enfant__groupe__educateur=educateur)
+        .select_related("enfant")
+        .order_by("-date", "-heure")
+    )
+
+    return render(
+        request,
+        "presences/historique_educateur.html",
+        {
+            "presences": presences,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def registre_presences(request):
+    presences = (
+        Presence.objects
+        .select_related(
+            "enfant",
+            "enfant__groupe",
+        )
+        .order_by("-date", "-heure")
+    )
+
+    groupe_id = request.GET.get("groupe")
+    date = request.GET.get("date")
+    enfant_id = request.GET.get("enfant")
+
+    if groupe_id:
+        presences = presences.filter(
+            enfant__groupe_id=groupe_id
+        )
+
+    if date:
+        presences = presences.filter(
+            date=date
+        )
+
+    if enfant_id:
+        presences = presences.filter(
+            enfant_id=enfant_id
+        )
+
+    groupes = Groupe.objects.order_by("nom")
+
+    enfants = Enfant.objects.order_by(
+        "nom",
+        "prenom"
+    )
+
+    if groupe_id:
+        enfants = enfants.filter(
+            groupe_id=groupe_id
+        )
+
+    return render(
+        request,
+        "presences/registre_presences.html",
+        {
+            "presences": presences,
+            "groupes": groupes,
+            "enfants": enfants,
+            "groupe_selectionne": groupe_id,
+            "date_selectionnee": date,
+            "enfant_selectionne": enfant_id,
+        }
+    )
+
+
+
+@login_required
+@parent_requis
+def modifier_presence_parent(request, presence_id):
+    parent = request.user.parent
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        parent=parent
+    )
+
+    if presence.date < timezone.now().date():
+        messages.error(
+            request,
+            "Ce signalement ne peut plus être modifié, car sa date est passée."
+        )
+        return redirect("historique_presences_parent")
+
+    if request.method == "POST":
+        form = PresenceParentForm(
+            request.POST,
+            instance=presence,
+            parent=parent
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été modifié."
+            )
+
+            return redirect("historique_presences_parent")
+
+    else:
+        form = PresenceParentForm(
+            instance=presence,
+            parent=parent
+        )
+
+    return render(
+        request,
+        "presences/modifier_presence_parent.html",
+        {
+            "form": form,
+            "presence": presence,
+        }
+    )
+
+
+@login_required
+@parent_requis
+def supprimer_presence_parent(request, presence_id):
+    parent = request.user.parent
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        parent=parent
+    )
+
+    if presence.date < timezone.now().date():
+        messages.error(
+            request,
+            "Ce signalement ne peut plus être supprimé, car sa date est passée."
+        )
+        return redirect("historique_presences_parent")
+
+    if request.method == "POST":
+        presence.delete()
+
+        messages.success(
+            request,
+            "Le signalement a bien été supprimé."
+        )
+
+        return redirect("historique_presences_parent")
+
+    return render(
+        request,
+        "presences/supprimer_presence_parent.html",
+        {
+            "presence": presence,
+        }
+    )
+
+@login_required
+@administrateur_requis
+def enfants_par_groupe(request):
+    groupe_id = request.GET.get("groupe")
+
+    enfants = Enfant.objects.filter(
+        groupe_id=groupe_id
+    ).order_by("nom", "prenom")
+
+    data = [
+        {
+            "id": enfant.id,
+            "nom": f"{enfant.prenom} {enfant.nom}"
+        }
+        for enfant in enfants
+    ]
+
+    return JsonResponse(
+        {
+            "enfants": data
+        }
+    )
+
+
+
+@login_required
+@educateur_requis
+def modifier_presence_educateur(request, presence_id):
+    educateur = request.user.educateur
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        educateur=educateur,
+        enfant__groupe__educateur=educateur,
+    )
+
+    if request.method == "POST":
+        form = PresenceEducateurForm(
+            request.POST,
+            instance=presence,
+            educateur=educateur,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été modifié."
+            )
+
+            return redirect(
+                "historique_presences_educateur"
+            )
+
+    else:
+        form = PresenceEducateurForm(
+            instance=presence,
+            educateur=educateur,
+        )
+
+    return render(
+        request,
+        "presences/modifier_presence_educateur.html",
+        {
+            "form": form,
+            "presence": presence,
+        }
+    )
+
+
+@login_required
+@educateur_requis
+def supprimer_presence_educateur(request, presence_id):
+    educateur = request.user.educateur
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        educateur=educateur,
+        enfant__groupe__educateur=educateur,
+    )
+
+    if request.method == "POST":
+        presence.delete()
+
+        messages.success(
+            request,
+            "Le signalement a bien été supprimé."
+        )
+
+        return redirect(
+            "historique_presences_educateur"
+        )
+
+    return render(
+        request,
+        "presences/supprimer_presence_educateur.html",
+        {
+            "presence": presence,
+        }
+    )
+
+

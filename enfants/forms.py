@@ -1,7 +1,8 @@
 from django import forms
+from django.utils import timezone
 from django.db.models import Count, F
 
-from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription
+from .models import Activite, Allergie, ContactUrgence, Groupe, PersonneAutorisee, DemandeInscription, Presence, Enfant
 from compte.models import Educateur
 
 
@@ -252,3 +253,291 @@ class AccepterDemandeInscriptionForm(forms.Form):
             .annotate(nb_enfants=Count("enfant"))
             .filter(nb_enfants__lt=F("capacite"))
         )
+
+class PresenceParentForm(forms.ModelForm):
+    class Meta:
+        model = Presence
+        fields = [
+            "enfant",
+            "type",
+            "date",
+            "date_fin",
+            "heure",
+            "motif",
+        ]
+
+        widgets = {
+            "date": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "date_fin": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "motif": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Indiquez le motif du signalement."
+                }
+            ),
+        }
+
+        labels = {
+            "enfant": "Enfant",
+            "type": "Type de signalement",
+            "date": "Date de début",
+            "date_fin": "Date de fin",
+            "heure": "Heure",
+            "motif": "Motif",
+        }
+
+    def __init__(self, *args, parent=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if parent is not None:
+            self.fields["enfant"].queryset = Enfant.objects.filter(
+                parents=parent
+            )
+
+        self.fields["date_fin"].help_text = (
+            "Laissez vide pour un signalement d'absence d'une seule journée."
+            "Si vous signalez un retard, elle ne doit pas être remplie."
+        )
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+
+        if date and date < timezone.now().date():
+            raise forms.ValidationError(
+                "Vous ne pouvez pas signaler une absence ou un retard "
+                "pour une date passée."
+            )
+
+        return date
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        type_presence = cleaned_data.get("type")
+        date_debut = cleaned_data.get("date")
+        date_fin = cleaned_data.get("date_fin")
+
+        if date_debut and date_fin and date_fin < date_debut:
+            self.add_error(
+                "date_fin",
+                "La date de fin doit être égale ou postérieure "
+                "à la date de début."
+            )
+
+        if (
+            type_presence == Presence.Type.RETARD
+            and date_fin
+        ):
+            self.add_error(
+                "date_fin",
+                "La date de fin n'est pas nécessaire pour un retard."
+            )
+
+        return cleaned_data
+
+class PresenceEducateurForm(forms.ModelForm):
+    class Meta:
+        model = Presence
+        fields = [
+            "enfant",
+            "type",
+            "date",
+            "date_fin",
+            "heure",
+            "motif",
+        ]
+
+        widgets = {
+            "date": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "date_fin": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "motif": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Indiquez le motif du signalement."
+                }
+            ),
+        }
+
+        labels = {
+            "enfant": "Enfant",
+            "type": "Type de présence",
+            "date": "Date de début",
+            "date_fin": "Date de fin",
+            "heure": "Heure",
+            "motif": "Motif",
+        }
+
+    def __init__(self, *args, educateur=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if educateur is not None:
+            self.fields["enfant"].queryset = Enfant.objects.filter(
+                groupe__educateur=educateur
+            )
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+
+        if date and date > timezone.now().date():
+            raise forms.ValidationError(
+                "Vous ne pouvez pas enregistrer une absence ou un retard "
+                "pour une date future."
+            )
+
+        return date
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        type_presence = cleaned_data.get("type")
+        date_debut = cleaned_data.get("date")
+        date_fin = cleaned_data.get("date_fin")
+
+        if date_debut and date_fin and date_fin < date_debut:
+            self.add_error(
+                "date_fin",
+                "La date de fin doit être égale ou postérieure "
+                "à la date de début."
+            )
+
+        if (
+            type_presence == Presence.Type.RETARD
+            and date_fin
+        ):
+            self.add_error(
+                "date_fin",
+                "La date de fin n'est pas nécessaire pour un retard."
+            )
+
+        return cleaned_data
+
+class PresenceAdminForm(forms.ModelForm):
+    groupe = forms.ModelChoiceField(
+        queryset=Groupe.objects.order_by("nom"),
+        label="Groupe",
+        empty_label="Sélectionnez un groupe"
+    )
+
+    class Meta:
+        model = Presence
+
+        fields = [
+            "groupe",
+            "enfant",
+            "type",
+            "date",
+            "date_fin",
+            "heure",
+            "motif",
+        ]
+
+        widgets = {
+            "date": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "date_fin": forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "motif": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Indiquez le motif du signalement."
+                }
+            ),
+        }
+
+        labels = {
+            "enfant": "Enfant",
+            "type": "Type de signalement",
+            "date": "Date de début",
+            "date_fin": "Date de fin",
+            "heure": "Heure",
+            "motif": "Motif",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["date_fin"].help_text = (
+            "Laissez vide pour une absence d'une seule journée. "
+            "Non applicable pour un retard."
+        )
+
+        self.fields["enfant"].queryset = Enfant.objects.none()
+
+        groupe_id = None
+
+        if self.is_bound:
+            groupe_id = self.data.get("groupe")
+
+        elif self.instance and self.instance.pk:
+            groupe_id = self.instance.enfant.groupe_id
+            self.fields["groupe"].initial = groupe_id
+
+        if groupe_id:
+            try:
+                self.fields["enfant"].queryset = (
+                    Enfant.objects
+                    .filter(groupe_id=groupe_id)
+                    .order_by("nom", "prenom")
+                )
+            except (ValueError, TypeError):
+                pass
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+
+        if date and date < timezone.now().date():
+            raise forms.ValidationError(
+                "Vous ne pouvez pas enregistrer un signalement "
+                "pour une date passée."
+            )
+
+        return date
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        groupe = cleaned_data.get("groupe")
+        enfant = cleaned_data.get("enfant")
+        type_presence = cleaned_data.get("type")
+        date_debut = cleaned_data.get("date")
+        date_fin = cleaned_data.get("date_fin")
+
+        if groupe and enfant and enfant.groupe_id != groupe.id:
+            self.add_error(
+                "enfant",
+                "Cet enfant n'appartient pas au groupe sélectionné."
+            )
+
+        if date_debut and date_fin and date_fin < date_debut:
+            self.add_error(
+                "date_fin",
+                "La date de fin doit être égale ou postérieure "
+                "à la date de début."
+            )
+
+        if type_presence == Presence.Type.RETARD and date_fin:
+            self.add_error(
+                "date_fin",
+                "La date de fin n'est pas nécessaire pour un retard."
+            )
+
+        return cleaned_data

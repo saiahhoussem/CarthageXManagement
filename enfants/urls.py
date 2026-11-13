@@ -163,4 +163,84 @@ urlpatterns = [
         views.mes_activites,
         name="mes_activites",
     ),
+
+    #CRUD présence
+    path(
+        "presences/signaler/",
+        views.signaler_presence,
+        name="signaler_presence",
+    ),
+    path(
+    "presences/historique/",
+    views.historique_presences_parent,
+    name="historique_presences_parent",
+    ),
+    path(
+    "presences/enregistrer/",
+    views.enregistrer_presence,
+    name="enregistrer_presence",
+    ),
+    path(
+    "presences/historique-educateur/",
+    views.historique_presences_educateur,
+    name="historique_presences_educateur",
+    ),
+    
+    path(
+        "presences/registre/",
+        views.registre_presences,
+        name="registre_presences",
+        ),
+
+    path(
+        "presences/admin/enregistrer/",
+        views.enregistrer_presence_admin,
+        name="enregistrer_presence_admin",
+    ),
+    path(
+    "presences/<int:presence_id>/modifier/",
+    views.modifier_presence_parent,
+    name="modifier_presence_parent",
+    ),
+
+    path(
+    "presences/<int:presence_id>/supprimer/",
+    views.supprimer_presence_parent,
+    name="supprimer_presence_parent",
+    ),
+
+    path(
+        "presences/admin/<int:presence_id>/modifier/",
+        views.modifier_presence_admin,
+        name="modifier_presence_admin",
+    ),
+
+    path(
+        "presences/admin/<int:presence_id>/supprimer/",
+        views.supprimer_presence_admin,
+        name="supprimer_presence_admin",
+    ),
+    path(
+    "presences/enfants-par-groupe/",
+    views.enfants_par_groupe,
+    name="enfants_par_groupe",
+    ),
+    
+    path(
+    "presences/educateur/<int:presence_id>/modifier/",
+    views.modifier_presence_educateur,
+    name="modifier_presence_educateur",
+    ),
+
+    path(
+        "presences/educateur/<int:presence_id>/supprimer/",
+        views.supprimer_presence_educateur,
+        name="supprimer_presence_educateur",
+    ),
+
+
+
+
+
+
 ]

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Historique des signalements{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main> <div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1 class="fw-semibold mb-0">
+            Historique des absences et retards
+        </h1>
+
+        <a
+            href="{% url 'signaler_presence' %}"
+            class="btn btn-success"
+        >
+            Nouveau signalement
+        </a>
+
+    </div>
+
+    {% if presences %}
+
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Enfant</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Date de fin</th>
+                        <th>Heure</th>
+                        <th>Motif</th>
+                        <th>Signalé le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for presence in presences %}
+
+                        <tr>
+
+                            <td>
+                                {{ presence.enfant.prenom }}
+                                {{ presence.enfant.nom }}
+                            </td>
+
+                            <td>
+                                {{ presence.get_type_display }}
+                            </td>
+
+                            <td>
+                                {{ presence.date|date:"d/m/Y" }}
+                            </td>
+
+                            <td>
+                                {% if presence.date_fin %}
+                                    {{ presence.date_fin|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="text-muted">
+                                        N/A
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ presence.heure|time:"H:i" }}
+                            </td>
+
+                            <td>
+                                {{ presence.motif }}
+                            </td>
+
+                            <td>
+                                {{ presence.date_signalement|date:"d/m/Y H:i" }}
+                            </td>
+
+                            <td>
+
+                                {% if presence.date >= today %}
+
+                                    <div class="d-flex gap-2">
+
+                                        <a
+                                            href="{% url 'modifier_presence_parent' presence.id %}"
+                                            class="btn btn-sm btn-ck-orange"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                            Modifier
+                                        </a>
+
+                                        <a
+                                            href="{% url 'supprimer_presence_parent' presence.id %}"
+                                            class="btn btn-sm btn-danger"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                            Supprimer
+                                        </a>
+
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        Modification impossible
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            Aucun signalement enregistré pour le moment.
+        </div>
+
+    {% endif %}
+
+</div>
+</main>
+
+{% endblock %}
+
