@@ -502,6 +502,7 @@ class Presence(models.Model):
     )
 
     date = models.DateField()
+
     date_fin = models.DateField(
         null=True,
         blank=True
@@ -534,7 +535,9 @@ class Presence(models.Model):
         related_name="signalements_presence"
     )
 
-    date_signalement = models.DateTimeField(auto_now_add=True)
+    date_signalement = models.DateTimeField(
+        auto_now_add=True
+    )
 
     class Meta:
         constraints = [
@@ -543,6 +546,58 @@ class Presence(models.Model):
                 name="unique_presence_enfant_date_type"
             )
         ]
+
+    def clean(self):
+        super().clean()
+
+        
+        if self.date_fin and self.date_fin < self.date:
+            raise ValidationError({
+                "date_fin": (
+                    "La date de fin doit être égale ou postérieure "
+                    "à la date de début."
+                )
+            })
+
+        
+        if self.type == self.Type.RETARD and self.date_fin:
+            raise ValidationError({
+                "date_fin": (
+                    "La date de fin n'est pas applicable à un retard."
+                )
+            })
+
+        
+        if (
+            self.enfant_id
+            and self.type == self.Type.ABSENCE
+            and self.date
+        ):
+            nouvelle_date_fin = self.date_fin or self.date
+
+            absences_existantes = Presence.objects.filter(
+                enfant_id=self.enfant_id,
+                type=self.Type.ABSENCE,
+                date__lte=nouvelle_date_fin
+            ).filter(
+                models.Q(date_fin__gte=self.date)
+                | models.Q(
+                    date_fin__isnull=True,
+                    date__gte=self.date
+                )
+            )
+
+            # Lors d'une modification, ignorer la présence elle-même
+            if self.pk:
+                absences_existantes = absences_existantes.exclude(
+                    pk=self.pk
+                )
+
+            if absences_existantes.exists():
+                raise ValidationError(
+                    "Une absence existe déjà pour cet enfant "
+                    "pendant cette période."
+                )
 
     def __str__(self):
         return (
