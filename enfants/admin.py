@@ -7,6 +7,7 @@ from .models import (
     PersonneAutorisee,
     DemandeInscription,
     Activite,
+    InscriptionActivite,
 )
 
 
@@ -16,6 +17,11 @@ admin.site.register(Allergie)
 admin.site.register(ContactUrgence)
 admin.site.register(PersonneAutorisee)
 admin.site.register(DemandeInscription)
+
+
+@admin.register(InscriptionActivite)
+class InscriptionActiviteAdmin(admin.ModelAdmin):
+    list_display = ["enfant", "activite", "date_inscription"]
 
 
 @admin.register(Activite)
