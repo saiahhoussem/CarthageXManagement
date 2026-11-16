@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer le signalement{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main> <div class="container py-5">
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h1 class="h4 mb-3">
+                Supprimer le signalement
+            </h1>
+
+            <p>
+                Voulez-vous vraiment supprimer ce signalement ?
+            </p>
+
+            <div class="mb-4">
+                <strong>
+                    {{ presence.enfant.prenom }}
+                    {{ presence.enfant.nom }}
+                </strong>
+
+                <br>
+
+                {{ presence.get_type_display }}
+                — {{ presence.date|date:"d/m/Y" }}
+                à {{ presence.heure|time:"H:i" }}
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Supprimer
+                </button>
+
+                <a
+                    href="{% url 'historique_presences_parent' %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+</main> {% endblock %}
