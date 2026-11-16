@@ -1223,10 +1223,12 @@ def modifier_presence_parent(request, presence_id):
         parent=parent
     )
 
-    if presence.date < timezone.now().date():
+    date_limite = presence.date_fin or presence.date
+
+    if date_limite < timezone.now().date():
         messages.error(
             request,
-            "Ce signalement ne peut plus être modifié, car sa date est passée."
+            "Ce signalement ne peut plus être modifié, car sa période est terminée."
         )
         return redirect("historique_presences_parent")
 
@@ -1274,10 +1276,12 @@ def supprimer_presence_parent(request, presence_id):
         parent=parent
     )
 
-    if presence.date < timezone.now().date():
+    date_limite = presence.date_fin or presence.date
+
+    if date_limite < timezone.now().date():
         messages.error(
             request,
-            "Ce signalement ne peut plus être supprimé, car sa date est passée."
+            "Ce signalement ne peut plus être supprimé, car sa période est terminée."
         )
         return redirect("historique_presences_parent")
 
