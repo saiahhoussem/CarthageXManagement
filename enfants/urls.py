@@ -159,6 +159,16 @@ urlpatterns = [
         name="supprimer_activite",
     ),
     path(
+        "activites/<int:activite_id>/inscrire/",
+        views.inscrire_activite,
+        name="inscrire_activite",
+    ),
+    path(
+        "inscriptions-activite/<int:inscription_id>/desinscrire/",
+        views.desinscrire_activite,
+        name="desinscrire_activite",
+    ),
+    path(
         "mes-activites/",
         views.mes_activites,
         name="mes_activites",
