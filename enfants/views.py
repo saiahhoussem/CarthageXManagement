@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from django.utils import timezone
@@ -402,16 +402,33 @@ def supprimer_personne_autorisee(request, personne_id):
 @login_required
 @educateur_requis
 def mon_groupe(request):
+    enfants_actifs = Enfant.objects.filter(
+        actif=True
+    ).order_by(
+        "nom",
+        "prenom"
+    )
 
-    groupes = Groupe.objects.filter(
-        educateur__pk=request.user.pk
-    ).prefetch_related("enfant_set")
+    groupes = (
+        Groupe.objects
+        .filter(
+            educateur__pk=request.user.pk
+        )
+        .prefetch_related(
+            Prefetch(
+                "enfant_set",
+                queryset=enfants_actifs
+            )
+        )
+    )
 
-    return render(request, "mon_groupe.html", {
-        "groupes": groupes
-    })
-
-
+    return render(
+        request,
+        "mon_groupe.html",
+        {
+            "groupes": groupes
+        }
+    )
 @login_required
 @parent_requis
 def mes_enfants(request):
@@ -1010,36 +1027,15 @@ def historique_presences_parent(request):
 def enregistrer_presence(request):
     educateur = request.user.educateur
 
+    enfant_id = request.GET.get("enfant")
+
     if request.method == "POST":
-        enfant_id = request.POST.get("enfant")
-        type_presence = request.POST.get("type")
-        date = request.POST.get("date")
-
-        presence_existante = Presence.objects.filter(
-            enfant_id=enfant_id,
-            date=date,
-            type=type_presence
-        ).first()
-
         form = PresenceEducateurForm(
             request.POST,
-            instance=presence_existante,
             educateur=educateur
         )
 
         if form.is_valid():
-
-            if presence_existante:
-                messages.warning(
-                    request,
-                    "Une absence ou un retard de ce type a déjà été "
-                    "signalé pour cet enfant à cette date."
-                )
-
-                return redirect(
-                    "historique_presences_educateur"
-                )
-
             presence = form.save(commit=False)
 
             presence.educateur = educateur
@@ -1051,16 +1047,32 @@ def enregistrer_presence(request):
 
             messages.success(
                 request,
-                "L'absence ou le retard a bien été enregistré."
+                "La présence a bien été enregistrée."
             )
 
-            return redirect(
-                "historique_presences_educateur"
-            )
+            # Retour direct au groupe pour continuer rapidement
+            # la prise de présence.
+            return redirect("mon_groupe")
 
     else:
+        maintenant = timezone.localtime()
+
+        initial = {
+            "type": Presence.Type.ABSENCE,
+            "date": maintenant.date(),
+            "heure": maintenant.time().replace(
+                second=0,
+                microsecond=0
+            ),
+            "motif": "RAS",
+        }
+
+        if enfant_id:
+            initial["enfant"] = enfant_id
+
         form = PresenceEducateurForm(
-            educateur=educateur
+            educateur=educateur,
+            initial=initial
         )
 
     return render(
@@ -1070,7 +1082,6 @@ def enregistrer_presence(request):
             "form": form
         }
     )
-
 
 @login_required
 @administrateur_requis
