@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Enregistrer une présence{% endblock %}
 
@@ -183,5 +184,5 @@
 </main>
 
 <script> const groupeSelect = document.getElementById("id_groupe"); const enfantSelect = document.getElementById("id_enfant"); groupeSelect.addEventListener("change", async function () { const groupeId = this.value; enfantSelect.innerHTML = ""; const optionVide = document.createElement("option"); optionVide.value = ""; optionVide.textContent = "Sélectionnez un enfant"; enfantSelect.appendChild(optionVide); if (!groupeId) { return; } try { const response = await fetch( "{% url 'enfants_par_groupe' %}?groupe=" + groupeId ); if (!response.ok) { throw new Error( "Erreur lors du chargement des enfants." ); } const data = await response.json(); data.enfants.forEach(function (enfant) { const option = document.createElement("option"); option.value = enfant.id; option.textContent = enfant.nom; enfantSelect.appendChild(option); }); } catch (error) { console.error(error); enfantSelect.innerHTML = ""; const optionErreur = document.createElement("option"); optionErreur.value = ""; optionErreur.textContent = "Impossible de charger les enfants"; enfantSelect.appendChild(optionErreur); } }); </script>
-
+<script src="{% static 'enfants/presence_form.js' %}"></script>
 {% endblock %}

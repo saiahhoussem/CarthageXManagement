@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Modifier le signalement{% endblock %}
 
@@ -164,4 +165,7 @@
     </div>
 
 </div>
-</main> {% endblock %}
+
+</main>
+<script src="{% static 'enfants/presence_form.js' %}"></script>
+{% endblock %}

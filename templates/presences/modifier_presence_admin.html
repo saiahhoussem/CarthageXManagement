@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Modifier le signalement{% endblock %}
 
@@ -250,6 +251,7 @@
         );
     }
 </script>
+<script src="{% static 'enfants/presence_form.js' %}"></script>
 {% endblock %}
 
 
