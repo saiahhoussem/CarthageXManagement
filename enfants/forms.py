@@ -302,7 +302,7 @@ class PresenceParentForm(forms.ModelForm):
             )
 
         self.fields["date_fin"].help_text = (
-            "Laissez vide pour un signalement d'absence d'une seule journée."
+            "Laissez vide pour un signalement d'absence d'une seule journée. "
             "Si vous signalez un retard, elle ne doit pas être remplie."
         )
 
