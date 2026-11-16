@@ -12,6 +12,7 @@ from .models import (
     Presence,
     Enfant,
 )
+
 from compte.models import Educateur
 
 
@@ -459,7 +460,15 @@ class PresenceParentForm(forms.ModelForm):
     def clean_date(self):
         date = self.cleaned_data.get("date")
 
-        if date and date < timezone.now().date():
+        # À la création, le parent ne peut pas
+        # signaler une présence pour une date passée.
+        # En modification, on autorise une date passée :
+        # la vue vérifie si la période est encore en cours.
+        if (
+            not self.instance.pk
+            and date
+            and date < timezone.now().date()
+        ):
             raise forms.ValidationError(
                 "Vous ne pouvez pas signaler une absence "
                 "ou un retard pour une date passée."
@@ -560,7 +569,10 @@ class PresenceEducateurForm(forms.ModelForm):
     def clean_date(self):
         date = self.cleaned_data.get("date")
 
-        if date and date > timezone.now().date():
+        if (
+            date
+            and date > timezone.now().date()
+        ):
             raise forms.ValidationError(
                 "Vous ne pouvez pas enregistrer une absence "
                 "ou un retard pour une date future."
@@ -687,7 +699,6 @@ class PresenceAdminForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass
 
-    
     def clean(self):
         cleaned_data = super().clean()
 
