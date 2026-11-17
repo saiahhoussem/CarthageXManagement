@@ -404,6 +404,7 @@ class PresenceParentForm(forms.ModelForm):
             "date",
             "date_fin",
             "heure",
+            "heure_fin",
             "motif",
         ]
 
@@ -415,6 +416,9 @@ class PresenceParentForm(forms.ModelForm):
                 attrs={"type": "date"}
             ),
             "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "heure_fin": forms.TimeInput(
                 attrs={"type": "time"}
             ),
             "motif": forms.Textarea(
@@ -432,7 +436,8 @@ class PresenceParentForm(forms.ModelForm):
             "type": "Type de signalement",
             "date": "Date de début",
             "date_fin": "Date de fin",
-            "heure": "Heure",
+            "heure": "Heure de début",
+            "heure_fin": "Heure de fin",
             "motif": "Motif",
         }
 
@@ -455,6 +460,11 @@ class PresenceParentForm(forms.ModelForm):
             "Laissez vide pour une absence d'une seule journée. "
             "Pour un retard, la date de fin correspond "
             "automatiquement à la date de début."
+        )
+
+        self.fields["heure_fin"].help_text = (
+            "Obligatoire pour un retard. "
+            "Laissez vide pour une absence."
         )
 
     def clean_date(self):
@@ -482,6 +492,8 @@ class PresenceParentForm(forms.ModelForm):
         type_presence = cleaned_data.get("type")
         date_debut = cleaned_data.get("date")
         date_fin = cleaned_data.get("date_fin")
+        heure_debut = cleaned_data.get("heure")
+        heure_fin = cleaned_data.get("heure_fin")
 
         if (
             type_presence == Presence.Type.RETARD
@@ -500,6 +512,26 @@ class PresenceParentForm(forms.ModelForm):
                 "ou postérieure à la date de début."
             )
 
+        if type_presence == Presence.Type.RETARD:
+            if not heure_fin:
+                self.add_error(
+                    "heure_fin",
+                    "L'heure de fin est obligatoire pour un retard."
+                )
+
+            elif (
+                heure_debut
+                and heure_fin <= heure_debut
+            ):
+                self.add_error(
+                    "heure_fin",
+                    "L'heure de fin doit être postérieure "
+                    "à l'heure de début."
+                )
+
+        else:
+            cleaned_data["heure_fin"] = None
+
         return cleaned_data
 
 
@@ -513,6 +545,7 @@ class PresenceEducateurForm(forms.ModelForm):
             "date",
             "date_fin",
             "heure",
+            "heure_fin",
             "motif",
         ]
 
@@ -524,6 +557,9 @@ class PresenceEducateurForm(forms.ModelForm):
                 attrs={"type": "date"}
             ),
             "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "heure_fin": forms.TimeInput(
                 attrs={"type": "time"}
             ),
             "motif": forms.Textarea(
@@ -541,7 +577,8 @@ class PresenceEducateurForm(forms.ModelForm):
             "type": "Type de présence",
             "date": "Date de début",
             "date_fin": "Date de fin",
-            "heure": "Heure",
+            "heure": "Heure de début",
+            "heure_fin": "Heure de fin",
             "motif": "Motif",
         }
 
@@ -566,6 +603,11 @@ class PresenceEducateurForm(forms.ModelForm):
             "automatiquement à la date de début."
         )
 
+        self.fields["heure_fin"].help_text = (
+            "Obligatoire pour un retard. "
+            "Laissez vide pour une absence."
+        )
+
     def clean_date(self):
         date = self.cleaned_data.get("date")
 
@@ -586,6 +628,8 @@ class PresenceEducateurForm(forms.ModelForm):
         type_presence = cleaned_data.get("type")
         date_debut = cleaned_data.get("date")
         date_fin = cleaned_data.get("date_fin")
+        heure_debut = cleaned_data.get("heure")
+        heure_fin = cleaned_data.get("heure_fin")
 
         if (
             type_presence == Presence.Type.RETARD
@@ -603,6 +647,26 @@ class PresenceEducateurForm(forms.ModelForm):
                 "La date de fin doit être égale "
                 "ou postérieure à la date de début."
             )
+
+        if type_presence == Presence.Type.RETARD:
+            if not heure_fin:
+                self.add_error(
+                    "heure_fin",
+                    "L'heure de fin est obligatoire pour un retard."
+                )
+
+            elif (
+                heure_debut
+                and heure_fin <= heure_debut
+            ):
+                self.add_error(
+                    "heure_fin",
+                    "L'heure de fin doit être postérieure "
+                    "à l'heure de début."
+                )
+
+        else:
+            cleaned_data["heure_fin"] = None
 
         return cleaned_data
 
@@ -624,6 +688,7 @@ class PresenceAdminForm(forms.ModelForm):
             "date",
             "date_fin",
             "heure",
+            "heure_fin",
             "motif",
         ]
 
@@ -635,6 +700,9 @@ class PresenceAdminForm(forms.ModelForm):
                 attrs={"type": "date"}
             ),
             "heure": forms.TimeInput(
+                attrs={"type": "time"}
+            ),
+            "heure_fin": forms.TimeInput(
                 attrs={"type": "time"}
             ),
             "motif": forms.Textarea(
@@ -652,7 +720,8 @@ class PresenceAdminForm(forms.ModelForm):
             "type": "Type de signalement",
             "date": "Date de début",
             "date_fin": "Date de fin",
-            "heure": "Heure",
+            "heure": "Heure de début",
+            "heure_fin": "Heure de fin",
             "motif": "Motif",
         }
 
@@ -663,6 +732,11 @@ class PresenceAdminForm(forms.ModelForm):
             "Laissez vide pour une absence d'une seule journée. "
             "Pour un retard, la date de fin correspond "
             "automatiquement à la date de début."
+        )
+
+        self.fields["heure_fin"].help_text = (
+            "Obligatoire pour un retard. "
+            "Laissez vide pour une absence."
         )
 
         self.fields[
@@ -707,6 +781,8 @@ class PresenceAdminForm(forms.ModelForm):
         type_presence = cleaned_data.get("type")
         date_debut = cleaned_data.get("date")
         date_fin = cleaned_data.get("date_fin")
+        heure_debut = cleaned_data.get("heure")
+        heure_fin = cleaned_data.get("heure_fin")
 
         if (
             groupe
@@ -735,5 +811,25 @@ class PresenceAdminForm(forms.ModelForm):
                 "La date de fin doit être égale "
                 "ou postérieure à la date de début."
             )
+
+        if type_presence == Presence.Type.RETARD:
+            if not heure_fin:
+                self.add_error(
+                    "heure_fin",
+                    "L'heure de fin est obligatoire pour un retard."
+                )
+
+            elif (
+                heure_debut
+                and heure_fin <= heure_debut
+            ):
+                self.add_error(
+                    "heure_fin",
+                    "L'heure de fin doit être postérieure "
+                    "à l'heure de début."
+                )
+
+        else:
+            cleaned_data["heure_fin"] = None
 
         return cleaned_data
