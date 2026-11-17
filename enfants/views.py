@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from django.utils import timezone
@@ -429,6 +429,7 @@ def mon_groupe(request):
             "groupes": groupes
         }
     )
+
 @login_required
 @parent_requis
 def mes_enfants(request):
@@ -912,6 +913,7 @@ def mes_activites(request):
     recherche = request.GET.get("q", "").strip()
 
     total_groupes = Groupe.objects.count()
+
     groupes_pertinents = groupes_pertinents_pour_utilisateur(
         request.user
     )
@@ -921,7 +923,10 @@ def mes_activites(request):
         .prefetch_related("groupes")
         .annotate(
             nb_groupes=Count("groupes", distinct=True),
-            nb_inscriptions=Count("inscriptions", distinct=True),
+            nb_inscriptions=Count(
+                "inscriptions",
+                distinct=True
+            ),
         )
         .order_by("date")
     )
@@ -933,7 +938,7 @@ def mes_activites(request):
             activite,
             activite.nb_groupes,
             total_groupes,
-            groupes_pertinents
+            groupes_pertinents,
         )
     ]
 
@@ -946,13 +951,37 @@ def mes_activites(request):
             if recherche_min in activite.nom.lower()
         ]
 
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+    if (
+        request.headers.get("X-Requested-With")
+        == "XMLHttpRequest"
+    ):
         data = [
             {
                 "id": activite.id,
                 "nom": activite.nom,
-                "date": activite.date.strftime("%d/%m/%Y"),
-                "places_restantes": activite.places_restantes,
+                "date": activite.date.strftime(
+                    "%d/%m/%Y"
+                ),
+                "photo_url": activite.photo_url,
+                "lieu": activite.lieu,
+                "description": activite.description,
+                "places_restantes": (
+                    activite.places_restantes
+                ),
+                "frais_affichage": (
+                    activite.frais_affichage
+                ),
+                "groupes": [
+                    {
+                        "id": groupe.id,
+                        "nom": groupe.nom,
+                    }
+                    for groupe
+                    in activite.groupes.all()
+                ],
+                "nb_groupes": activite.nb_groupes,
+                "total_groupes": total_groupes,
+                "annulee": activite.annulee,
             }
             for activite in activites
         ]
