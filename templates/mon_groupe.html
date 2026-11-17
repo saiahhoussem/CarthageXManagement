@@ -9,44 +9,87 @@
 {% block content %}
 
 <main>
+    <div class="container py-5">
 
-    <h1>Mon groupe</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-semibold mb-0">
+                Mon groupe
+            </h1>
 
-    {% for groupe in groupes %}
+            <a
+                href="{% url 'historique_presences_educateur' %}"
+                class="btn btn-carthage"
+            >
+                <i class="bi bi-clock-history"></i>
+                Historique des présences
+            </a>
+        </div>
 
-        <h2>{{ groupe.nom }}</h2>
+        {% for groupe in groupes %}
 
-        {% for enfant in groupe.enfant_set.all %}
+            <div class="card shadow-sm mb-4">
 
-            <div class="mb-3">
-                <p>
-                    {{ enfant.prenom }} {{ enfant.nom }}
-                </p>
+                <div class="card-header">
+                    <h2 class="h5 mb-0">
+                        {{ groupe.nom }}
+                    </h2>
+                </div>
 
-                <a
-                    href="{% url 'fiche_enfant' enfant.id %}?retour=mon-groupe"
-                    class="btn-details"
-                >
-                    Afficher les détails de l’enfant
-                </a>
+                <div class="card-body">
+
+                    {% for enfant in groupe.enfant_set.all %}
+
+                        <div
+                            class="d-flex justify-content-between
+                                   align-items-center border-bottom py-3"
+                        >
+                            <div>
+                                <strong>
+                                    {{ enfant.prenom }} {{ enfant.nom }}
+                                </strong>
+                            </div>
+
+                            <div class="d-flex gap-2">
+
+                                <a
+                                    href="{% url 'enregistrer_presence' %}?enfant={{ enfant.id }}"
+                                    class="btn btn-sm btn-ck-orange"
+                                >
+                                    <i class="bi bi-calendar-check"></i>
+                                    + Présence
+                                </a>
+
+                                <a
+                                    href="{% url 'fiche_enfant' enfant.id %}?retour=mon-groupe"
+                                    class="btn btn-sm btn-ck-bleu-fonce"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                    Afficher les détails
+                                </a>
+
+                            </div>
+                        </div>
+
+                    {% empty %}
+
+                        <p class="text-muted mb-0">
+                            Aucun enfant n’est actuellement affecté à ce groupe.
+                        </p>
+
+                    {% endfor %}
+
+                </div>
             </div>
 
         {% empty %}
 
-            <p class="text-muted">
-                Aucun enfant n’est actuellement affecté à ce groupe.
-            </p>
+            <div class="alert alert-info">
+                Aucun groupe ne vous est actuellement attribué.
+            </div>
 
         {% endfor %}
 
-    {% empty %}
-
-        <p class="text-muted">
-            Aucun groupe ne vous est actuellement attribué.
-        </p>
-
-    {% endfor %}
-
+    </div>
 </main>
 
 {% endblock %}
