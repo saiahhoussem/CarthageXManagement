@@ -401,6 +401,8 @@ class Activite(models.Model):
         validators=[valider_taille_photo],
     )
 
+    annulee = models.BooleanField(default=False, verbose_name="Annulée")
+
     def clean(self):
         super().clean()
 
@@ -630,6 +632,11 @@ class Presence(models.Model):
 
     heure = models.TimeField()
 
+    heure_fin = models.TimeField(
+        null=True,
+        blank=True
+    )
+
     motif = models.TextField(
         max_length=500
     )
@@ -697,6 +704,34 @@ class Presence(models.Model):
                 )
             })
 
+        # Pour un retard, l'heure de fin est obligatoire
+        # et doit être postérieure à l'heure de début.
+        if self.type == self.Type.RETARD:
+
+            if not self.heure_fin:
+                raise ValidationError({
+                    "heure_fin": (
+                        "L'heure de fin est obligatoire "
+                        "pour un retard."
+                    )
+                })
+
+            if (
+                self.heure
+                and self.heure_fin
+                and self.heure_fin <= self.heure
+            ):
+                raise ValidationError({
+                    "heure_fin": (
+                        "L'heure de fin doit être postérieure "
+                        "à l'heure de début."
+                    )
+                })
+
+        # Pour une absence, heure_fin n'est pas utilisée.
+        if self.type == self.Type.ABSENCE:
+            self.heure_fin = None
+
         # Vérification des chevauchements
         # uniquement pour les absences.
         if (
@@ -752,6 +787,11 @@ class Presence(models.Model):
             and self.date
         ):
             self.date_fin = self.date
+
+        # Une absence ne doit pas conserver
+        # d'heure de fin.
+        if self.type == self.Type.ABSENCE:
+            self.heure_fin = None
 
         super().save(*args, **kwargs)
 

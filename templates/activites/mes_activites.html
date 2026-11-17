@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block title %}Activités{% endblock %}
@@ -20,7 +19,6 @@
         <h1 class="fw-bold mb-1" style="color: #0d274d;">
             Activités et événements
         </h1>
-
     </div>
 
     <div class="mb-4">
@@ -105,6 +103,12 @@
                                     style="color: #0d274d;"
                                 >
                                     {{ activite.nom }}
+
+                                    {% if activite.annulee %}
+                                        <span class="badge bg-secondary">
+                                            Annulée
+                                        </span>
+                                    {% endif %}
                                 </h2>
 
                                 <p class="text-muted small mb-2">
@@ -209,6 +213,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
     const champRecherche =
         document.getElementById("recherche-activite");
 
@@ -223,10 +228,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let minuterie;
 
+    function afficherGroupes(activite) {
+
+        if (
+            activite.nb_groupes === 0
+            || (
+                activite.total_groupes
+                && activite.nb_groupes === activite.total_groupes
+            )
+        ) {
+            return `
+                <span
+                    class="badge rounded-pill px-3 py-2"
+                    style="background-color: #289b7b;"
+                >
+                    Tous les groupes
+                </span>
+            `;
+        }
+
+        if (
+            !activite.groupes
+            || activite.groupes.length === 0
+        ) {
+            return "";
+        }
+
+        return activite.groupes
+            .map(
+                groupe => `
+                    <span
+                        class="badge rounded-pill px-3 py-2 me-1 mb-1"
+                        style="background-color: #289b7b;"
+                    >
+                        ${groupe.nom}
+                    </span>
+                `
+            )
+            .join("");
+    }
+
     function afficherActivites(activites) {
+
         if (activites.length === 0) {
+
             conteneurActivites.innerHTML = `
                 <div class="card border-0 shadow-sm rounded-4">
+
                     <div class="card-body text-center py-5">
 
                         <i
@@ -246,6 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </p>
 
                     </div>
+
                 </div>
             `;
 
@@ -255,15 +304,64 @@ document.addEventListener("DOMContentLoaded", function () {
         let html = '<div class="row g-4">';
 
         activites.forEach(activite => {
+
+            const badgeAnnulee =
+                activite.annulee
+                    ? `
+                        <span class="badge bg-secondary">
+                            Annulée
+                        </span>
+                    `
+                    : "";
+
+            const lieu =
+                activite.lieu || "";
+
+            const description =
+                activite.description || "";
+
+            const frais =
+                activite.frais_affichage || "";
+
+            const photo =
+                activite.photo_url || "";
+
+            const groupes =
+                afficherGroupes(activite);
+
             html += `
                 <div class="col-md-6 col-xl-4">
 
                     <a
                         href="/activites/${activite.id}/"
-                        class="card h-100 shadow-sm border-0 rounded-4
-                               overflow-hidden text-decoration-none text-reset
-                               ck-carte-activite-lien"
+                        class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden text-decoration-none text-reset ck-carte-activite-lien"
                     >
+
+                        <div
+                            class="ck-img-conteneur"
+                            style="height: 180px;"
+                        >
+
+                            <div
+                                class="spinner-border ck-img-spinner"
+                                style="color: #289b7b;"
+                                role="status"
+                            >
+                                <span class="visually-hidden">
+                                    Chargement...
+                                </span>
+                            </div>
+
+                            <img
+                                src="${photo}"
+                                alt="${activite.nom}"
+                                class="ck-img-conteneur-media"
+                                loading="lazy"
+                                onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                            >
+
+                        </div>
 
                         <div class="card-body d-flex flex-column">
 
@@ -272,12 +370,18 @@ document.addEventListener("DOMContentLoaded", function () {
                                 style="color: #0d274d;"
                             >
                                 ${activite.nom}
+                                ${badgeAnnulee}
                             </h2>
 
                             <p class="text-muted small mb-2">
 
                                 <i class="bi bi-calendar-event me-1"></i>
                                 ${activite.date}
+
+                                <span class="mx-1">·</span>
+
+                                <i class="bi bi-geo-alt me-1"></i>
+                                ${lieu}
 
                                 <span class="mx-1">·</span>
 
@@ -288,13 +392,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             </p>
 
+                            <p class="mb-3">
+                                ${description}
+                            </p>
+
                             <div class="mt-auto">
 
-                                <span
-                                    class="btn btn-sm btn-carthage"
+                                <p
+                                    class="fw-semibold mb-2"
+                                    style="color: #289b7b;"
                                 >
-                                    Voir l'activité
-                                </span>
+                                    ${frais}
+                                </p>
+
+                                ${groupes}
 
                             </div>
 
@@ -312,6 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function rechercherActivites() {
+
         const recherche =
             champRecherche.value.trim();
 
@@ -325,6 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         )
         .then(response => {
+
             if (!response.ok) {
                 throw new Error(
                     "Erreur lors de la recherche."
@@ -337,6 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
             afficherActivites(data.activites);
         })
         .catch(error => {
+
             console.error(error);
 
             conteneurActivites.innerHTML = `
@@ -355,6 +469,7 @@ document.addEventListener("DOMContentLoaded", function () {
     champRecherche.addEventListener(
         "keydown",
         function (event) {
+
             if (event.key === "Enter") {
                 event.preventDefault();
                 rechercherActivites();
@@ -365,6 +480,7 @@ document.addEventListener("DOMContentLoaded", function () {
     champRecherche.addEventListener(
         "input",
         function () {
+
             clearTimeout(minuterie);
 
             minuterie = setTimeout(
@@ -377,11 +493,13 @@ document.addEventListener("DOMContentLoaded", function () {
     boutonReinitialiser.addEventListener(
         "click",
         function () {
+
             champRecherche.value = "";
             rechercherActivites();
             champRecherche.focus();
         }
     );
+
 });
 </script>
 
