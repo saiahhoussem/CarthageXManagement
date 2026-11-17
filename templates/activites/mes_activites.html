@@ -58,6 +58,9 @@
 
                             <h2 class="h5 fw-semibold" style="color: #0d274d;">
                                 {{ activite.nom }}
+                                {% if activite.annulee %}
+                                    <span class="badge bg-secondary">Annulée</span>
+                                {% endif %}
                             </h2>
 
                             <p class="text-muted small mb-2">
