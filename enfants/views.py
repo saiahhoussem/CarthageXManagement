@@ -865,12 +865,15 @@ def supprimer_activite(request, activite_id):
         {"activite": activite}
     )
 
-
 @login_required
 @educateur_ou_parent_requis
 def mes_activites(request):
+    recherche = request.GET.get("q", "").strip()
+
     total_groupes = Groupe.objects.count()
-    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(
+        request.user
+    )
 
     toutes_les_activites = (
         Activite.objects
@@ -882,16 +885,40 @@ def mes_activites(request):
         .order_by("date")
     )
 
-    # Filtré en Python (pas en SQL) pour pouvoir réutiliser nb_groupes/
-    # total_groupes déjà annotés/calculés, sans requête supplémentaire par
-    # activité ni double comptage via une jointure sur groupes.
     activites = [
         activite
         for activite in toutes_les_activites
         if activite_visible_par(
-            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+            activite,
+            activite.nb_groupes,
+            total_groupes,
+            groupes_pertinents
         )
     ]
+
+    if recherche:
+        recherche_min = recherche.lower()
+
+        activites = [
+            activite
+            for activite in activites
+            if recherche_min in activite.nom.lower()
+        ]
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": activite.id,
+                "nom": activite.nom,
+                "date": activite.date.strftime("%d/%m/%Y"),
+                "places_restantes": activite.places_restantes,
+            }
+            for activite in activites
+        ]
+
+        return JsonResponse({
+            "activites": data
+        })
 
     return render(
         request,
@@ -899,9 +926,9 @@ def mes_activites(request):
         {
             "activites": activites,
             "total_groupes": total_groupes,
+            "recherche": recherche,
         }
     )
-
 
 @login_required
 def detail_activite(request, activite_id):
