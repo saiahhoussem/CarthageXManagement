@@ -38,7 +38,8 @@
                             <th>Type</th>
                             <th>Date</th>
                             <th>Date de fin</th>
-                            <th>Heure</th>
+                            <th>Heure de début</th>
+                            <th>Heure de fin</th>
                             <th>Motif</th>
                             <th>Signalé le</th>
                             <th>Actions</th>
@@ -65,17 +66,45 @@
                                 </td>
 
                                 <td>
-                                    {% if presence.date_fin %}
-                                        {{ presence.date_fin|date:"d/m/Y" }}
+
+                                    {% if presence.type == "absence" %}
+
+                                        {% if presence.date_fin %}
+                                            {{ presence.date_fin|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span class="text-muted">
+                                                Même journée
+                                            </span>
+                                        {% endif %}
+
                                     {% else %}
+
                                         <span class="text-muted">
                                             N/A
                                         </span>
+
                                     {% endif %}
+
                                 </td>
 
                                 <td>
                                     {{ presence.heure|time:"H:i" }}
+                                </td>
+
+                                <td>
+
+                                    {% if presence.type == "retard" and presence.heure_fin %}
+
+                                        {{ presence.heure_fin|time:"H:i" }}
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            N/A
+                                        </span>
+
+                                    {% endif %}
+
                                 </td>
 
                                 <td>
@@ -94,7 +123,7 @@
 
                                             <a
                                                 href="{% url 'modifier_presence_parent' presence.id %}"
-                                                class="btn btn-sm btn-ck-orange"
+                                                class="btn btn-sm btn-ck-bleu-clair"
                                             >
                                                 <i class="bi bi-pencil"></i>
                                                 Modifier
@@ -102,7 +131,7 @@
 
                                             <a
                                                 href="{% url 'supprimer_presence_parent' presence.id %}"
-                                                class="btn btn-sm btn-danger"
+                                                class="btn btn-sm btn-outline-danger"
                                             >
                                                 <i class="bi bi-trash"></i>
                                                 Supprimer
