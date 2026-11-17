@@ -1,11 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Educateur, User, Parent
+from .models import Educateur, User, Parent, Notification, est_administrateur
 from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
 from django.utils import timezone
+from django.http import JsonResponse
+from enfants.models import Enfant, Groupe, Activite
+from enfants.decorators import administrateur_requis
+from django.urls import reverse
 
 from enfants.models import (
     Activite,
@@ -15,10 +19,8 @@ from enfants.models import (
     activite_visible_par,
 )
 
-def est_administrateur(user):
-    return user.is_authenticated and (
-        user.is_superuser or user.role == User.Role.ADMINISTRATEUR
-    )
+def est_superutilisateur(user):
+    return user.is_authenticated and user.is_superuser
 
 def url_tableau_bord(utilisateur):
     if utilisateur.is_superuser or utilisateur.role == User.Role.ADMINISTRATEUR:
@@ -53,16 +55,6 @@ def connexion(request):
 
     return render(request, "compte/connexion.html", {"form": form})
 
-ROLES_CREATION = {
-    "educateur": User.Role.EDUCATEUR,
-    "parent": User.Role.PARENT,
-}
-
-TITRES_CREATION = {
-    User.Role.EDUCATEUR: "Créer un compte éducateur",
-    User.Role.PARENT: "Créer un compte parent",
-}
-
 @login_required
 def tableau_bord_admin(request):
     if not est_administrateur(request.user):
@@ -71,7 +63,7 @@ def tableau_bord_admin(request):
         "titre": "Administrateur",
         "nb_educateurs": User.objects.filter(role=User.Role.EDUCATEUR).count(),
         "nb_parents": User.objects.filter(role=User.Role.PARENT).count(),
-        "nb_enfants": Enfant.objects.count(),
+        "nb_enfants": Enfant.objects.filter(actif=True).count(),
         "nb_groupes": Groupe.objects.count(),
     }
     return render(request, "compte/tableau_bord.html", contexte)
@@ -114,7 +106,30 @@ def tableau_bord_parent(request):
 # CRUD Administrateur
 
 @login_required
-@user_passes_test(est_administrateur)
+def liste_notifications(request):
+    notifications = request.user.notifications.all()
+
+    return render(
+        request,
+        "compte/liste_notifications.html",
+        {"notifications": notifications},
+    )
+
+@login_required
+def marquer_notification_lue(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, destinataire=request.user)
+
+    if request.method == "POST":
+        notification.lue = True
+        notification.save(update_fields=["lue"])
+
+        if notification.lien:
+            return redirect(notification.lien)
+
+    return redirect("compte:liste_notifications")
+
+@login_required
+@user_passes_test(est_superutilisateur)
 def creer_administrateur(request):
     if request.method == "POST":
         form = CreationAdministrateurForm(request.POST)
@@ -139,13 +154,53 @@ def creer_administrateur(request):
 # CRUD Educateur
 
 @login_required
-@user_passes_test(est_administrateur)
 def liste_educateurs(request):
-    educateurs = Educateur.objects.all().order_by("last_name", "first_name")
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    recherche = request.GET.get("q", "").strip()
+
+    educateurs = Educateur.objects.all().order_by(
+        "last_name",
+        "first_name"
+    )
+
+    if recherche:
+        educateurs = educateurs.filter(
+            Q(first_name__icontains=recherche)
+            | Q(last_name__icontains=recherche)
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": educ.id,
+                "nom": educ.last_name,
+                "prenom": educ.first_name,
+                "email": educ.email,
+                "telephone": educ.telephone or "",
+                "actif": educ.is_active,
+                "url_detail": reverse(
+                    "compte:detail_educateur",
+                    args=[educ.id],
+                ),
+                "url_modifier": reverse(
+                    "compte:modifier_educateur",
+                    args=[educ.id],
+                ),
+            }
+            for educ in educateurs
+        ]
+
+        return JsonResponse({"educateurs": data})
+
     return render(
         request,
         "compte/liste_educateurs.html",
-        {"educateurs": educateurs},
+        {
+            "educateurs": educateurs,
+            "recherche": recherche,
+        }
     )
 
 @login_required
@@ -220,13 +275,53 @@ def basculer_statut_educateur(request, pk):
 # CRUD Parent
 
 @login_required
-@user_passes_test(est_administrateur)
 def liste_parents(request):
-    parents = Parent.objects.all().order_by("last_name", "first_name")
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    recherche = request.GET.get("q", "").strip()
+
+    parents = Parent.objects.all().order_by(
+        "last_name",
+        "first_name"
+    )
+
+    if recherche:
+        parents = parents.filter(
+            Q(first_name__icontains=recherche)
+            | Q(last_name__icontains=recherche)
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": parent.id,
+                "nom": parent.last_name,
+                "prenom": parent.first_name,
+                "email": parent.email,
+                "telephone": parent.telephone or "",
+                "actif": parent.is_active,
+                "url_detail": reverse(
+                    "compte:detail_parent",
+                    args=[parent.id],
+                ),
+                "url_modifier": reverse(
+                    "compte:modifier_parent",
+                    args=[parent.id],
+                ),
+            }
+            for parent in parents
+        ]
+
+        return JsonResponse({"parents": data})
+
     return render(
         request,
         "compte/liste_parents.html",
-        {"parents": parents},
+        {
+            "parents": parents,
+            "recherche": recherche,
+        }
     )
 
 @login_required
@@ -298,3 +393,122 @@ def basculer_statut_parent(request, pk):
     statut = "activé" if parent.is_active else "désactivé"
     messages.success(request, f"Le compte de {parent} a été {statut}.")
     return redirect("compte:detail_parent", pk=pk)
+
+@login_required
+@administrateur_requis
+def recherche_rapide_admin(request):
+    recherche = request.GET.get("q", "").strip()
+
+    resultats = {
+        "educateurs": [],
+        "parents": [],
+        "groupes": [],
+        "enfants": [],
+        "activites": [],
+    }
+
+    if recherche:
+        educateurs = (
+            Educateur.objects
+            .filter(
+                Q(first_name__icontains=recherche)
+                | Q(last_name__icontains=recherche)
+            )
+            .order_by("last_name", "first_name")[:5]
+        )
+
+        parents = (
+            Parent.objects
+            .filter(
+                Q(first_name__icontains=recherche)
+                | Q(last_name__icontains=recherche)
+            )
+            .order_by("last_name", "first_name")[:5]
+        )
+
+        groupes = (
+            Groupe.objects
+            .filter(
+                nom__icontains=recherche
+            )
+            .order_by("nom")[:5]
+        )
+
+        enfants = (
+            Enfant.objects
+            .filter(
+                Q(prenom__icontains=recherche)
+                | Q(nom__icontains=recherche)
+            )
+            .order_by("nom", "prenom")[:5]
+        )
+
+        activites = (
+            Activite.objects
+            .filter(
+                nom__icontains=recherche
+            )
+            .order_by("date")[:5]
+        )
+
+        resultats["educateurs"] = [
+            {
+                "id": educateur.id,
+                "nom": f"{educateur.first_name} {educateur.last_name}",
+                "url": reverse(
+                    "compte:detail_educateur",
+                    args=[educateur.id],
+                ),
+            }
+            for educateur in educateurs
+        ]
+
+        resultats["parents"] = [
+            {
+                "id": parent.id,
+                "nom": f"{parent.first_name} {parent.last_name}",
+                "url": reverse(
+                    "compte:detail_parent",
+                    args=[parent.id],
+                ),
+            }
+            for parent in parents
+        ]
+
+        resultats["groupes"] = [
+            {
+                "id": groupe.id,
+                "nom": groupe.nom,
+                "url": reverse(
+                    "detail_groupe",
+                    args=[groupe.id],
+                ),
+            }
+            for groupe in groupes
+        ]
+
+        resultats["enfants"] = [
+            {
+                "id": enfant.id,
+                "nom": f"{enfant.prenom} {enfant.nom}",
+                "url": reverse(
+                    "fiche_enfant",
+                    args=[enfant.id],
+                ),
+            }
+            for enfant in enfants
+        ]
+
+        resultats["activites"] = [
+            {
+                "id": activite.id,
+                "nom": activite.nom,
+                "url": reverse(
+                    "detail_activite",
+                    args=[activite.id],
+                ),
+            }
+            for activite in activites
+        ]
+
+    return JsonResponse(resultats)

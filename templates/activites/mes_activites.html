@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block title %}Activités{% endblock %}
@@ -13,39 +12,372 @@
 {% endblock %}
 
 {% block content %}
+
 <main class="container py-5 px-4 px-xl-5">
 
     <div class="mb-4">
         <h1 class="fw-bold mb-1" style="color: #0d274d;">
             Activités et événements
         </h1>
-        <p class="text-muted mb-0">
-            Consultez les activités et événements proposés par la garderie.
-        </p>
     </div>
 
-    {% if activites %}
+    <div class="mb-4">
+        <div class="input-group">
 
-        <div class="row g-4">
+            <input
+                type="text"
+                id="recherche-activite"
+                class="form-control"
+                placeholder="Rechercher une activité..."
+                autocomplete="off"
+            >
 
-            {% for activite in activites %}
+            <button
+                type="button"
+                id="bouton-recherche"
+                class="btn btn-ck-orange"
+            >
+                <i class="bi bi-search"></i>
+                Rechercher
+            </button>
 
+            <button
+                type="button"
+                id="reinitialiser-recherche"
+                class="btn btn-ck-bleu-fonce"
+            >
+                Réinitialiser
+            </button>
+
+        </div>
+    </div>
+
+    <div id="conteneur-activites">
+
+        {% if activites %}
+
+            <div
+                class="row g-4"
+                id="liste-activites"
+            >
+
+                {% for activite in activites %}
+
+                    <div class="col-md-6 col-xl-4">
+
+                        <a
+                            href="{% url 'detail_activite' activite.id %}"
+                            class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden text-decoration-none text-reset ck-carte-activite-lien"
+                        >
+
+                            <div
+                                class="ck-img-conteneur"
+                                style="height: 180px;"
+                            >
+
+                                <div
+                                    class="spinner-border ck-img-spinner"
+                                    style="color: #289b7b;"
+                                    role="status"
+                                >
+                                    <span class="visually-hidden">
+                                        Chargement...
+                                    </span>
+                                </div>
+
+                                <img
+                                    src="{{ activite.photo_url }}"
+                                    alt="{{ activite.nom }}"
+                                    class="ck-img-conteneur-media"
+                                    loading="lazy"
+                                    onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                    onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                >
+
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+
+                                <h2
+                                    class="h5 fw-semibold"
+                                    style="color: #0d274d;"
+                                >
+                                    {{ activite.nom }}
+
+                                    {% if activite.annulee %}
+                                        <span class="badge bg-secondary">
+                                            Annulée
+                                        </span>
+                                    {% endif %}
+                                </h2>
+
+                                <p class="text-muted small mb-2">
+
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    {{ activite.date|date:"d/m/Y" }}
+
+                                    <span class="mx-1">·</span>
+
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    {{ activite.lieu }}
+
+                                    <span class="mx-1">·</span>
+
+                                    <i class="bi bi-people me-1"></i>
+                                    {{ activite.places_restantes }}
+                                    place{{ activite.places_restantes|pluralize }}
+                                    restante{{ activite.places_restantes|pluralize }}
+
+                                </p>
+
+                                <p class="mb-3">
+                                    {{ activite.description|truncatewords:20 }}
+                                </p>
+
+                                <div class="mt-auto">
+
+                                    <p
+                                        class="fw-semibold mb-2"
+                                        style="color: #289b7b;"
+                                    >
+                                        {{ activite.frais_affichage }}
+                                    </p>
+
+                                    {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
+
+                                        <span
+                                            class="badge rounded-pill px-3 py-2"
+                                            style="background-color: #289b7b;"
+                                        >
+                                            Tous les groupes
+                                        </span>
+
+                                    {% else %}
+
+                                        {% for groupe in activite.groupes.all %}
+
+                                            <span
+                                                class="badge rounded-pill px-3 py-2 me-1 mb-1"
+                                                style="background-color: #289b7b;"
+                                            >
+                                                {{ groupe.nom }}
+                                            </span>
+
+                                        {% endfor %}
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-body text-center py-5">
+
+                    <i
+                        class="bi bi-calendar-event fs-1"
+                        style="color: #289b7b;"
+                    ></i>
+
+                    <h2
+                        class="h5 mt-3"
+                        style="color: #0d274d;"
+                    >
+                        Aucune activité
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Aucune activité n'est proposée pour le moment.
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const champRecherche =
+        document.getElementById("recherche-activite");
+
+    const boutonRecherche =
+        document.getElementById("bouton-recherche");
+
+    const boutonReinitialiser =
+        document.getElementById("reinitialiser-recherche");
+
+    const conteneurActivites =
+        document.getElementById("conteneur-activites");
+
+    let minuterie;
+
+    function echapperHtml(valeur) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            valeur ?? "";
+
+        return div.innerHTML;
+    }
+
+    function afficherGroupes(activite) {
+
+        if (
+            activite.nb_groupes === 0
+            || (
+                activite.total_groupes
+                && activite.nb_groupes === activite.total_groupes
+            )
+        ) {
+            return `
+                <span
+                    class="badge rounded-pill px-3 py-2"
+                    style="background-color: #289b7b;"
+                >
+                    Tous les groupes
+                </span>
+            `;
+        }
+
+        if (
+            !activite.groupes
+            || activite.groupes.length === 0
+        ) {
+            return "";
+        }
+
+        return activite.groupes
+            .map(
+                groupe => `
+                    <span
+                        class="badge rounded-pill px-3 py-2 me-1 mb-1"
+                        style="background-color: #289b7b;"
+                    >
+                        ${echapperHtml(groupe.nom)}
+                    </span>
+                `
+            )
+            .join("");
+    }
+
+    function afficherActivites(activites) {
+
+        if (activites.length === 0) {
+
+            conteneurActivites.innerHTML = `
+                <div class="card border-0 shadow-sm rounded-4">
+
+                    <div class="card-body text-center py-5">
+
+                        <i
+                            class="bi bi-search fs-1"
+                            style="color: #289b7b;"
+                        ></i>
+
+                        <h2
+                            class="h5 mt-3"
+                            style="color: #0d274d;"
+                        >
+                            Aucune activité trouvée
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Aucune activité ne correspond à votre recherche.
+                        </p>
+
+                    </div>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        let html = '<div class="row g-4">';
+
+        activites.forEach(function (activite) {
+
+            const id =
+                Number(activite.id);
+
+            const nom =
+                echapperHtml(activite.nom);
+
+            const date =
+                echapperHtml(activite.date);
+
+            const lieu =
+                echapperHtml(activite.lieu);
+
+            const description =
+                echapperHtml(activite.description);
+
+            const frais =
+                echapperHtml(activite.frais_affichage);
+
+            const photo =
+                echapperHtml(activite.photo_url);
+
+            const placesRestantes =
+                Number(activite.places_restantes) || 0;
+
+            const groupes =
+                afficherGroupes(activite);
+
+            const badgeAnnulee =
+                activite.annulee
+                    ? `
+                        <span class="badge bg-secondary">
+                            Annulée
+                        </span>
+                    `
+                    : "";
+
+            html += `
                 <div class="col-md-6 col-xl-4">
 
                     <a
-                        href="{% url 'detail_activite' activite.id %}"
+                        href="/activites/${id}/"
                         class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden text-decoration-none text-reset ck-carte-activite-lien"
                     >
 
-                        <div class="ck-img-conteneur" style="height: 180px;">
+                        <div
+                            class="ck-img-conteneur"
+                            style="height: 180px;"
+                        >
 
-                            <div class="spinner-border ck-img-spinner" style="color: #289b7b;" role="status">
-                                <span class="visually-hidden">Chargement...</span>
+                            <div
+                                class="spinner-border ck-img-spinner"
+                                style="color: #289b7b;"
+                                role="status"
+                            >
+                                <span class="visually-hidden">
+                                    Chargement...
+                                </span>
                             </div>
 
                             <img
-                                src="{{ activite.photo_url }}"
-                                alt="{{ activite.nom }}"
+                                src="${photo}"
+                                alt="${nom}"
                                 class="ck-img-conteneur-media"
                                 loading="lazy"
                                 onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
@@ -56,49 +388,47 @@
 
                         <div class="card-body d-flex flex-column">
 
-                            <h2 class="h5 fw-semibold" style="color: #0d274d;">
-                                {{ activite.nom }}
+                            <h2
+                                class="h5 fw-semibold"
+                                style="color: #0d274d;"
+                            >
+                                ${nom}
+                                ${badgeAnnulee}
                             </h2>
 
                             <p class="text-muted small mb-2">
+
                                 <i class="bi bi-calendar-event me-1"></i>
-                                {{ activite.date|date:"d/m/Y" }}
+                                ${date}
 
                                 <span class="mx-1">·</span>
 
                                 <i class="bi bi-geo-alt me-1"></i>
-                                {{ activite.lieu }}
+                                ${lieu}
 
                                 <span class="mx-1">·</span>
 
                                 <i class="bi bi-people me-1"></i>
-                                {{ activite.places_disponibles }} places
+                                ${placesRestantes}
+                                place${placesRestantes > 1 ? "s" : ""}
+                                restante${placesRestantes > 1 ? "s" : ""}
+
                             </p>
 
                             <p class="mb-3">
-                                {{ activite.description|truncatewords:20 }}
+                                ${description}
                             </p>
 
                             <div class="mt-auto">
 
-                                <p class="fw-semibold mb-2" style="color: #289b7b;">
-                                    {{ activite.frais_affichage }}
+                                <p
+                                    class="fw-semibold mb-2"
+                                    style="color: #289b7b;"
+                                >
+                                    ${frais}
                                 </p>
 
-                                {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
-                                    <span class="badge rounded-pill px-3 py-2" style="background-color: #289b7b;">
-                                        Tous les groupes
-                                    </span>
-                                {% else %}
-                                    {% for groupe in activite.groupes.all %}
-                                        <span
-                                            class="badge rounded-pill px-3 py-2 me-1 mb-1"
-                                            style="background-color: #289b7b;"
-                                        >
-                                            {{ groupe.nom }}
-                                        </span>
-                                    {% endfor %}
-                                {% endif %}
+                                ${groupes}
 
                             </div>
 
@@ -107,36 +437,101 @@
                     </a>
 
                 </div>
+            `;
+        });
 
-            {% endfor %}
+        html += "</div>";
 
-        </div>
+        conteneurActivites.innerHTML = html;
+    }
 
-    {% else %}
+    function rechercherActivites() {
 
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body text-center py-5">
+        const recherche =
+            champRecherche.value.trim();
 
-                <i
-                    class="bi bi-calendar-event fs-1"
-                    style="color: #289b7b;"
-                ></i>
+        fetch(
+            "{% url 'mes_activites' %}?q="
+            + encodeURIComponent(recherche),
+            {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            }
+        )
+        .then(response => {
 
-                <h2
-                    class="h5 mt-3"
-                    style="color: #0d274d;"
-                >
-                    Aucune activité
-                </h2>
+            if (!response.ok) {
+                throw new Error(
+                    "Erreur lors de la recherche."
+                );
+            }
 
-                <p class="text-muted mb-0">
-                    Aucune activité n'est proposée pour le moment.
-                </p>
+            return response.json();
+        })
+        .then(data => {
 
-            </div>
-        </div>
+            afficherActivites(
+                data.activites
+            );
 
-    {% endif %}
+        })
+        .catch(error => {
 
-</main>
+            console.error(error);
+
+            conteneurActivites.innerHTML = `
+                <div class="alert alert-danger">
+                    Impossible d'effectuer la recherche.
+                </div>
+            `;
+        });
+    }
+
+    boutonRecherche.addEventListener(
+        "click",
+        rechercherActivites
+    );
+
+    champRecherche.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                rechercherActivites();
+            }
+        }
+    );
+
+    champRecherche.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(minuterie);
+
+            minuterie = setTimeout(
+                rechercherActivites,
+                300
+            );
+        }
+    );
+
+    boutonReinitialiser.addEventListener(
+        "click",
+        function () {
+
+            champRecherche.value = "";
+
+            rechercherActivites();
+
+            champRecherche.focus();
+        }
+    );
+
+});
+</script>
+
 {% endblock %}

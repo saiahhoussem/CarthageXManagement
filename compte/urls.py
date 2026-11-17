@@ -22,6 +22,12 @@ urlpatterns = [
     # tableaux de bord
 
     path(
+    "recherche-rapide-admin/",
+    views.recherche_rapide_admin,
+    name="recherche_rapide_admin",
+    ),
+    
+    path(
         "tableau-de-bord/administrateur/",
         views.tableau_bord_admin,
         name="tableau_bord_admin",
@@ -35,6 +41,19 @@ urlpatterns = [
         "tableau-de-bord/parent/",
         views.tableau_bord_parent,
         name="tableau_bord_parent",
+    ),
+
+    # notifications
+
+    path(
+        "notifications/",
+        views.liste_notifications,
+        name="liste_notifications",
+    ),
+    path(
+        "notifications/<int:pk>/lue/",
+        views.marquer_notification_lue,
+        name="marquer_notification_lue",
     ),
 
     # CRUD Administrateur

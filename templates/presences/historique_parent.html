@@ -1,0 +1,791 @@
+{% extends "base.html" %}
+
+{% block title %}Historique des présences{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main>
+    <div class="container py-5">
+
+        <div
+            class="d-flex flex-column flex-lg-row
+                   justify-content-between align-items-lg-center
+                   gap-3 mb-4"
+        >
+
+            <div>
+                <h1
+                    class="fw-semibold mb-1"
+                    style="color: #0d274d;"
+                >
+                    Historique des présences
+                </h1>
+            </div>
+
+            <a
+                href="{% url 'signaler_presence' %}"
+                class="btn btn-carthage"
+            >
+                <i class="bi bi-plus-circle me-1"></i>
+                Signaler une absence ou un retard
+            </a>
+
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <label
+                    for="recherche-enfant"
+                    class="form-label fw-semibold"
+                    style="color: #0d274d;"
+                >
+                    <i class="bi bi-search me-1"></i>
+                    Rechercher un enfant
+                </label>
+
+                <div class="input-group">
+
+                    <input
+                        type="text"
+                        id="recherche-enfant"
+                        class="form-control"
+                        placeholder="Prénom ou nom de l’enfant..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        id="bouton-recherche"
+                        class="btn btn-ck-orange"
+                    >
+                        <i class="bi bi-search"></i>
+                        Rechercher
+                    </button>
+
+                    <button
+                        type="button"
+                        id="reinitialiser-recherche"
+                        class="btn btn-ck-bleu-fonce"
+                    >
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Réinitialiser
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="conteneur-presences">
+
+            {% if presences %}
+
+                <div
+                    class="d-flex justify-content-between
+                           align-items-center mb-3"
+                >
+
+                    <h2
+                        class="h5 mb-0"
+                        style="color: #0d274d;"
+                    >
+                        Signalements
+                    </h2>
+
+                    <span
+                        class="badge rounded-pill"
+                        style="background-color: #289b7b;"
+                    >
+                        {{ presences|length }}
+                        signalement{{ presences|length|pluralize }}
+                    </span>
+
+                </div>
+
+                <div
+                    class="card border-0 shadow-sm
+                           rounded-4 overflow-hidden"
+                >
+
+                    <div class="table-responsive">
+
+                        <table
+                            class="table table-hover
+                                   align-middle mb-0"
+                        >
+
+                            <thead
+                                style="
+                                    background-color: #0d274d;
+                                    color: white;
+                                "
+                            >
+                                <tr>
+                                    <th class="py-3 px-3">Enfant</th>
+                                    <th class="py-3">Type</th>
+                                    <th class="py-3">Date</th>
+                                    <th class="py-3">Date de fin</th>
+                                    <th class="py-3">Heure de début</th>
+                                    <th class="py-3">Heure de fin</th>
+                                    <th class="py-3">Motif</th>
+                                    <th class="py-3">Source</th>
+                                    <th class="py-3">Signalé le</th>
+                                    <th class="py-3">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for presence in presences %}
+
+                                    <tr>
+
+                                        <td class="px-3">
+
+                                            <div
+                                                class="d-flex
+                                                       align-items-center
+                                                       gap-2"
+                                            >
+
+                                                <div
+                                                    class="rounded-circle
+                                                           d-flex
+                                                           align-items-center
+                                                           justify-content-center"
+                                                    style="
+                                                        width: 36px;
+                                                        height: 36px;
+                                                        background-color: #e8f5f1;
+                                                        color: #289b7b;
+                                                    "
+                                                >
+                                                    <i class="bi bi-person-fill"></i>
+                                                </div>
+
+                                                <strong>
+                                                    {{ presence.enfant.prenom }}
+                                                    {{ presence.enfant.nom }}
+                                                </strong>
+
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+
+                                            {% if presence.type == "absence" %}
+
+                                                <span
+                                                    class="badge rounded-pill"
+                                                    style="background-color: #fb363f;"
+                                                >
+                                                    Absence
+                                                </span>
+
+                                            {% else %}
+
+                                                <span
+                                                    class="badge rounded-pill"
+                                                    style="
+                                                        background-color: #f49f02;
+                                                        color: #0d274d;
+                                                    "
+                                                >
+                                                    Retard
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                        <td>
+                                            {{ presence.date|date:"d/m/Y" }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if presence.type == "absence" %}
+
+                                                {% if presence.date_fin %}
+                                                    {{ presence.date_fin|date:"d/m/Y" }}
+                                                {% else %}
+                                                    <span class="text-muted">
+                                                        Même journée
+                                                    </span>
+                                                {% endif %}
+
+                                            {% else %}
+
+                                                <span class="text-muted">
+                                                    N/A
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                        <td>
+                                            {{ presence.heure|time:"H:i" }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if presence.type == "retard" and presence.heure_fin %}
+
+                                                {{ presence.heure_fin|time:"H:i" }}
+
+                                            {% else %}
+
+                                                <span class="text-muted">
+                                                    N/A
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                        <td>
+                                            <span title="{{ presence.motif }}">
+                                                {{ presence.motif|truncatechars:30 }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+
+                                            <span
+                                                class="badge rounded-pill"
+                                                style="
+                                                    background-color: #e8f5f1;
+                                                    color: #1f7a61;
+                                                "
+                                            >
+                                                {{ presence.get_source_signalement_display }}
+                                            </span>
+
+                                        </td>
+
+                                        <td class="text-muted small">
+                                            {{ presence.date_signalement|date:"d/m/Y H:i" }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if presence.date_fin_effective >= today %}
+
+                                                <div class="d-flex gap-2">
+
+                                                    <a
+                                                        href="{% url 'modifier_presence_parent' presence.id %}"
+                                                        class="btn btn-sm btn-ck-bleu-clair"
+                                                    >
+                                                        <i class="bi bi-pencil me-1"></i>
+                                                        Modifier
+                                                    </a>
+
+                                                    <a
+                                                        href="{% url 'supprimer_presence_parent' presence.id %}"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                    >
+                                                        <i class="bi bi-trash me-1"></i>
+                                                        Supprimer
+                                                    </a>
+
+                                                </div>
+
+                                            {% else %}
+
+                                                <span
+                                                    class="badge bg-light text-muted border"
+                                                >
+                                                    Terminé
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="card border-0 shadow-sm rounded-4">
+
+                    <div class="card-body text-center py-5">
+
+                        <i
+                            class="bi bi-calendar-check fs-1"
+                            style="color: #289b7b;"
+                        ></i>
+
+                        <h2
+                            class="h5 mt-3"
+                            style="color: #0d274d;"
+                        >
+                            Aucun signalement
+                        </h2>
+
+                        <p class="text-muted mb-3">
+                            Aucun signalement de présence
+                            n’a encore été enregistré.
+                        </p>
+
+                        <a
+                            href="{% url 'signaler_presence' %}"
+                            class="btn btn-carthage"
+                        >
+                            Signaler une absence ou un retard
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const champRecherche =
+        document.getElementById("recherche-enfant");
+
+    const boutonRecherche =
+        document.getElementById("bouton-recherche");
+
+    const boutonReinitialiser =
+        document.getElementById("reinitialiser-recherche");
+
+    const conteneurPresences =
+        document.getElementById("conteneur-presences");
+
+    let minuterie;
+
+    function echapperHtml(valeur) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            valeur ?? "";
+
+        return div.innerHTML;
+    }
+
+    function afficherPresences(presences) {
+
+        if (presences.length === 0) {
+
+            conteneurPresences.innerHTML = `
+                <div class="card border-0 shadow-sm rounded-4">
+
+                    <div class="card-body text-center py-5">
+
+                        <i
+                            class="bi bi-search fs-1"
+                            style="color: #289b7b;"
+                        ></i>
+
+                        <h2
+                            class="h5 mt-3"
+                            style="color: #0d274d;"
+                        >
+                            Aucun signalement trouvé
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Aucun signalement ne correspond
+                            à cet enfant.
+                        </p>
+
+                    </div>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        let lignes = "";
+
+        presences.forEach(presence => {
+
+            let badgeType;
+
+            if (
+                presence.type.toLowerCase()
+                === "absence"
+            ) {
+
+                badgeType = `
+                    <span
+                        class="badge rounded-pill"
+                        style="background-color: #fb363f;"
+                    >
+                        ${echapperHtml(presence.type)}
+                    </span>
+                `;
+
+            } else {
+
+                badgeType = `
+                    <span
+                        class="badge rounded-pill"
+                        style="
+                            background-color: #f49f02;
+                            color: #0d274d;
+                        "
+                    >
+                        ${echapperHtml(presence.type)}
+                    </span>
+                `;
+            }
+
+            let actions = `
+                <span
+                    class="badge bg-light
+                           text-muted border"
+                >
+                    Terminé
+                </span>
+            `;
+
+            if (presence.modifiable) {
+
+                actions = `
+                    <div class="d-flex gap-2">
+
+                        <a
+                            href="${presence.url_modifier}"
+                            class="btn btn-sm btn-ck-bleu-clair"
+                        >
+                            <i class="bi bi-pencil me-1"></i>
+                            Modifier
+                        </a>
+
+                        <a
+                            href="${presence.url_supprimer}"
+                            class="btn btn-sm btn-outline-danger"
+                        >
+                            <i class="bi bi-trash me-1"></i>
+                            Supprimer
+                        </a>
+
+                    </div>
+                `;
+            }
+
+            let dateFin = `
+                <span class="text-muted">
+                    N/A
+                </span>
+            `;
+
+            if (
+                presence.type.toLowerCase()
+                === "absence"
+            ) {
+
+                dateFin = presence.date_fin
+                    ? echapperHtml(presence.date_fin)
+                    : `
+                        <span class="text-muted">
+                            Même journée
+                        </span>
+                    `;
+            }
+
+            let heureFin = `
+                <span class="text-muted">
+                    N/A
+                </span>
+            `;
+
+            if (
+                presence.type.toLowerCase()
+                === "retard"
+                && presence.heure_fin
+            ) {
+                heureFin =
+                    echapperHtml(presence.heure_fin);
+            }
+
+            lignes += `
+                <tr>
+
+                    <td class="px-3">
+
+                        <div
+                            class="d-flex
+                                   align-items-center
+                                   gap-2"
+                        >
+
+                            <div
+                                class="rounded-circle
+                                       d-flex
+                                       align-items-center
+                                       justify-content-center"
+                                style="
+                                    width: 36px;
+                                    height: 36px;
+                                    background-color: #e8f5f1;
+                                    color: #289b7b;
+                                "
+                            >
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+
+                            <strong>
+                                ${echapperHtml(
+                                    presence.enfant
+                                )}
+                            </strong>
+
+                        </div>
+
+                    </td>
+
+                    <td>
+                        ${badgeType}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(
+                            presence.date
+                        )}
+                    </td>
+
+                    <td>
+                        ${dateFin}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(
+                            presence.heure
+                        )}
+                    </td>
+
+                    <td>
+                        ${heureFin}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(
+                            presence.motif
+                        )}
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="badge rounded-pill"
+                            style="
+                                background-color: #e8f5f1;
+                                color: #1f7a61;
+                            "
+                        >
+                            ${echapperHtml(
+                                presence.source
+                            )}
+                        </span>
+
+                    </td>
+
+                    <td class="text-muted small">
+                        ${echapperHtml(
+                            presence.date_signalement
+                        )}
+                    </td>
+
+                    <td>
+                        ${actions}
+                    </td>
+
+                </tr>
+            `;
+        });
+
+        conteneurPresences.innerHTML = `
+
+            <div
+                class="d-flex
+                       justify-content-between
+                       align-items-center mb-3"
+            >
+
+                <h2
+                    class="h5 mb-0"
+                    style="color: #0d274d;"
+                >
+                    Signalements
+                </h2>
+
+                <span
+                    class="badge rounded-pill"
+                    style="background-color: #289b7b;"
+                >
+                    ${presences.length}
+                    signalement${presences.length > 1 ? "s" : ""}
+                </span>
+
+            </div>
+
+            <div
+                class="card border-0
+                       shadow-sm rounded-4
+                       overflow-hidden"
+            >
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table table-hover
+                               align-middle mb-0"
+                    >
+
+                        <thead
+                            style="
+                                background-color: #0d274d;
+                                color: white;
+                            "
+                        >
+                            <tr>
+                                <th class="py-3 px-3">Enfant</th>
+                                <th class="py-3">Type</th>
+                                <th class="py-3">Date</th>
+                                <th class="py-3">Date de fin</th>
+                                <th class="py-3">Heure de début</th>
+                                <th class="py-3">Heure de fin</th>
+                                <th class="py-3">Motif</th>
+                                <th class="py-3">Source</th>
+                                <th class="py-3">Signalé le</th>
+                                <th class="py-3">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${lignes}
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        `;
+    }
+
+    function rechercherPresences() {
+
+        const recherche =
+            champRecherche.value.trim();
+
+        fetch(
+            "{% url 'historique_presences_parent' %}?q="
+            + encodeURIComponent(recherche),
+            {
+                headers: {
+                    "X-Requested-With":
+                        "XMLHttpRequest"
+                }
+            }
+        )
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error(
+                    "Erreur lors de la recherche."
+                );
+            }
+
+            return response.json();
+        })
+        .then(data => {
+
+            afficherPresences(
+                data.presences
+            );
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            conteneurPresences.innerHTML = `
+                <div class="alert alert-danger">
+                    Impossible d'effectuer la recherche.
+                </div>
+            `;
+
+        });
+    }
+
+    boutonRecherche.addEventListener(
+        "click",
+        rechercherPresences
+    );
+
+    champRecherche.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                rechercherPresences();
+            }
+        }
+    );
+
+    champRecherche.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(minuterie);
+
+            minuterie = setTimeout(
+                rechercherPresences,
+                300
+            );
+        }
+    );
+
+    boutonReinitialiser.addEventListener(
+        "click",
+        function () {
+
+            champRecherche.value = "";
+
+            rechercherPresences();
+
+            champRecherche.focus();
+        }
+    );
+
+});
+</script>
+
+{% endblock %}

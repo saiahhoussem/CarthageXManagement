@@ -53,6 +53,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'compte.context_processors.notifications',
             ],
         },
     },
@@ -102,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-ca'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "America/Toronto"
 
 USE_I18N = True
 
