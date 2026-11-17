@@ -252,10 +252,10 @@ urlpatterns = [
         views.supprimer_presence_educateur,
         name="supprimer_presence_educateur",
     ),
-
-
-
-
-
+    path(
+    "groupes/<int:groupe_id>/",
+    views.detail_groupe,
+    name="detail_groupe",
+    ),
 
 ]

@@ -444,24 +444,71 @@ def mes_enfants(request):
     })
 
 
+
 @login_required
 @administrateur_requis
 def liste_enfants(request):
     statut = request.GET.get("statut")
+    recherche = request.GET.get("q", "").strip()
+
     actif = statut != "archives"
 
     enfants = (
         Enfant.objects
         .filter(actif=actif)
         .select_related("groupe")
-        .order_by("nom", "prenom")
     )
 
-    return render(request, "enfants/liste_enfants.html", {
-        "enfants": enfants,
-        "statut": statut or "actifs",
-    })
+    if recherche:
+        enfants = enfants.filter(
+            Q(prenom__icontains=recherche)
+            | Q(nom__icontains=recherche)
+        )
 
+    enfants = enfants.order_by("nom", "prenom")
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": enfant.id,
+                "nom": enfant.nom,
+                "prenom": enfant.prenom,
+                "date_naissance": enfant.date_naissance.strftime("%Y-%m-%d"),
+                "groupe": (
+                    enfant.groupe.nom
+                    if enfant.groupe
+                    else "Non assigné"
+                ),
+                "actif": enfant.actif,
+                "url_detail": reverse(
+                    "fiche_enfant",
+                    args=[enfant.id],
+                ),
+                "url_statut": reverse(
+                    "basculer_statut_enfant",
+                    args=[enfant.id],
+                ),
+            }
+            for enfant in enfants
+        ]
+
+        return JsonResponse(
+            {
+                "enfants": data,
+                "statut": statut or "actifs",
+                "recherche": recherche,
+            }
+        )
+
+    return render(
+        request,
+        "enfants/liste_enfants.html",
+        {
+            "enfants": enfants,
+            "statut": statut or "actifs",
+            "recherche": recherche,
+        }
+    )
 
 @login_required
 @administrateur_requis
@@ -500,12 +547,57 @@ def ajouter_groupe(request):
 @login_required
 @administrateur_requis
 def liste_groupes(request):
-    groupes = Groupe.objects.select_related("educateur").all()
+    recherche = request.GET.get("q", "").strip()
+
+    groupes = (
+        Groupe.objects
+        .select_related("educateur")
+        .order_by("nom")
+    )
+
+    if recherche:
+        groupes = groupes.filter(
+            nom__icontains=recherche
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": groupe.id,
+                "nom": groupe.nom,
+                "tranche_age": groupe.get_tranche_age_display(),
+                "capacite": groupe.capacite,
+                "educateur": (
+                    groupe.educateur.get_full_name()
+                    if groupe.educateur
+                    else "Non assigné"
+                ),
+                "places_restantes": groupe.places_restantes,
+                "url_detail": reverse(
+                    "detail_groupe",
+                    args=[groupe.id],
+                ),
+                "url_modifier": reverse(
+                    "modifier_groupe",
+                    args=[groupe.id],
+                ),
+                "url_supprimer": reverse(
+                    "supprimer_groupe",
+                    args=[groupe.id],
+                ),
+            }
+            for groupe in groupes
+        ]
+
+        return JsonResponse({"groupes": data})
 
     return render(
         request,
         "groupes/liste_groupes.html",
-        {"groupes": groupes}
+        {
+            "groupes": groupes,
+            "recherche": recherche,
+        }
     )
 
 @login_required
@@ -797,6 +889,10 @@ def ajouter_activite(request):
 @login_required
 @administrateur_requis
 def liste_activites(request):
+    recherche = request.GET.get("q", "").strip()
+
+    total_groupes = Groupe.objects.count()
+
     activites = (
         Activite.objects
         .prefetch_related("groupes")
@@ -807,15 +903,61 @@ def liste_activites(request):
         .order_by("date")
     )
 
+    if recherche:
+        activites = activites.filter(
+            nom__icontains=recherche
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": activite.id,
+                "nom": activite.nom,
+                "date": activite.date.strftime("%d/%m/%Y"),
+                "lieu": activite.lieu,
+                "frais": activite.frais_affichage,
+                "places_restantes": activite.places_restantes,
+                "places_disponibles": activite.places_disponibles,
+                "nb_groupes": activite.nb_groupes,
+                "total_groupes": total_groupes,
+                "groupes": [
+                    groupe.nom
+                    for groupe in activite.groupes.all()
+                ],
+                "annulee": activite.annulee,
+                "url_detail": reverse(
+                    "detail_activite",
+                    args=[activite.id],
+                ),
+                "url_modifier": reverse(
+                    "modifier_activite",
+                    args=[activite.id],
+                ),
+                "url_annuler": reverse(
+                    "annuler_activite",
+                    args=[activite.id],
+                ),
+                "url_supprimer": reverse(
+                    "supprimer_activite",
+                    args=[activite.id],
+                ),
+            }
+            for activite in activites
+        ]
+
+        return JsonResponse({
+            "activites": data
+        })
+
     return render(
         request,
         "activites/liste_activites.html",
         {
             "activites": activites,
-            "total_groupes": Groupe.objects.count(),
+            "total_groupes": total_groupes,
+            "recherche": recherche,
         }
     )
-
 
 @login_required
 @administrateur_requis
@@ -1687,3 +1829,26 @@ def desinscrire_activite(request, inscription_id):
         return redirect("detail_activite", activite_id=activite_id)
 
     return redirect("detail_activite", activite_id=inscription.activite_id)
+
+@login_required
+@administrateur_requis
+def detail_groupe(request, groupe_id):
+    groupe = get_object_or_404(
+        Groupe.objects.select_related("educateur"),
+        id=groupe_id,
+    )
+
+    enfants = (
+        Enfant.objects
+        .filter(groupe=groupe)
+        .order_by("nom", "prenom")
+    )
+
+    return render(
+        request,
+        "groupes/detail_groupe.html",
+        {
+            "groupe": groupe,
+            "enfants": enfants,
+        }
+    )

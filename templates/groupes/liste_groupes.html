@@ -8,84 +8,148 @@
 {% endblock %}
 
 {% block content %}
+
 <main>
     <div class="container mt-4">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Liste des groupes</h2>
 
-            <a href="{% url 'ajouter_groupe' %}" class="btn btn-carthage">
+            <h2>
+                Liste des groupes
+            </h2>
+
+            <a
+                href="{% url 'ajouter_groupe' %}"
+                class="btn btn-carthage"
+            >
                 <i class="bi bi-plus-circle"></i>
                 Nouveau groupe
             </a>
+
         </div>
 
-        {% if groupes %}
 
-        <table class="table table-striped table-hover align-middle">
+        <div class="input-group mb-4">
 
-            <thead class="table-dark">
-                <tr>
-                    <th>Nom</th>
-                    <th>Tranche d'âge</th>
-                    <th>Capacité</th>
-                    <th>Éducateur</th>
-                    <th>Places restantes</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-            </thead>
+            <input
+                type="text"
+                id="recherche-groupe"
+                class="form-control"
+                placeholder="Rechercher un groupe..."
+                autocomplete="off"
+            >
 
-            <tbody>
+            <button
+                type="button"
+                id="bouton-recherche"
+                class="btn btn-ck-orange"
+            >
+                Rechercher
+            </button>
 
-                {% for groupe in groupes %}
+            <button
+                type="button"
+                id="bouton-reinitialiser"
+                class="btn btn-ck-bleu-fonce"
+            >
+                Réinitialiser
+            </button>
 
-                <tr>
+        </div>
 
-                    <td>
-                        {{ groupe.nom }}
-                    </td>
 
-                    <td>
-                        {{ groupe.get_tranche_age_display }}
-                    </td>
+        <div id="conteneur-groupes">
 
-                    <td>
-                        {{ groupe.capacite }}
-                    </td>
+            {% if groupes %}
 
-                    <td>
-                        {% if groupe.educateur %}
-                        {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
-                        {% else %}
-                        <span class="text-muted">
-                            Non assigné
-                        </span>
-                        {% endif %}
-                    </td>
+            <table class="table table-striped table-hover align-middle">
 
-                    <td>
-                        {{ groupe.places_restantes }}
-                    </td>
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Tranche d'âge</th>
+                        <th>Capacité</th>
+                        <th>Éducateur</th>
+                        <th>Places restantes</th>
+                        <th class="text-end">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
 
-                    <td class="text-end">
+                <tbody>
 
-                        <a href="{% url 'modifier_groupe' groupe.id %}" class="btn btn-sm btn-ck-orange">
-                            <i class="bi bi-pencil"></i>
-                            Modifier
-                        </a>
+                    {% for groupe in groupes %}
 
-                        <a href="{% url 'supprimer_groupe' groupe.id %}" class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i>
-                            Supprimer
-                        </a>
+                    <tr>
 
-                    </td>
+                        <td>
+                            {{ groupe.nom }}
+                        </td>
 
-                </tr>
+                        <td>
+                            {{ groupe.get_tranche_age_display }}
+                        </td>
 
-                {% endfor %}
+                        <td>
+                            {{ groupe.capacite }}
+                        </td>
 
-            </tbody>
+                        <td>
+
+                            {% if groupe.educateur %}
+
+                                {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    Non assigné
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ groupe.places_restantes }}
+                        </td>
+
+                        <td class="text-end">
+
+                            <a
+                                href="{% url 'detail_groupe' groupe.id %}"
+                                class="btn btn-sm btn-ck-bleu-clair"
+                                title="Voir le détail"
+                            >
+                                <i class="bi bi-eye"></i>
+                            </a>
+
+                            <a
+                                href="{% url 'modifier_groupe' groupe.id %}"
+                                class="btn btn-sm btn-ck-orange"
+                            >
+                                <i class="bi bi-pencil"></i>
+                                Modifier
+                            </a>
+
+                            <a
+                                href="{% url 'supprimer_groupe' groupe.id %}"
+                                class="btn btn-sm btn-danger"
+                            >
+                                <i class="bi bi-trash"></i>
+                                Supprimer
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
             {% else %}
 
@@ -95,6 +159,236 @@
 
             {% endif %}
 
+        </div>
+
     </div>
 </main>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const champRecherche =
+        document.getElementById("recherche-groupe");
+
+    const boutonRecherche =
+        document.getElementById("bouton-recherche");
+
+    const boutonReinitialiser =
+        document.getElementById("bouton-reinitialiser");
+
+    const conteneur =
+        document.getElementById("conteneur-groupes");
+
+    let minuterie;
+
+
+    function echapperHtml(valeur) {
+
+        const element =
+            document.createElement("div");
+
+        element.textContent =
+            valeur ?? "";
+
+        return element.innerHTML;
+    }
+
+
+    function afficherGroupes(groupes) {
+
+        if (groupes.length === 0) {
+
+            conteneur.innerHTML = `
+                <div class="alert alert-info">
+                    Aucun groupe trouvé.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        let lignes = "";
+
+
+        groupes.forEach(function (groupe) {
+
+            lignes += `
+                <tr>
+
+                    <td>
+                        ${echapperHtml(groupe.nom)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(groupe.tranche_age)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(groupe.capacite)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(groupe.educateur)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(groupe.places_restantes)}
+                    </td>
+
+                    <td class="text-end">
+
+                        <a
+                            href="${groupe.url_detail}"
+                            class="btn btn-sm btn-ck-bleu-clair"
+                            title="Voir le détail"
+                        >
+                            <i class="bi bi-eye"></i>
+                        </a>
+
+                        <a
+                            href="${groupe.url_modifier}"
+                            class="btn btn-sm btn-ck-orange"
+                        >
+                            <i class="bi bi-pencil"></i>
+                            Modifier
+                        </a>
+
+                        <a
+                            href="${groupe.url_supprimer}"
+                            class="btn btn-sm btn-danger"
+                        >
+                            <i class="bi bi-trash"></i>
+                            Supprimer
+                        </a>
+
+                    </td>
+
+                </tr>
+            `;
+        });
+
+
+        conteneur.innerHTML = `
+            <table
+                class="table table-striped table-hover align-middle"
+            >
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Tranche d'âge</th>
+                        <th>Capacité</th>
+                        <th>Éducateur</th>
+                        <th>Places restantes</th>
+                        <th class="text-end">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${lignes}
+                </tbody>
+
+            </table>
+        `;
+    }
+
+
+    function rechercher() {
+
+        const recherche =
+            champRecherche.value.trim();
+
+
+        fetch(
+            "{% url 'liste_groupes' %}?q="
+            + encodeURIComponent(recherche),
+            {
+                headers: {
+                    "X-Requested-With":
+                        "XMLHttpRequest"
+                }
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+                throw new Error();
+            }
+
+            return response.json();
+        })
+
+        .then(function (data) {
+
+            afficherGroupes(
+                data.groupes
+            );
+        })
+
+        .catch(function () {
+
+            conteneur.innerHTML = `
+                <div class="alert alert-danger">
+                    Impossible d'effectuer la recherche.
+                </div>
+            `;
+        });
+    }
+
+
+    boutonRecherche.addEventListener(
+        "click",
+        rechercher
+    );
+
+
+    champRecherche.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                rechercher();
+            }
+        }
+    );
+
+
+    champRecherche.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(minuterie);
+
+            minuterie =
+                setTimeout(
+                    rechercher,
+                    300
+                );
+        }
+    );
+
+
+    boutonReinitialiser.addEventListener(
+        "click",
+        function () {
+
+            champRecherche.value = "";
+
+            rechercher();
+
+            champRecherche.focus();
+        }
+    );
+
+});
+</script>
+
 {% endblock %}
