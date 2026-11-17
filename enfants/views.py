@@ -12,6 +12,7 @@ from .models import (
     Groupe,
     DemandeInscription,
     InscriptionActivite,
+    Paiement,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
 )
@@ -1057,3 +1058,46 @@ def desinscrire_activite(request, inscription_id):
         return redirect("detail_activite", activite_id=activite_id)
 
     return redirect("detail_activite", activite_id=inscription.activite_id)
+
+
+@login_required
+@parent_requis
+def payer_inscription(request, inscription_id):
+    inscription = get_object_or_404(
+        InscriptionActivite,
+        id=inscription_id,
+        enfant__parents__pk=request.user.pk,
+    )
+    activite = inscription.activite
+
+    if activite.frais_inscription <= 0:
+        messages.info(
+            request,
+            f"L'activité « {activite.nom} » est gratuite, aucun paiement n'est requis."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    if hasattr(inscription, "paiement"):
+        messages.info(
+            request,
+            f"Les frais d'inscription de « {activite.nom} » ont déjà été payés."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    if request.method == "POST":
+        Paiement.objects.create(
+            inscription=inscription,
+            parent=request.user.parent,
+            montant=activite.frais_inscription,
+        )
+
+        messages.success(
+            request,
+            f"Le paiement de {activite.frais_inscription} $ pour « {activite.nom} » a été effectué avec succès."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    return render(request, "activites/payer_inscription.html", {
+        "inscription": inscription,
+        "activite": activite,
+    })

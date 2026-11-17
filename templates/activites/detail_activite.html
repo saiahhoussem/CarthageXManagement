@@ -161,12 +161,35 @@
 
                             {% if item.inscription %}
 
-                                <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        Se désinscrire
-                                    </button>
-                                </form>
+                                <div class="d-flex align-items-center gap-2">
+
+                                    {% if activite.frais_inscription > 0 %}
+
+                                        {% if item.inscription.paiement %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Payé
+                                            </span>
+                                        {% else %}
+                                            <a
+                                                href="{% url 'payer_inscription' item.inscription.id %}"
+                                                class="btn btn-sm text-white"
+                                                style="background-color: #289b7b;"
+                                            >
+                                                Payer {{ activite.frais_inscription }} $
+                                            </a>
+                                        {% endif %}
+
+                                    {% endif %}
+
+                                    <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            Se désinscrire
+                                        </button>
+                                    </form>
+
+                                </div>
 
                             {% elif activite.places_restantes > 0 %}
 
@@ -191,12 +214,6 @@
                         </div>
 
                     {% endfor %}
-
-                    {% if activite.frais_inscription > 0 %}
-                        <p class="text-muted small mt-3 mb-0">
-                            Le paiement des frais d'inscription se fera ultérieurement, via le centre de paiement (bientôt disponible).
-                        </p>
-                    {% endif %}
 
                 {% else %}
 

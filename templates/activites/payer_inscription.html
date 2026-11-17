@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Payer les frais d'inscription{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div
+                    class="card-header text-white py-3 rounded-top-4"
+                    style="background-color: #0d274d;"
+                >
+                    <h1 class="h4 mb-0">
+                        Payer les frais d'inscription
+                    </h1>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <p class="mb-3">
+                        Frais d'inscription pour <strong>{{ inscription.enfant }}</strong>
+                        à l'activité <strong>{{ activite.nom }}</strong> du {{ activite.date|date:"d/m/Y" }} :
+                    </p>
+
+                    <p class="fs-4 fw-bold mb-4" style="color: #289b7b;">
+                        {{ activite.frais_inscription }} $
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Numéro de carte</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="1234 5678 9012 3456"
+                                maxlength="19"
+                                required
+                            >
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label class="form-label">Expiration</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="MM/AA"
+                                    maxlength="5"
+                                    required
+                                >
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">CVV</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="123"
+                                    maxlength="4"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <p class="text-muted small mb-4">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Paiement simulé à des fins de démonstration, aucune vraie carte n'est traitée.
+                        </p>
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a
+                                href="{% url 'detail_activite' activite.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Annuler
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn text-white"
+                                style="background-color: #289b7b;"
+                            >
+                                Payer {{ activite.frais_inscription }} $
+                            </button>
+
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</main>
+{% endblock %}
