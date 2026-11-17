@@ -66,6 +66,9 @@
 
                                 <td class="fw-semibold">
                                     {{ activite.nom }}
+                                    {% if activite.annulee %}
+                                        <span class="badge bg-secondary ms-1">Annulée</span>
+                                    {% endif %}
                                 </td>
 
                                 <td>
@@ -112,17 +115,27 @@
                                         href="{% url 'modifier_activite' activite.id %}"
                                         class="btn btn-sm text-white me-1"
                                         style="background-color: #f49f02;"
+                                        title="Modifier"
                                     >
-                                        <i class="bi bi-pencil-square me-1"></i>
-                                        Modifier
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
+
+                                    {% if not activite.annulee %}
+                                        <a
+                                            href="{% url 'annuler_activite' activite.id %}"
+                                            class="btn btn-sm btn-outline-danger me-1"
+                                            title="Annuler"
+                                        >
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    {% endif %}
 
                                     <a
                                         href="{% url 'supprimer_activite' activite.id %}"
                                         class="btn btn-sm btn-danger"
+                                        title="Supprimer"
                                     >
-                                        <i class="bi bi-trash me-1"></i>
-                                        Supprimer
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
 
