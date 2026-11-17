@@ -228,6 +228,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let minuterie;
 
+    function echapperHtml(valeur) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            valeur ?? "";
+
+        return div.innerHTML;
+    }
+
     function afficherGroupes(activite) {
 
         if (
@@ -261,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         class="badge rounded-pill px-3 py-2 me-1 mb-1"
                         style="background-color: #289b7b;"
                     >
-                        ${groupe.nom}
+                        ${echapperHtml(groupe.nom)}
                     </span>
                 `
             )
@@ -303,7 +314,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let html = '<div class="row g-4">';
 
-        activites.forEach(activite => {
+        activites.forEach(function (activite) {
+
+            const id =
+                Number(activite.id);
+
+            const nom =
+                echapperHtml(activite.nom);
+
+            const date =
+                echapperHtml(activite.date);
+
+            const lieu =
+                echapperHtml(activite.lieu);
+
+            const description =
+                echapperHtml(activite.description);
+
+            const frais =
+                echapperHtml(activite.frais_affichage);
+
+            const photo =
+                echapperHtml(activite.photo_url);
+
+            const placesRestantes =
+                Number(activite.places_restantes) || 0;
+
+            const groupes =
+                afficherGroupes(activite);
 
             const badgeAnnulee =
                 activite.annulee
@@ -314,26 +352,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     `
                     : "";
 
-            const lieu =
-                activite.lieu || "";
-
-            const description =
-                activite.description || "";
-
-            const frais =
-                activite.frais_affichage || "";
-
-            const photo =
-                activite.photo_url || "";
-
-            const groupes =
-                afficherGroupes(activite);
-
             html += `
                 <div class="col-md-6 col-xl-4">
 
                     <a
-                        href="/activites/${activite.id}/"
+                        href="/activites/${id}/"
                         class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden text-decoration-none text-reset ck-carte-activite-lien"
                     >
 
@@ -354,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             <img
                                 src="${photo}"
-                                alt="${activite.nom}"
+                                alt="${nom}"
                                 class="ck-img-conteneur-media"
                                 loading="lazy"
                                 onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
@@ -369,14 +392,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                 class="h5 fw-semibold"
                                 style="color: #0d274d;"
                             >
-                                ${activite.nom}
+                                ${nom}
                                 ${badgeAnnulee}
                             </h2>
 
                             <p class="text-muted small mb-2">
 
                                 <i class="bi bi-calendar-event me-1"></i>
-                                ${activite.date}
+                                ${date}
 
                                 <span class="mx-1">·</span>
 
@@ -386,9 +409,9 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <span class="mx-1">·</span>
 
                                 <i class="bi bi-people me-1"></i>
-                                ${activite.places_restantes}
-                                place${activite.places_restantes > 1 ? "s" : ""}
-                                restante${activite.places_restantes > 1 ? "s" : ""}
+                                ${placesRestantes}
+                                place${placesRestantes > 1 ? "s" : ""}
+                                restante${placesRestantes > 1 ? "s" : ""}
 
                             </p>
 
@@ -447,7 +470,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return response.json();
         })
         .then(data => {
-            afficherActivites(data.activites);
+
+            afficherActivites(
+                data.activites
+            );
+
         })
         .catch(error => {
 
@@ -471,7 +498,9 @@ document.addEventListener("DOMContentLoaded", function () {
         function (event) {
 
             if (event.key === "Enter") {
+
                 event.preventDefault();
+
                 rechercherActivites();
             }
         }
@@ -495,7 +524,9 @@ document.addEventListener("DOMContentLoaded", function () {
         function () {
 
             champRecherche.value = "";
+
             rechercherActivites();
+
             champRecherche.focus();
         }
     );
