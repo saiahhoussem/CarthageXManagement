@@ -1,7 +1,11 @@
 from PIL import Image
 
 from django.db import models
-from django.core.validators import MinLengthValidator, RegexValidator, MinValueValidator
+from django.core.validators import (
+    MinLengthValidator,
+    RegexValidator,
+    MinValueValidator,
+)
 from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from django.utils import timezone
@@ -19,9 +23,13 @@ DIMENSION_MAX_PHOTO = 1600  # pixels, largeur et hauteur
 def valider_taille_photo(fichier):
     if fichier.size > TAILLE_MAX_PHOTO:
         raise ValidationError(
-            "L'image ne doit pas dépasser %(max)s Mo (taille actuelle : %(actuelle)s Mo)." % {
+            "L'image ne doit pas dépasser %(max)s Mo "
+            "(taille actuelle : %(actuelle)s Mo)." % {
                 "max": TAILLE_MAX_PHOTO // (1024 * 1024),
-                "actuelle": round(fichier.size / (1024 * 1024), 1),
+                "actuelle": round(
+                    fichier.size / (1024 * 1024),
+                    1
+                ),
             }
         )
 
@@ -65,11 +73,13 @@ class Groupe(models.Model):
         null=True,
         blank=True,
     )
-    
+
     @property
     def places_restantes(self):
-        return max(self.capacite - self.enfant_set.count(), 0)
-
+        return max(
+            self.capacite - self.enfant_set.count(),
+            0
+        )
 
     def __str__(self):
         return str(self.nom)
@@ -85,6 +95,7 @@ class Enfant(models.Model):
             )
         ]
     )
+
     nom = models.CharField(
         max_length=100,
         validators=[
@@ -94,29 +105,45 @@ class Enfant(models.Model):
             )
         ]
     )
-    groupe = models.ForeignKey(Groupe, on_delete=models.PROTECT)
+
+    groupe = models.ForeignKey(
+        Groupe,
+        on_delete=models.PROTECT
+    )
+
     date_naissance = models.DateField()
+
     parents = models.ManyToManyField(
         "compte.Parent",
         related_name="enfants",
         blank=True
     )
-    actif = models.BooleanField(default=True, verbose_name="Actif")
+
+    actif = models.BooleanField(
+        default=True,
+        verbose_name="Actif"
+    )
 
     def clean(self):
         super().clean()
 
-        if self.date_naissance and self.date_naissance >= timezone.now().date():
+        if (
+            self.date_naissance
+            and self.date_naissance >= timezone.now().date()
+        ):
             raise ValidationError({
                 "date_naissance":
                     "La date de naissance doit être dans le passé."
             })
 
-        if self.groupe_id and self.groupe.educateur_id is None:
+        if (
+            self.groupe_id
+            and self.groupe.educateur_id is None
+        ):
             raise ValidationError({
                 "groupe":
-                    "Ce groupe n'a pas encore d'éducateur assigné et ne "
-                    "peut donc pas accueillir d'enfants."
+                    "Ce groupe n'a pas encore d'éducateur assigné "
+                    "et ne peut donc pas accueillir d'enfants."
             })
 
     def __str__(self):
@@ -124,7 +151,10 @@ class Enfant(models.Model):
 
 
 class Allergie(models.Model):
-    enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
+    enfant = models.ForeignKey(
+        Enfant,
+        on_delete=models.CASCADE
+    )
 
     type_allergie = models.CharField(
         max_length=100,
@@ -151,7 +181,10 @@ class Allergie(models.Model):
 
 
 class ContactUrgence(models.Model):
-    enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
+    enfant = models.ForeignKey(
+        Enfant,
+        on_delete=models.CASCADE
+    )
 
     prenom = models.CharField(
         max_length=100,
@@ -203,15 +236,17 @@ class DemandeInscription(models.Model):
             )
         ]
     )
+
     nom_enfant = models.CharField(
         max_length=100,
         validators=[
             MinLengthValidator(
                 3,
-                "Le nom de l'enfant doit contenir au moins 3 caractères."
+                "Le nom doit contenir au moins 3 caractères."
             )
         ]
     )
+
     date_naissance = models.DateField()
 
     note = models.TextField(
@@ -225,24 +260,39 @@ class DemandeInscription(models.Model):
         default=Statut.EN_ATTENTE
     )
 
-    date_creation = models.DateTimeField(auto_now_add=True)
-    date_modification = models.DateTimeField(auto_now=True)
+    date_creation = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    date_modification = models.DateTimeField(
+        auto_now=True
+    )
 
     def clean(self):
         super().clean()
 
-        if self.date_naissance and self.date_naissance >= timezone.now().date():
+        if (
+            self.date_naissance
+            and self.date_naissance >= timezone.now().date()
+        ):
             raise ValidationError({
                 "date_naissance":
                     "La date de naissance doit être dans le passé."
             })
 
     def __str__(self):
-        return f"{self.prenom_enfant} {self.nom_enfant} ({self.get_statut_display()})"
+        return (
+            f"{self.prenom_enfant} "
+            f"{self.nom_enfant} "
+            f"({self.get_statut_display()})"
+        )
 
 
 class PersonneAutorisee(models.Model):
-    enfant = models.ForeignKey(Enfant, on_delete=models.CASCADE)
+    enfant = models.ForeignKey(
+        Enfant,
+        on_delete=models.CASCADE
+    )
 
     prenom = models.CharField(
         max_length=100,
@@ -253,6 +303,7 @@ class PersonneAutorisee(models.Model):
             )
         ]
     )
+
     nom = models.CharField(
         max_length=100,
         validators=[
@@ -356,19 +407,22 @@ class Activite(models.Model):
         super().clean()
 
         if self.date and self.date < timezone.now().date():
-            # On ne bloque que si la date est en train d'être fixée ou
-            # changée vers une date passée : sinon, une activité déjà
-            # passée deviendrait impossible à modifier (ex. corriger une
-            # faute dans la description), même sans toucher à la date.
-            date_modifiee = self._state.adding or (
-                Activite.objects.filter(pk=self.pk)
-                .exclude(date=self.date)
-                .exists()
+            # On ne bloque que si la date est en train d'être fixée
+            # ou changée vers une date passée.
+            date_modifiee = (
+                self._state.adding
+                or Activite.objects.filter(
+                    pk=self.pk
+                ).exclude(
+                    date=self.date
+                ).exists()
             )
+
             if date_modifiee:
                 raise ValidationError({
                     "date":
-                        "La date de l'activité ne peut pas être dans le passé."
+                        "La date de l'activité ne peut pas être "
+                        "dans le passé."
                 })
 
     @property
@@ -382,15 +436,23 @@ class Activite(models.Model):
 
     @property
     def photo_url(self):
-        """URL de la photo de l'activité, ou une photo par défaut si l'admin n'en a pas fourni."""
+        """
+        URL de la photo de l'activité, ou une photo par défaut
+        si l'admin n'en a pas fourni.
+        """
         if self.photo:
             return self.photo.url
 
-        return static("enfants/img/activite_defaut.jpg")
+        return static(
+            "enfants/img/activite_defaut.jpg"
+        )
 
     @property
     def frais_affichage(self):
-        """Affichage des frais d'inscription : "Gratuit" si 0 $, sinon le montant."""
+        """
+        Affichage des frais d'inscription :
+        "Gratuit" si 0 $, sinon le montant.
+        """
         if self.frais_inscription == 0:
             return "Gratuit"
 
@@ -399,24 +461,29 @@ class Activite(models.Model):
     @property
     def applique_a_tous_les_groupes(self):
         """
-        True si l'activité ne cible aucun groupe en particulier : soit aucun groupe
-        n'a été sélectionné, soit l'admin a sélectionné tous les groupes existants
-        un par un, ce qui revient au même.
-
-        Pratique pour une seule activité (ex. page de détail), mais à éviter dans une
-        boucle sur une liste d'activités : chaque appel fait une requête sur Groupe en
-        plus de celle sur self.groupes. Pour une liste, annoter le queryset avec
-        Count("groupes") et comparer au nombre total de groupes (voir liste_activites)
-        plutôt que d'utiliser cette propriété.
+        True si l'activité ne cible aucun groupe en particulier :
+        soit aucun groupe n'a été sélectionné,
+        soit l'admin a sélectionné tous les groupes existants.
         """
-        groupes_selectionnes = {groupe.pk for groupe in self.groupes.all()}
+        groupes_selectionnes = {
+            groupe.pk
+            for groupe in self.groupes.all()
+        }
 
         if not groupes_selectionnes:
             return True
 
-        tous_les_groupes = set(Groupe.objects.values_list("pk", flat=True))
+        tous_les_groupes = set(
+            Groupe.objects.values_list(
+                "pk",
+                flat=True
+            )
+        )
 
-        return groupes_selectionnes == tous_les_groupes
+        return (
+            groupes_selectionnes
+            == tous_les_groupes
+        )
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -426,20 +493,28 @@ class Activite(models.Model):
 
     def _redimensionner_photo(self):
         """
-        Réduit la photo si ses dimensions dépassent DIMENSION_MAX_PHOTO, pour éviter
-        qu'une image aux dimensions excessives (ex. photo prise directement par un
-        appareil photo, plusieurs milliers de pixels de large) casse l'affichage
-        (carrousel, cartes) ou gonfle inutilement le poids servi aux parents/éducateurs.
-        Ne fait rien si la photo est déjà dans les limites (pas d'agrandissement).
+        Réduit la photo si ses dimensions dépassent
+        DIMENSION_MAX_PHOTO.
         """
         chemin = self.photo.path
 
         with Image.open(chemin) as image:
-            if image.width <= DIMENSION_MAX_PHOTO and image.height <= DIMENSION_MAX_PHOTO:
+            if (
+                image.width <= DIMENSION_MAX_PHOTO
+                and image.height <= DIMENSION_MAX_PHOTO
+            ):
                 return
 
-            image = image.convert("RGB") if image.mode not in ("RGB", "L") else image
-            image.thumbnail((DIMENSION_MAX_PHOTO, DIMENSION_MAX_PHOTO))
+            if image.mode not in ("RGB", "L"):
+                image = image.convert("RGB")
+
+            image.thumbnail(
+                (
+                    DIMENSION_MAX_PHOTO,
+                    DIMENSION_MAX_PHOTO
+                )
+            )
+
             image.save(chemin)
 
     def __str__(self):
@@ -474,45 +549,227 @@ class InscriptionActivite(models.Model):
 
 def groupes_pertinents_pour_utilisateur(utilisateur):
     """
-    Ensemble des id de Groupe concernant cet utilisateur : le groupe de
-    l'éducateur(trice), ou les groupes des enfants d'un parent. Ensemble
-    vide si l'utilisateur n'a pas de groupe/enfant associé, ou s'il n'est
-    ni éducateur ni parent (il ne verra alors que les activités ouvertes
-    à tout le monde — voir activite_visible_par).
-
-    Même logique que mon_groupe/mes_enfants : on filtre par pk plutôt que
-    d'utiliser request.user.groupe, qui n'existe que sur une instance
-    Educateur, pas sur l'instance User générique que contient request.user.
+    Ensemble des ids de Groupe concernant cet utilisateur :
+    groupe de l'éducateur ou groupes des enfants d'un parent.
     """
     if utilisateur.is_educateur:
         return set(
-            Groupe.objects.filter(educateur__pk=utilisateur.pk)
-            .values_list("pk", flat=True)
+            Groupe.objects.filter(
+                educateur__pk=utilisateur.pk
+            ).values_list(
+                "pk",
+                flat=True
+            )
         )
 
     if utilisateur.is_parent:
         return set(
-            Enfant.objects.filter(parents__pk=utilisateur.pk)
-            .values_list("groupe_id", flat=True)
+            Enfant.objects.filter(
+                parents__pk=utilisateur.pk
+            ).values_list(
+                "groupe_id",
+                flat=True
+            )
         )
 
     return set()
 
 
-def activite_visible_par(activite, nb_groupes, total_groupes, groupes_pertinents):
+def activite_visible_par(
+    activite,
+    nb_groupes,
+    total_groupes,
+    groupes_pertinents
+):
     """
-    True si `activite` (dont le nombre de groupes ciblés, déjà annoté sur
-    le queryset, est `nb_groupes`, sur `total_groupes` groupes existants
-    au total) doit être visible pour un utilisateur dont les groupes
-    pertinents sont `groupes_pertinents` (voir
-    groupes_pertinents_pour_utilisateur).
-
-    `activite.groupes` doit avoir été préchargé (prefetch_related) pour
-    éviter une requête supplémentaire par activité dans une liste.
+    Détermine si une activité doit être visible
+    pour un utilisateur.
     """
-    if nb_groupes == 0 or nb_groupes == total_groupes:
+    if (
+        nb_groupes == 0
+        or nb_groupes == total_groupes
+    ):
         return True
 
-    ids_groupes_activite = {groupe.pk for groupe in activite.groupes.all()}
+    ids_groupes_activite = {
+        groupe.pk
+        for groupe in activite.groupes.all()
+    }
 
-    return bool(ids_groupes_activite & groupes_pertinents)
+    return bool(
+        ids_groupes_activite
+        & groupes_pertinents
+    )
+
+
+class Presence(models.Model):
+    class Type(models.TextChoices):
+        ABSENCE = "absence", "Absence"
+        RETARD = "retard", "Retard"
+
+    class SourceSignalement(models.TextChoices):
+        PARENT = "parent", "Parent"
+        EDUCATEUR = "educateur", "Éducateur(trice)"
+        ADMINISTRATEUR = "administrateur", "Administrateur"
+
+    enfant = models.ForeignKey(
+        Enfant,
+        on_delete=models.CASCADE,
+        related_name="presences"
+    )
+
+    type = models.CharField(
+        max_length=20,
+        choices=Type.choices
+    )
+
+    date = models.DateField()
+
+    date_fin = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    heure = models.TimeField()
+
+    motif = models.TextField(
+        max_length=500
+    )
+
+    source_signalement = models.CharField(
+        max_length=20,
+        choices=SourceSignalement.choices
+    )
+
+    parent = models.ForeignKey(
+        "compte.Parent",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="signalements_presence"
+    )
+
+    educateur = models.ForeignKey(
+        "compte.Educateur",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="signalements_presence"
+    )
+
+    date_signalement = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "enfant",
+                    "date",
+                    "type"
+                ],
+                name="unique_presence_enfant_date_type"
+            )
+        ]
+
+    def clean(self):
+        super().clean()
+
+        # Pour un retard, la date de fin correspond
+        # automatiquement à la date de début.
+        if (
+            self.type == self.Type.RETARD
+            and self.date
+        ):
+            self.date_fin = self.date
+
+        # Pour une absence, la date de fin ne peut pas
+        # être antérieure à la date de début.
+        if (
+            self.type == self.Type.ABSENCE
+            and self.date
+            and self.date_fin
+            and self.date_fin < self.date
+        ):
+            raise ValidationError({
+                "date_fin": (
+                    "La date de fin doit être égale "
+                    "ou postérieure à la date de début."
+                )
+            })
+
+        # Vérification des chevauchements
+        # uniquement pour les absences.
+        if (
+            self.enfant_id
+            and self.type == self.Type.ABSENCE
+            and self.date
+        ):
+            nouvelle_date_fin = (
+                self.date_fin
+                or self.date
+            )
+
+            absences_existantes = (
+                Presence.objects
+                .filter(
+                    enfant_id=self.enfant_id,
+                    type=self.Type.ABSENCE,
+                    date__lte=nouvelle_date_fin
+                )
+                .filter(
+                    models.Q(
+                        date_fin__gte=self.date
+                    )
+                    | models.Q(
+                        date_fin__isnull=True,
+                        date__gte=self.date
+                    )
+                )
+            )
+
+            # En modification, on ignore
+            # la présence elle-même.
+            if self.pk:
+                absences_existantes = (
+                    absences_existantes.exclude(
+                        pk=self.pk
+                    )
+                )
+
+            if absences_existantes.exists():
+                raise ValidationError({
+                    "date": (
+                        "Une absence existe déjà pour cet enfant "
+                        "pendant cette période."
+                    )
+                })
+
+    def save(self, *args, **kwargs):
+        # Un retard doit toujours avoir
+        # date_fin = date.
+        if (
+            self.type == self.Type.RETARD
+            and self.date
+        ):
+            self.date_fin = self.date
+
+        super().save(*args, **kwargs)
+
+    @property
+    def date_fin_effective(self):
+        """
+        Retourne la date de fin réelle du signalement.
+
+        Pour une absence d'une seule journée,
+        date_fin est vide, donc on utilise date.
+        """
+        return self.date_fin or self.date
+
+    def __str__(self):
+        return (
+            f"{self.enfant} - "
+            f"{self.get_type_display()} - "
+            f"{self.date} {self.heure}"
+        )
