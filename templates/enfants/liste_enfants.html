@@ -54,7 +54,7 @@
           <td>{{ enfant.groupe.nom }}</td>
           <td class="text-end">
             <a href="{% url 'fiche_enfant' enfant.id %}" class="btn btn-sm btn-ck-bleu-fonce">
-              <i class="bi bi-eye"></i> Voir
+              <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt=""> Voir
             </a>
             <form method="post" action="{% url 'basculer_statut_enfant' enfant.id %}" class="d-inline">
               {% csrf_token %}

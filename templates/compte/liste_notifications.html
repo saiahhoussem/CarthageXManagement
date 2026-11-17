@@ -25,7 +25,7 @@
           {% csrf_token %}
           {% if notification.lien %}
           <button type="submit" class="btn btn-sm btn-ck-bleu-fonce">
-            <i class="bi bi-eye"></i> Voir
+            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt=""> Voir
           </button>
           {% elif not notification.lue %}
           <button type="submit" class="btn btn-sm btn-outline-secondary">

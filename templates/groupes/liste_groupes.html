@@ -70,12 +70,12 @@
                     <td class="text-end">
 
                         <a href="{% url 'modifier_groupe' groupe.id %}" class="btn btn-sm btn-ck-orange">
-                            <i class="bi bi-pencil"></i>
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
                             Modifier
                         </a>
 
                         <a href="{% url 'supprimer_groupe' groupe.id %}" class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i>
+                            <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt="">
                             Supprimer
                         </a>
 

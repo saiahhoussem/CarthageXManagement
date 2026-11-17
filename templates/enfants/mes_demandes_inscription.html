@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Mes demandes d'inscription{% endblock %}
 
@@ -48,11 +49,11 @@
                         {% if demande.statut == "en_attente" %}
                             <a href="{% url 'modifier_demande_inscription' demande.id %}"
                                class="btn btn-sm btn-ck-orange">
-                                <i class="bi bi-pencil"></i> Modifier
+                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt=""> Modifier
                             </a>
                             <a href="{% url 'supprimer_demande_inscription' demande.id %}"
                                class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i> Supprimer
+                                <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt=""> Supprimer
                             </a>
                         {% endif %}
                     </td>
