@@ -1046,6 +1046,14 @@ def desinscrire_activite(request, inscription_id):
     )
 
     if request.method == "POST":
+        if hasattr(inscription, "paiement"):
+            messages.error(
+                request,
+                f"Impossible de se désinscrire de « {inscription.activite.nom} » : "
+                "les frais d'inscription ont déjà été payés."
+            )
+            return redirect("detail_activite", activite_id=inscription.activite_id)
+
         activite_id = inscription.activite_id
         enfant = inscription.enfant
         nom_activite = inscription.activite.nom
