@@ -24,6 +24,7 @@
           Actifs
         </a>
       </li>
+
       <li class="nav-item">
         <a
           href="{% url 'liste_enfants' %}?statut=archives"
@@ -34,55 +35,435 @@
       </li>
     </ul>
 
-    {% if enfants %}
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>Nom</th>
-          <th>Prénom</th>
-          <th>Date de naissance</th>
-          <th>Groupe</th>
-          <th class="text-end">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for enfant in enfants %}
-        <tr>
-          <td>{{ enfant.nom }}</td>
-          <td>{{ enfant.prenom }}</td>
-          <td>{{ enfant.date_naissance }}</td>
-          <td>{{ enfant.groupe.nom }}</td>
-          <td class="text-end">
-            <a href="{% url 'fiche_enfant' enfant.id %}" class="btn btn-sm btn-ck-bleu-fonce">
-              <i class="bi bi-eye"></i> Voir
-            </a>
-            <form method="post" action="{% url 'basculer_statut_enfant' enfant.id %}" class="d-inline">
-              {% csrf_token %}
-              {% if enfant.actif %}
-              <button type="submit" class="btn btn-sm btn-danger">
-                <i class="bi bi-archive"></i> Archiver
-              </button>
-              {% else %}
-              <button type="submit" class="btn btn-sm btn-success">
-                <i class="bi bi-arrow-counterclockwise"></i> Réactiver
-              </button>
-              {% endif %}
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div class="alert alert-info">
-      {% if statut == "archives" %}
-      Aucun dossier d'enfant archivé.
-      {% else %}
-      Aucun enfant enregistré pour le moment.
-      {% endif %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+
+        <label
+          for="recherche-enfant"
+          class="form-label fw-semibold"
+          style="color: #0d274d;"
+        >
+          <i class="bi bi-search me-1"></i>
+          Rechercher un enfant
+        </label>
+
+        <div class="input-group">
+
+          <input
+            type="text"
+            id="recherche-enfant"
+            class="form-control"
+            placeholder="Nom ou prénom..."
+            autocomplete="off"
+            value="{{ recherche|default:'' }}"
+          >
+
+          <button
+            type="button"
+            id="bouton-recherche"
+            class="btn btn-ck-orange"
+          >
+            <i class="bi bi-search"></i>
+            Rechercher
+          </button>
+
+          <button
+            type="button"
+            id="reinitialiser-recherche"
+            class="btn btn-ck-bleu-fonce"
+          >
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Réinitialiser
+          </button>
+
+        </div>
+
+      </div>
     </div>
-    {% endif %}
+
+    <div id="conteneur-enfants">
+
+      {% if enfants %}
+
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Date de naissance</th>
+            <th>Groupe</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for enfant in enfants %}
+
+          <tr>
+            <td>{{ enfant.nom }}</td>
+            <td>{{ enfant.prenom }}</td>
+
+            <td>
+              {{ enfant.date_naissance }}
+            </td>
+
+            <td>
+              {% if enfant.groupe %}
+                {{ enfant.groupe.nom }}
+              {% else %}
+                <span class="text-muted">
+                  Non assigné
+                </span>
+              {% endif %}
+            </td>
+
+            <td class="text-end">
+
+              <a
+                href="{% url 'fiche_enfant' enfant.id %}"
+                class="btn btn-sm btn-ck-bleu-fonce"
+              >
+                <i class="bi bi-eye"></i>
+                Voir
+              </a>
+
+              <form
+                method="post"
+                action="{% url 'basculer_statut_enfant' enfant.id %}"
+                class="d-inline"
+              >
+                {% csrf_token %}
+
+                {% if enfant.actif %}
+
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-danger"
+                >
+                  <i class="bi bi-archive"></i>
+                  Archiver
+                </button>
+
+                {% else %}
+
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-success"
+                >
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                  Réactiver
+                </button>
+
+                {% endif %}
+
+              </form>
+
+            </td>
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+      </table>
+
+      {% else %}
+
+      <div class="alert alert-info">
+
+        {% if recherche %}
+
+          Aucun enfant ne correspond à la recherche
+          « {{ recherche }} ».
+
+        {% elif statut == "archives" %}
+
+          Aucun dossier d'enfant archivé.
+
+        {% else %}
+
+          Aucun enfant enregistré pour le moment.
+
+        {% endif %}
+
+      </div>
+
+      {% endif %}
+
+    </div>
 
   </div>
 </main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const champRecherche =
+    document.getElementById("recherche-enfant");
+
+  const boutonRecherche =
+    document.getElementById("bouton-recherche");
+
+  const boutonReinitialiser =
+    document.getElementById("reinitialiser-recherche");
+
+  const conteneurEnfants =
+    document.getElementById("conteneur-enfants");
+
+  const statut =
+    "{{ statut|default:'actifs'|escapejs }}";
+
+  let minuterie;
+
+  function echapperHtml(valeur) {
+
+    const div =
+      document.createElement("div");
+
+    div.textContent =
+      valeur ?? "";
+
+    return div.innerHTML;
+  }
+
+  function afficherEnfants(enfants) {
+
+    if (enfants.length === 0) {
+
+      conteneurEnfants.innerHTML = `
+        <div class="alert alert-info">
+          Aucun enfant ne correspond à votre recherche.
+        </div>
+      `;
+
+      return;
+    }
+
+    let lignes = "";
+
+    enfants.forEach(function (enfant) {
+
+      const id =
+        Number(enfant.id);
+
+      const nom =
+        echapperHtml(enfant.nom);
+
+      const prenom =
+        echapperHtml(enfant.prenom);
+
+      const dateNaissance =
+        echapperHtml(enfant.date_naissance);
+
+      const groupe =
+        echapperHtml(enfant.groupe);
+
+      const urlDetail =
+        echapperHtml(enfant.url_detail);
+
+      const urlStatut =
+        echapperHtml(enfant.url_statut);
+
+      const boutonStatut =
+        enfant.actif
+          ? `
+            <form
+              method="post"
+              action="${urlStatut}"
+              class="d-inline"
+            >
+              <input
+                type="hidden"
+                name="csrfmiddlewaretoken"
+                value="{{ csrf_token }}"
+              >
+
+              <button
+                type="submit"
+                class="btn btn-sm btn-danger"
+              >
+                <i class="bi bi-archive"></i>
+                Archiver
+              </button>
+            </form>
+          `
+          : `
+            <form
+              method="post"
+              action="${urlStatut}"
+              class="d-inline"
+            >
+              <input
+                type="hidden"
+                name="csrfmiddlewaretoken"
+                value="{{ csrf_token }}"
+              >
+
+              <button
+                type="submit"
+                class="btn btn-sm btn-success"
+              >
+                <i class="bi bi-arrow-counterclockwise"></i>
+                Réactiver
+              </button>
+            </form>
+          `;
+
+      lignes += `
+        <tr>
+
+          <td>
+            ${nom}
+          </td>
+
+          <td>
+            ${prenom}
+          </td>
+
+          <td>
+            ${dateNaissance}
+          </td>
+
+          <td>
+            ${groupe}
+          </td>
+
+          <td class="text-end">
+
+            <a
+              href="${urlDetail}"
+              class="btn btn-sm btn-ck-bleu-fonce"
+            >
+              <i class="bi bi-eye"></i>
+              Voir
+            </a>
+
+            ${boutonStatut}
+
+          </td>
+
+        </tr>
+      `;
+    });
+
+    conteneurEnfants.innerHTML = `
+      <table
+        class="table table-striped table-hover align-middle"
+      >
+
+        <thead class="table-dark">
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Date de naissance</th>
+            <th>Groupe</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${lignes}
+        </tbody>
+
+      </table>
+    `;
+  }
+
+  function rechercherEnfants() {
+
+    const recherche =
+      champRecherche.value.trim();
+
+    let url =
+      "{% url 'liste_enfants' %}?q="
+      + encodeURIComponent(recherche);
+
+    if (statut === "archives") {
+      url += "&statut=archives";
+    }
+
+    fetch(
+      url,
+      {
+        headers: {
+          "X-Requested-With":
+            "XMLHttpRequest"
+        }
+      }
+    )
+    .then(response => {
+
+      if (!response.ok) {
+        throw new Error(
+          "Erreur lors de la recherche."
+        );
+      }
+
+      return response.json();
+    })
+    .then(data => {
+
+      afficherEnfants(
+        data.enfants
+      );
+
+    })
+    .catch(error => {
+
+      console.error(error);
+
+      conteneurEnfants.innerHTML = `
+        <div class="alert alert-danger">
+          Impossible d'effectuer la recherche.
+        </div>
+      `;
+    });
+  }
+
+  boutonRecherche.addEventListener(
+    "click",
+    rechercherEnfants
+  );
+
+  champRecherche.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        rechercherEnfants();
+      }
+
+    }
+  );
+
+  champRecherche.addEventListener(
+    "input",
+    function () {
+
+      clearTimeout(minuterie);
+
+      minuterie = setTimeout(
+        rechercherEnfants,
+        300
+      );
+
+    }
+  );
+
+  boutonReinitialiser.addEventListener(
+    "click",
+    function () {
+
+      champRecherche.value = "";
+
+      rechercherEnfants();
+
+      champRecherche.focus();
+    }
+  );
+
+});
+</script>
+
 {% endblock %}
