@@ -1136,9 +1136,14 @@ def historique_presences_parent(request):
                     "date_fin": (
                         presence.date_fin.strftime("%d/%m/%Y")
                         if presence.date_fin
-                        else "-"
+                        else ""
                     ),
                     "heure": presence.heure.strftime("%H:%M"),
+                    "heure_fin": (
+                        presence.heure_fin.strftime("%H:%M")
+                        if presence.heure_fin
+                        else ""
+                    ),
                     "motif": presence.motif,
                     "source": (
                         presence.get_source_signalement_display()
@@ -1173,6 +1178,7 @@ def historique_presences_parent(request):
             "recherche": recherche,
         }
     )
+
 
 @login_required
 @educateur_requis
