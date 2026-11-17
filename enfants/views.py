@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from django.utils import timezone
@@ -429,6 +429,7 @@ def mon_groupe(request):
             "groupes": groupes
         }
     )
+
 @login_required
 @parent_requis
 def mes_enfants(request):
@@ -865,7 +866,6 @@ def supprimer_activite(request, activite_id):
         {"activite": activite}
     )
 
-
 @login_required
 @administrateur_requis
 def annuler_activite(request, activite_id):
@@ -910,29 +910,85 @@ def annuler_activite(request, activite_id):
 @login_required
 @educateur_ou_parent_requis
 def mes_activites(request):
+    recherche = request.GET.get("q", "").strip()
+
     total_groupes = Groupe.objects.count()
-    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(
+        request.user
+    )
 
     toutes_les_activites = (
         Activite.objects
         .prefetch_related("groupes")
         .annotate(
             nb_groupes=Count("groupes", distinct=True),
-            nb_inscriptions=Count("inscriptions", distinct=True),
+            nb_inscriptions=Count(
+                "inscriptions",
+                distinct=True
+            ),
         )
         .order_by("date")
     )
 
-    # Filtré en Python (pas en SQL) pour pouvoir réutiliser nb_groupes/
-    # total_groupes déjà annotés/calculés, sans requête supplémentaire par
-    # activité ni double comptage via une jointure sur groupes.
     activites = [
         activite
         for activite in toutes_les_activites
         if activite_visible_par(
-            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+            activite,
+            activite.nb_groupes,
+            total_groupes,
+            groupes_pertinents,
         )
     ]
+
+    if recherche:
+        recherche_min = recherche.lower()
+
+        activites = [
+            activite
+            for activite in activites
+            if recherche_min in activite.nom.lower()
+        ]
+
+    if (
+        request.headers.get("X-Requested-With")
+        == "XMLHttpRequest"
+    ):
+        data = [
+            {
+                "id": activite.id,
+                "nom": activite.nom,
+                "date": activite.date.strftime(
+                    "%d/%m/%Y"
+                ),
+                "photo_url": activite.photo_url,
+                "lieu": activite.lieu,
+                "description": activite.description,
+                "places_restantes": (
+                    activite.places_restantes
+                ),
+                "frais_affichage": (
+                    activite.frais_affichage
+                ),
+                "groupes": [
+                    {
+                        "id": groupe.id,
+                        "nom": groupe.nom,
+                    }
+                    for groupe
+                    in activite.groupes.all()
+                ],
+                "nb_groupes": activite.nb_groupes,
+                "total_groupes": total_groupes,
+                "annulee": activite.annulee,
+            }
+            for activite in activites
+        ]
+
+        return JsonResponse({
+            "activites": data
+        })
 
     return render(
         request,
@@ -940,9 +996,9 @@ def mes_activites(request):
         {
             "activites": activites,
             "total_groupes": total_groupes,
+            "recherche": recherche,
         }
     )
-
 
 @login_required
 def detail_activite(request, activite_id):
