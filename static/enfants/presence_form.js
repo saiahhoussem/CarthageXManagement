@@ -2,27 +2,49 @@ document.addEventListener("DOMContentLoaded", function () {
     const typeSelect = document.getElementById("id_type");
     const dateDebutInput = document.getElementById("id_date");
     const dateFinInput = document.getElementById("id_date_fin");
+    const heureFinInput = document.getElementById("id_heure_fin");
 
-    if (!typeSelect || !dateDebutInput || !dateFinInput) {
+    const conteneurDateFin =
+        document.getElementById("conteneur-date-fin");
+
+    const conteneurHeureFin =
+        document.getElementById("conteneur-heure-fin");
+
+    if (
+        !typeSelect
+        || !dateDebutInput
+        || !dateFinInput
+        || !heureFinInput
+        || !conteneurDateFin
+        || !conteneurHeureFin
+    ) {
         return;
     }
 
-    function mettreAJourDateFin() {
+    function mettreAJourChamps() {
         const estRetard = typeSelect.value === "retard";
 
         if (estRetard) {
-            // Pour un retard, la date de fin correspond
-            // automatiquement à la date de début.
             dateFinInput.value = dateDebutInput.value;
             dateFinInput.disabled = true;
+
+            conteneurDateFin.classList.add("d-none");
+            conteneurHeureFin.classList.remove("d-none");
+
+            heureFinInput.disabled = false;
         } else {
-            
             dateFinInput.disabled = false;
+
+            conteneurDateFin.classList.remove("d-none");
+            conteneurHeureFin.classList.add("d-none");
+
+            heureFinInput.value = "";
+            heureFinInput.disabled = true;
         }
     }
 
     typeSelect.addEventListener("change", function () {
-        mettreAJourDateFin();
+        mettreAJourChamps();
     });
 
     dateDebutInput.addEventListener("change", function () {
@@ -31,7 +53,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Pour les formulaires de modification :
-    // applique immédiatement l'état correspondant à la valeur existante.
-    mettreAJourDateFin();
+    mettreAJourChamps();
 });

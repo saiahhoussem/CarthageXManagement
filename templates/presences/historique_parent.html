@@ -24,7 +24,6 @@
                 >
                     Historique des présences
                 </h1>
-
             </div>
 
             <a
@@ -36,7 +35,6 @@
             </a>
 
         </div>
-
 
         <div class="card border-0 shadow-sm mb-4">
 
@@ -85,7 +83,6 @@
 
         </div>
 
-
         <div id="conteneur-presences">
 
             {% if presences %}
@@ -112,7 +109,6 @@
 
                 </div>
 
-
                 <div
                     class="card border-0 shadow-sm
                            rounded-4 overflow-hidden"
@@ -132,44 +128,18 @@
                                 "
                             >
                                 <tr>
-                                    <th class="py-3 px-3">
-                                        Enfant
-                                    </th>
-
-                                    <th class="py-3">
-                                        Type
-                                    </th>
-
-                                    <th class="py-3">
-                                        Date
-                                    </th>
-
-                                    <th class="py-3">
-                                        Fin
-                                    </th>
-
-                                    <th class="py-3">
-                                        Heure
-                                    </th>
-
-                                    <th class="py-3">
-                                        Motif
-                                    </th>
-
-                                    <th class="py-3">
-                                        Source
-                                    </th>
-
-                                    <th class="py-3">
-                                        Signalé le
-                                    </th>
-
-                                    <th class="py-3">
-                                        Actions
-                                    </th>
+                                    <th class="py-3 px-3">Enfant</th>
+                                    <th class="py-3">Type</th>
+                                    <th class="py-3">Date</th>
+                                    <th class="py-3">Date de fin</th>
+                                    <th class="py-3">Heure de début</th>
+                                    <th class="py-3">Heure de fin</th>
+                                    <th class="py-3">Motif</th>
+                                    <th class="py-3">Source</th>
+                                    <th class="py-3">Signalé le</th>
+                                    <th class="py-3">Actions</th>
                                 </tr>
                             </thead>
-
 
                             <tbody>
 
@@ -209,7 +179,6 @@
 
                                         </td>
 
-
                                         <td>
 
                                             {% if presence.type == "absence" %}
@@ -237,38 +206,57 @@
 
                                         </td>
 
-
                                         <td>
                                             {{ presence.date|date:"d/m/Y" }}
                                         </td>
 
-
                                         <td>
 
-                                            {% if presence.date_fin %}
-                                                {{ presence.date_fin|date:"d/m/Y" }}
+                                            {% if presence.type == "absence" %}
+
+                                                {% if presence.date_fin %}
+                                                    {{ presence.date_fin|date:"d/m/Y" }}
+                                                {% else %}
+                                                    <span class="text-muted">
+                                                        Même journée
+                                                    </span>
+                                                {% endif %}
+
                                             {% else %}
+
                                                 <span class="text-muted">
-                                                    —
+                                                    N/A
                                                 </span>
+
                                             {% endif %}
 
                                         </td>
-
 
                                         <td>
                                             {{ presence.heure|time:"H:i" }}
                                         </td>
 
+                                        <td>
+
+                                            {% if presence.type == "retard" and presence.heure_fin %}
+
+                                                {{ presence.heure_fin|time:"H:i" }}
+
+                                            {% else %}
+
+                                                <span class="text-muted">
+                                                    N/A
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
 
                                         <td>
-                                            <span
-                                                title="{{ presence.motif }}"
-                                            >
+                                            <span title="{{ presence.motif }}">
                                                 {{ presence.motif|truncatechars:30 }}
                                             </span>
                                         </td>
-
 
                                         <td>
 
@@ -284,50 +272,13 @@
 
                                         </td>
 
-
                                         <td class="text-muted small">
                                             {{ presence.date_signalement|date:"d/m/Y H:i" }}
                                         </td>
 
-
                                         <td>
 
-                                            {% if presence.date_fin %}
-
-                                                {% if presence.date_fin >= today %}
-
-                                                    <div class="d-flex gap-2">
-
-                                                        <a
-                                                            href="{% url 'modifier_presence_parent' presence.id %}"
-                                                            class="btn btn-sm btn-ck-bleu-clair"
-                                                        >
-                                                            <i class="bi bi-pencil me-1"></i>
-                                                            Modifier
-                                                        </a>
-
-                                                        <a
-                                                            href="{% url 'supprimer_presence_parent' presence.id %}"
-                                                            class="btn btn-sm btn-outline-danger"
-                                                        >
-                                                            <i class="bi bi-trash me-1"></i>
-                                                            Supprimer
-                                                        </a>
-
-                                                    </div>
-
-                                                {% else %}
-
-                                                    <span
-                                                        class="badge bg-light text-muted border"
-                                                    >
-                                                        Terminé
-                                                    </span>
-
-                                                {% endif %}
-
-
-                                            {% elif presence.date >= today %}
+                                            {% if presence.date_fin_effective >= today %}
 
                                                 <div class="d-flex gap-2">
 
@@ -373,12 +324,9 @@
 
                 </div>
 
-
             {% else %}
 
-                <div
-                    class="card border-0 shadow-sm rounded-4"
-                >
+                <div class="card border-0 shadow-sm rounded-4">
 
                     <div class="card-body text-center py-5">
 
@@ -417,7 +365,6 @@
     </div>
 </main>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -435,7 +382,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let minuterie;
 
-
     function echapperHtml(valeur) {
 
         const div =
@@ -446,7 +392,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return div.innerHTML;
     }
-
 
     function afficherPresences(presences) {
 
@@ -482,14 +427,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         let lignes = "";
-
 
         presences.forEach(presence => {
 
             let badgeType;
-
 
             if (
                 presence.type.toLowerCase()
@@ -520,7 +462,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
             }
 
-
             let actions = `
                 <span
                     class="badge bg-light
@@ -529,7 +470,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     Terminé
                 </span>
             `;
-
 
             if (presence.modifiable) {
 
@@ -556,6 +496,40 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
             }
 
+            let dateFin = `
+                <span class="text-muted">
+                    N/A
+                </span>
+            `;
+
+            if (
+                presence.type.toLowerCase()
+                === "absence"
+            ) {
+
+                dateFin = presence.date_fin
+                    ? echapperHtml(presence.date_fin)
+                    : `
+                        <span class="text-muted">
+                            Même journée
+                        </span>
+                    `;
+            }
+
+            let heureFin = `
+                <span class="text-muted">
+                    N/A
+                </span>
+            `;
+
+            if (
+                presence.type.toLowerCase()
+                === "retard"
+                && presence.heure_fin
+            ) {
+                heureFin =
+                    echapperHtml(presence.heure_fin);
+            }
 
             lignes += `
                 <tr>
@@ -604,15 +578,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     </td>
 
                     <td>
-                        ${echapperHtml(
-                            presence.date_fin
-                        )}
+                        ${dateFin}
                     </td>
 
                     <td>
                         ${echapperHtml(
                             presence.heure
                         )}
+                    </td>
+
+                    <td>
+                        ${heureFin}
                     </td>
 
                     <td>
@@ -651,7 +627,6 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         });
 
-
         conteneurPresences.innerHTML = `
 
             <div
@@ -677,7 +652,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             </div>
 
-
             <div
                 class="card border-0
                        shadow-sm rounded-4
@@ -697,45 +671,18 @@ document.addEventListener("DOMContentLoaded", function () {
                                 color: white;
                             "
                         >
-
                             <tr>
-                                <th class="py-3 px-3">
-                                    Enfant
-                                </th>
-
-                                <th class="py-3">
-                                    Type
-                                </th>
-
-                                <th class="py-3">
-                                    Date
-                                </th>
-
-                                <th class="py-3">
-                                    Fin
-                                </th>
-
-                                <th class="py-3">
-                                    Heure
-                                </th>
-
-                                <th class="py-3">
-                                    Motif
-                                </th>
-
-                                <th class="py-3">
-                                    Source
-                                </th>
-
-                                <th class="py-3">
-                                    Signalé le
-                                </th>
-
-                                <th class="py-3">
-                                    Actions
-                                </th>
+                                <th class="py-3 px-3">Enfant</th>
+                                <th class="py-3">Type</th>
+                                <th class="py-3">Date</th>
+                                <th class="py-3">Date de fin</th>
+                                <th class="py-3">Heure de début</th>
+                                <th class="py-3">Heure de fin</th>
+                                <th class="py-3">Motif</th>
+                                <th class="py-3">Source</th>
+                                <th class="py-3">Signalé le</th>
+                                <th class="py-3">Actions</th>
                             </tr>
-
                         </thead>
 
                         <tbody>
@@ -750,12 +697,10 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 
-
     function rechercherPresences() {
 
         const recherche =
             champRecherche.value.trim();
-
 
         fetch(
             "{% url 'historique_presences_parent' %}?q="
@@ -767,11 +712,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         )
-
         .then(response => {
 
             if (!response.ok) {
-
                 throw new Error(
                     "Erreur lors de la recherche."
                 );
@@ -779,7 +722,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return response.json();
         })
-
         .then(data => {
 
             afficherPresences(
@@ -787,7 +729,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
         })
-
         .catch(error => {
 
             console.error(error);
@@ -801,12 +742,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-
     boutonRecherche.addEventListener(
         "click",
         rechercherPresences
     );
-
 
     champRecherche.addEventListener(
         "keydown",
@@ -821,7 +760,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
 
-
     champRecherche.addEventListener(
         "input",
         function () {
@@ -834,7 +772,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         }
     );
-
 
     boutonReinitialiser.addEventListener(
         "click",
