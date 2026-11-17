@@ -1102,6 +1102,8 @@ def signaler_presence(request):
 @parent_requis
 def historique_presences_parent(request):
     parent = request.user.parent
+    recherche = request.GET.get("q", "").strip()
+    today = timezone.localdate()
 
     presences = (
         Presence.objects
@@ -1110,14 +1112,73 @@ def historique_presences_parent(request):
         .order_by("-date_signalement")
     )
 
+    if recherche:
+        presences = presences.filter(
+            Q(enfant__prenom__icontains=recherche)
+            | Q(enfant__nom__icontains=recherche)
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = []
+
+        for presence in presences:
+            date_limite = presence.date_fin or presence.date
+
+            data.append(
+                {
+                    "id": presence.id,
+                    "enfant": (
+                        f"{presence.enfant.prenom} "
+                        f"{presence.enfant.nom}"
+                    ),
+                    "type": presence.get_type_display(),
+                    "date": presence.date.strftime("%d/%m/%Y"),
+                    "date_fin": (
+                        presence.date_fin.strftime("%d/%m/%Y")
+                        if presence.date_fin
+                        else ""
+                    ),
+                    "heure": presence.heure.strftime("%H:%M"),
+                    "heure_fin": (
+                        presence.heure_fin.strftime("%H:%M")
+                        if presence.heure_fin
+                        else ""
+                    ),
+                    "motif": presence.motif,
+                    "source": (
+                        presence.get_source_signalement_display()
+                    ),
+                    "date_signalement": (
+                        timezone.localtime(
+                            presence.date_signalement
+                        ).strftime("%d/%m/%Y %H:%M")
+                    ),
+                    "modifiable": date_limite >= today,
+                    "url_modifier": reverse(
+                        "modifier_presence_parent",
+                        args=[presence.id],
+                    ),
+                    "url_supprimer": reverse(
+                        "supprimer_presence_parent",
+                        args=[presence.id],
+                    ),
+                }
+            )
+
+        return JsonResponse({
+            "presences": data
+        })
+
     return render(
         request,
         "presences/historique_parent.html",
         {
             "presences": presences,
-            "today": timezone.now().date(),
+            "today": today,
+            "recherche": recherche,
         }
-)
+    )
+
 
 @login_required
 @educateur_requis

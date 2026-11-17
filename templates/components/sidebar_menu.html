@@ -15,9 +15,13 @@
         </li>
 
         <li>
-            <a href="#sous-menu-educateurs" data-bs-toggle="collapse" role="button" aria-expanded="false"
+            <a href="#sous-menu-educateurs"
+                data-bs-toggle="collapse"
+                role="button"
+                aria-expanded="false"
                 aria-controls="sous-menu-educateurs"
                 class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_educateurs' or url_actif == 'detail_educateur' or url_actif == 'modifier_educateur' or url_actif == 'creer_educateur' %}active{% endif %}">
+
                 <span>
                     <i class="bi bi-person-badge"></i>
                     Éducateurs
@@ -26,8 +30,11 @@
                 <i class="bi bi-chevron-down"></i>
             </a>
 
-            <div class="collapse {% if url_actif == 'liste_educateurs' or url_actif == 'detail_educateur' or url_actif == 'modifier_educateur' or url_actif == 'creer_educateur' %}show{% endif %}"
-                id="sous-menu-educateurs" data-bs-parent="#accordion-sidebar">
+            <div
+                class="collapse {% if url_actif == 'liste_educateurs' or url_actif == 'detail_educateur' or url_actif == 'modifier_educateur' or url_actif == 'creer_educateur' %}show{% endif %}"
+                id="sous-menu-educateurs"
+                data-bs-parent="#accordion-sidebar">
+
                 <ul class="list-unstyled ms-4 mt-1">
 
                     <li>
@@ -48,11 +55,14 @@
             </div>
         </li>
 
-        <!-- NOUVELLE SECTION ADMINISTRATEURS -->
         <li>
-            <a href="#sous-menu-administrateurs" data-bs-toggle="collapse" role="button" aria-expanded="false"
+            <a href="#sous-menu-administrateurs"
+                data-bs-toggle="collapse"
+                role="button"
+                aria-expanded="false"
                 aria-controls="sous-menu-administrateurs"
                 class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_administrateurs' or url_actif == 'detail_administrateur' or url_actif == 'modifier_administrateur' or url_actif == 'creer_administrateur' %}active{% endif %}">
+
                 <span>
                     <i class="bi bi-shield-lock"></i>
                     Administrateurs
@@ -61,8 +71,11 @@
                 <i class="bi bi-chevron-down"></i>
             </a>
 
-            <div class="collapse {% if url_actif == 'liste_administrateurs' or url_actif == 'detail_administrateur' or url_actif == 'modifier_administrateur' or url_actif == 'creer_administrateur' %}show{% endif %}"
-                id="sous-menu-administrateurs" data-bs-parent="#accordion-sidebar">
+            <div
+                class="collapse {% if url_actif == 'liste_administrateurs' or url_actif == 'detail_administrateur' or url_actif == 'modifier_administrateur' or url_actif == 'creer_administrateur' %}show{% endif %}"
+                id="sous-menu-administrateurs"
+                data-bs-parent="#accordion-sidebar">
+
                 <ul class="list-unstyled ms-4 mt-1">
 
                     <li>
@@ -73,12 +86,14 @@
                     </li>
 
                     {% if request.user.is_superuser %}
+
                     <li>
                         <a href="{% url 'compte:creer_administrateur' %}"
                             class="{% if url_actif == 'creer_administrateur' %}active{% endif %}">
                             Ajouter un administrateur
                         </a>
                     </li>
+
                     {% endif %}
 
                 </ul>
@@ -86,9 +101,13 @@
         </li>
 
         <li>
-            <a href="#sous-menu-parents" data-bs-toggle="collapse" role="button" aria-expanded="false"
+            <a href="#sous-menu-parents"
+                data-bs-toggle="collapse"
+                role="button"
+                aria-expanded="false"
                 aria-controls="sous-menu-parents"
                 class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_parents' or url_actif == 'detail_parent' or url_actif == 'modifier_parent' or url_actif == 'creer_parent' %}active{% endif %}">
+
                 <span>
                     <i class="bi bi-people"></i>
                     Parents
@@ -97,8 +116,11 @@
                 <i class="bi bi-chevron-down"></i>
             </a>
 
-            <div class="collapse {% if url_actif == 'liste_parents' or url_actif == 'detail_parent' or url_actif == 'modifier_parent' or url_actif == 'creer_parent' %}show{% endif %}"
-                id="sous-menu-parents" data-bs-parent="#accordion-sidebar">
+            <div
+                class="collapse {% if url_actif == 'liste_parents' or url_actif == 'detail_parent' or url_actif == 'modifier_parent' or url_actif == 'creer_parent' %}show{% endif %}"
+                id="sous-menu-parents"
+                data-bs-parent="#accordion-sidebar">
+
                 <ul class="list-unstyled ms-4 mt-1">
 
                     <li>
@@ -120,9 +142,13 @@
         </li>
 
         <li>
-            <a href="#sous-menu-groupes" data-bs-toggle="collapse" role="button" aria-expanded="false"
+            <a href="#sous-menu-groupes"
+                data-bs-toggle="collapse"
+                role="button"
+                aria-expanded="false"
                 aria-controls="sous-menu-groupes"
                 class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_groupes' or url_actif == 'ajouter_groupe' or url_actif == 'modifier_groupe' or url_actif == 'supprimer_groupe' %}active{% endif %}">
+
                 <span>
                     <i class="bi bi-diagram-3"></i>
                     Groupes
@@ -131,8 +157,11 @@
                 <i class="bi bi-chevron-down"></i>
             </a>
 
-            <div class="collapse {% if url_actif == 'liste_groupes' or url_actif == 'ajouter_groupe' or url_actif == 'modifier_groupe' or url_actif == 'supprimer_groupe' %}show{% endif %}"
-                id="sous-menu-groupes" data-bs-parent="#accordion-sidebar">
+            <div
+                class="collapse {% if url_actif == 'liste_groupes' or url_actif == 'ajouter_groupe' or url_actif == 'modifier_groupe' or url_actif == 'supprimer_groupe' %}show{% endif %}"
+                id="sous-menu-groupes"
+                data-bs-parent="#accordion-sidebar">
+
                 <ul class="list-unstyled ms-4 mt-1">
 
                     <li>
@@ -169,15 +198,13 @@
             </a>
         </li>
 
-            <li>
-                <a
-                    href="{% url 'liste_activites' %}"
-                    class="{% if url_actif == 'liste_activites' or url_actif == 'ajouter_activite' %}active{% endif %}"
-                >
-                    <i class="bi bi-suit-spade"></i>
-                    Activités
-                </a>
-            </li>
+        <li>
+            <a href="{% url 'liste_activites' %}"
+                class="{% if url_actif == 'liste_activites' or url_actif == 'ajouter_activite' %}active{% endif %}">
+                <i class="bi bi-suit-spade"></i>
+                Activités
+            </a>
+        </li>
 
         {% elif user.is_educateur %}
 
@@ -205,7 +232,8 @@
         </li>
 
         <li>
-            <a href="{% url 'mes_activites' %}" class="{% if url_actif == 'mes_activites' %}active{% endif %}">
+            <a href="{% url 'mes_activites' %}"
+                class="{% if url_actif == 'mes_activites' %}active{% endif %}">
                 <i class="bi bi-suit-spade"></i>
                 Activités
             </a>
@@ -214,13 +242,18 @@
         <li>
             <a href="{% url 'compte:liste_notifications' %}"
                 class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_notifications' %}active{% endif %}">
+
                 <span>
                     <i class="bi bi-bell"></i>
                     Notifications
                 </span>
+
                 {% if nb_notifications_non_lues %}
-                <span class="badge bg-danger rounded-pill">{{ nb_notifications_non_lues }}</span>
+                    <span class="badge bg-danger rounded-pill">
+                        {{ nb_notifications_non_lues }}
+                    </span>
                 {% endif %}
+
             </a>
         </li>
 
@@ -243,6 +276,14 @@
         </li>
 
         <li>
+            <a href="{% url 'historique_presences_parent' %}"
+                class="{% if url_actif == 'historique_presences_parent' %}active{% endif %}">
+                <i class="bi bi-clock-history"></i>
+                Historique des présences
+            </a>
+        </li>
+
+        <li>
             <a href="{% url 'mes_demandes_inscription' %}"
                 class="{% if url_actif == 'mes_demandes_inscription' or url_actif == 'creer_demande_inscription' or url_actif == 'modifier_demande_inscription' or url_actif == 'supprimer_demande_inscription' %}active{% endif %}">
                 <i class="bi bi-file-earmark-text"></i>
@@ -258,7 +299,8 @@
         </li>
 
         <li>
-            <a href="{% url 'mes_activites' %}" class="{% if url_actif == 'mes_activites' %}active{% endif %}">
+            <a href="{% url 'mes_activites' %}"
+                class="{% if url_actif == 'mes_activites' %}active{% endif %}">
                 <i class="bi bi-suit-spade"></i>
                 Activités
             </a>
@@ -267,13 +309,18 @@
         <li>
             <a href="{% url 'compte:liste_notifications' %}"
                 class="d-flex justify-content-between align-items-center {% if url_actif == 'liste_notifications' %}active{% endif %}">
+
                 <span>
                     <i class="bi bi-bell"></i>
                     Notifications
                 </span>
+
                 {% if nb_notifications_non_lues %}
-                <span class="badge bg-danger rounded-pill">{{ nb_notifications_non_lues }}</span>
+                    <span class="badge bg-danger rounded-pill">
+                        {{ nb_notifications_non_lues }}
+                    </span>
                 {% endif %}
+
             </a>
         </li>
 
@@ -300,4 +347,5 @@
     </div>
 
 </nav>
+
 {% endwith %}
