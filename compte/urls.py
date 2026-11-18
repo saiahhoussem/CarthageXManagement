@@ -22,12 +22,6 @@ urlpatterns = [
     # tableaux de bord
 
     path(
-    "recherche-rapide-admin/",
-    views.recherche_rapide_admin,
-    name="recherche_rapide_admin",
-    ),
-    
-    path(
         "tableau-de-bord/administrateur/",
         views.tableau_bord_admin,
         name="tableau_bord_admin",
@@ -56,12 +50,40 @@ urlpatterns = [
         name="marquer_notification_lue",
     ),
 
+    # recherche rapide (admin)
+
+    path(
+        "recherche-rapide/administrateur/",
+        views.recherche_rapide_admin,
+        name="recherche_rapide_admin",
+    ),
+
     # CRUD Administrateur
 
     path(
         "administrateurs/",
-        views.creer_administrateur, 
+        views.liste_administrateurs,
+        name="liste_administrateurs",
+    ),
+    path(
+        "administrateurs/<int:pk>/",
+        views.detail_administrateur,
+        name="detail_administrateur",
+    ),
+    path(
+        "administrateurs/creer/",
+        views.creer_administrateur,
         name="creer_administrateur"
+    ),
+    path(
+        "administrateurs/<int:pk>/modifier/",
+        views.modifier_administrateur,
+        name="modifier_administrateur",
+    ),
+    path(
+        "administrateurs/<int:pk>/basculer/",
+        views.basculer_statut_administrateur,
+        name="basculer_statut_administrateur",
     ),
 
     # CRUD educateur

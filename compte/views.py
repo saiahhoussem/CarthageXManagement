@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Educateur, User, Parent, Notification, est_administrateur
-from .forms import ConnexionForm, CreationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
+from .models import Administrateur, Educateur, User, Parent, Notification, est_administrateur
+from .forms import ConnexionForm, CreationAdministrateurForm, ModificationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
 from django.utils import timezone
 from django.http import JsonResponse
 from enfants.models import Enfant, Groupe, Activite
@@ -177,6 +178,103 @@ def creer_administrateur(request):
         "compte/creer_administrateur.html",
         {"form": form, "titre_page": "Créer un compte administrateur"},
     )
+
+@login_required
+def liste_administrateurs(request):
+    if not (request.user.is_administrateur or request.user.is_superuser):
+        raise PermissionDenied("Vous n'avez pas accès à cette page.")
+
+    recherche = request.GET.get("q", "").strip()
+
+    administrateurs = Administrateur.objects.all().order_by(
+        "last_name",
+        "first_name"
+    )
+
+    if recherche:
+        administrateurs = administrateurs.filter(
+            Q(first_name__icontains=recherche)
+            | Q(last_name__icontains=recherche)
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": administrateur.id,
+                "nom": administrateur.last_name,
+                "prenom": administrateur.first_name,
+                "email": administrateur.email,
+                "telephone": administrateur.telephone or "",
+                "actif": administrateur.is_active,
+                "url_detail": reverse(
+                    "compte:detail_administrateur",
+                    args=[administrateur.id],
+                ),
+                "url_modifier": reverse(
+                    "compte:modifier_administrateur",
+                    args=[administrateur.id],
+                ),
+            }
+            for administrateur in administrateurs
+        ]
+
+        return JsonResponse({"administrateurs": data})
+
+    return render(
+        request,
+        "compte/liste_administrateurs.html",
+        {
+            "administrateurs": administrateurs,
+            "recherche": recherche,
+        }
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def detail_administrateur(request, pk):
+    administrateur = get_object_or_404(Administrateur, pk=pk)
+    return render(
+        request,
+        "compte/detail_administrateur.html",
+        {"administrateur": administrateur},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def modifier_administrateur(request, pk):
+    administrateur = get_object_or_404(Administrateur, pk=pk)
+
+    if request.method == "POST":
+        form = ModificationAdministrateurForm(request.POST, instance=administrateur)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Les informations ont été mises à jour.")
+            return redirect("compte:detail_administrateur", pk=administrateur.pk)
+        else:
+            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
+    else:
+        form = ModificationAdministrateurForm(instance=administrateur)
+
+    return render(
+        request,
+        "compte/modifier_administrateur.html",
+        {"form": form, "administrateur": administrateur},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def basculer_statut_administrateur(request, pk):
+    administrateur = get_object_or_404(Administrateur, pk=pk)
+    if request.method != "POST":
+        return redirect("compte:detail_administrateur", pk=pk)
+    if administrateur.pk == request.user.pk:
+        messages.error(request, "Vous ne pouvez pas désactiver votre propre compte.")
+        return redirect("compte:detail_administrateur", pk=pk)
+    administrateur.is_active = not administrateur.is_active
+    administrateur.save(update_fields=["is_active"])
+    statut = "activé" if administrateur.is_active else "désactivé"
+    messages.success(request, f"Le compte de {administrateur} a été {statut}.")
+    return redirect("compte:detail_administrateur", pk=pk)
 
 # CRUD Educateur
 
