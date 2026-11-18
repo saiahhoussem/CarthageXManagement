@@ -5,6 +5,7 @@ from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
+from datetime import timedelta
 
 from .models import (
     Activite,
@@ -900,7 +901,7 @@ def liste_activites(request):
             nb_groupes=Count("groupes", distinct=True),
             nb_inscriptions=Count("inscriptions", distinct=True),
         )
-        .order_by("date")
+        .order_by("date", "heure_debut")
     )
 
     if recherche:
@@ -914,6 +915,15 @@ def liste_activites(request):
                 "id": activite.id,
                 "nom": activite.nom,
                 "date": activite.date.strftime("%d/%m/%Y"),
+                "heure_debut": (
+                    activite.heure_debut.strftime("%H:%M")
+                    if activite.heure_debut else None
+                ),
+                "heure_fin": (
+                    activite.heure_fin.strftime("%H:%M")
+                    if activite.heure_fin else None
+                ),
+                "plage_horaire": activite.plage_horaire,
                 "lieu": activite.lieu,
                 "frais": activite.frais_affichage,
                 "places_restantes": activite.places_restantes,
@@ -993,19 +1003,26 @@ def supprimer_activite(request, activite_id):
     activite = get_object_or_404(Activite, id=activite_id)
 
     if request.method == "POST":
-        nom_activite = activite.nom
-        activite.delete()
+        if activite.inscriptions.exists():
+            messages.error(
+                request,
+                "Impossible de supprimer cette activité : "
+                "des enfants y sont inscrits. "
+                "Annulez-la plutôt, ou désinscrivez les enfants d'abord."
+            )
+            return redirect("liste_activites")
 
+        activite.delete()
         messages.success(
             request,
-            f"L'activité « {nom_activite} » a été supprimée avec succès."
+            f"L'activité « {activite.nom} » a été supprimée."
         )
         return redirect("liste_activites")
 
     return render(
         request,
         "activites/supprimer_activite.html",
-        {"activite": activite}
+        {"activite": activite},
     )
 
 @login_required
@@ -1103,6 +1120,14 @@ def mes_activites(request):
                 "nom": activite.nom,
                 "date": activite.date.strftime(
                     "%d/%m/%Y"
+                ),
+                "heure_debut": (                                   
+                    activite.heure_debut.strftime("%H:%M")
+                    if activite.heure_debut else None
+                ),
+                "heure_fin": (                                      
+                    activite.heure_fin.strftime("%H:%M")
+                    if activite.heure_fin else None
                 ),
                 "photo_url": activite.photo_url,
                 "lieu": activite.lieu,
@@ -1851,4 +1876,56 @@ def detail_groupe(request, groupe_id):
             "groupe": groupe,
             "enfants": enfants,
         }
+    )
+
+
+@login_required
+@educateur_requis
+def horaire_educateur(request):
+    """
+    Affiche le calendrier d'horaire de travail de l'éducateur connecté.
+
+    Règle métier :
+      - activités non annulées,
+      - date dans [aujourd'hui, aujourd'hui + 90 jours],
+      - visibles par l'éducateur (ses groupes, ou tous les groupes).
+    """
+    aujourd_hui = timezone.localdate()
+    fin = aujourd_hui + timedelta(days=90)
+
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    activites_qs = (
+        Activite.objects
+        .filter(annulee=False)
+        .filter(date__gte=aujourd_hui, date__lte=fin)
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes", distinct=True))
+        .order_by("date", "heure_debut")
+    )
+
+    activites = [
+        a
+        for a in activites_qs
+        if activite_visible_par(
+            a, a.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ]
+
+    horaire = {}
+    for activite in activites:
+        horaire.setdefault(activite.date, []).append(activite)
+
+    horaire = dict(sorted(horaire.items()))
+
+    return render(
+        request,
+        "enfants/horaire_educateur.html",
+        {
+            "horaire": horaire,
+            "titre_page": "Mon horaire de travail",
+            "nb_activites": len(activites),
+            "aujourd_hui": aujourd_hui,
+        },
     )

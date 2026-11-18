@@ -286,6 +286,8 @@ class ActiviteForm(forms.ModelForm):
         fields = [
             "nom",
             "date",
+            "heure_debut",     
+            "heure_fin",       
             "lieu",
             "frais_inscription",
             "places_disponibles",
@@ -297,6 +299,8 @@ class ActiviteForm(forms.ModelForm):
         labels = {
             "nom": "Nom de l'activité",
             "date": "Date",
+            "heure_debut": "Heure de début",
+            "heure_fin": "Heure de fin",
             "lieu": "Lieu",
             "frais_inscription": "Frais d'inscription ($)",
             "places_disponibles": (
@@ -310,6 +314,12 @@ class ActiviteForm(forms.ModelForm):
         widgets = {
             "date": forms.DateInput(
                 attrs={"type": "date"}
+            ),
+            "heure_debut": forms.TimeInput(
+                attrs={"type": "time", "class": "form-control"}
+            ),
+            "heure_fin": forms.TimeInput(
+                attrs={"type": "time", "class": "form-control"}
             ),
             "places_disponibles": forms.NumberInput(
                 attrs={"min": "1"}
@@ -334,6 +344,12 @@ class ActiviteForm(forms.ModelForm):
                 "required": (
                     "Veuillez indiquer la date de l'activité."
                 )
+            },
+            "heure_debut": {
+                "required": "Veuillez indiquer l'heure de début de l'activité."
+            },
+            "heure_fin": {
+                "required": "Veuillez indiquer l'heure de fin de l'activité."
             },
             "lieu": {
                 "required": (
@@ -367,9 +383,9 @@ class ActiviteForm(forms.ModelForm):
                     "form-control"
                 )
 
-        self.fields[
-            "places_disponibles"
-        ].widget.attrs["min"] = "1"
+        self.fields["places_disponibles"].widget.attrs["min"] = "1"
+        self.fields["heure_debut"].required = True
+        self.fields["heure_fin"].required = True
 
 
 class AccepterDemandeInscriptionForm(forms.Form):

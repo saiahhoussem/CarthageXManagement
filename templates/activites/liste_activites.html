@@ -10,16 +10,11 @@
 
 <main class="container py-5 px-4 px-xl-5">
 
-    <div
-        class="d-flex flex-column flex-md-row
-               justify-content-between align-items-md-center mb-4"
-    >
+    <div class="d-flex flex-column flex-md-row
+               justify-content-between align-items-md-center mb-4">
 
         <div>
-            <h1
-                class="fw-bold mb-1"
-                style="color: #0d274d;"
-            >
+            <h1 class="fw-bold mb-1" style="color: #0d274d;">
                 Activités et événements
             </h1>
 
@@ -28,11 +23,8 @@
             </p>
         </div>
 
-        <a
-            href="{% url 'ajouter_activite' %}"
-            class="btn text-white mt-3 mt-md-0 px-4"
-            style="background-color: #289b7b;"
-        >
+        <a href="{% url 'ajouter_activite' %}" class="btn text-white mt-3 mt-md-0 px-4"
+            style="background-color: #289b7b;">
             <i class="bi bi-plus-circle me-2"></i>
             Ajouter une activité
         </a>
@@ -43,40 +35,22 @@
 
         <div class="card-body">
 
-            <label
-                for="recherche-activite-admin"
-                class="form-label fw-semibold"
-                style="color: #0d274d;"
-            >
+            <label for="recherche-activite-admin" class="form-label fw-semibold" style="color: #0d274d;">
                 <i class="bi bi-search me-1"></i>
                 Rechercher une activité
             </label>
 
             <div class="input-group">
 
-                <input
-                    type="text"
-                    id="recherche-activite-admin"
-                    class="form-control"
-                    placeholder="Nom de l’activité..."
-                    autocomplete="off"
-                    value="{{ recherche|default:'' }}"
-                >
+                <input type="text" id="recherche-activite-admin" class="form-control" placeholder="Nom de l’activité..."
+                    autocomplete="off" value="{{ recherche|default:'' }}">
 
-                <button
-                    type="button"
-                    id="bouton-recherche"
-                    class="btn btn-ck-orange"
-                >
+                <button type="button" id="bouton-recherche" class="btn btn-ck-orange">
                     <i class="bi bi-search"></i>
                     Rechercher
                 </button>
 
-                <button
-                    type="button"
-                    id="reinitialiser-recherche"
-                    class="btn btn-ck-bleu-fonce"
-                >
+                <button type="button" id="reinitialiser-recherche" class="btn btn-ck-bleu-fonce">
                     <i class="bi bi-arrow-counterclockwise"></i>
                     Réinitialiser
                 </button>
@@ -91,175 +65,156 @@
 
         {% if activites %}
 
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
 
-                <div
-                    class="card-header text-white py-3"
-                    style="background-color: #0d274d;"
-                >
-                    <h2 class="h5 mb-0">
-                        Toutes les activités
-                    </h2>
-                </div>
+            <div class="card-header text-white py-3" style="background-color: #0d274d;">
+                <h2 class="h5 mb-0">
+                    Toutes les activités
+                </h2>
+            </div>
 
-                <div class="table-responsive">
+            <div class="table-responsive">
 
-                    <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0">
 
-                        <thead
-                            class="text-white"
-                            style="background-color: #0d274d;"
-                        >
-                            <tr>
-                                <th class="py-3">Nom</th>
-                                <th class="py-3">Date</th>
-                                <th class="py-3">Lieu</th>
-                                <th class="py-3">Frais</th>
-                                <th class="py-3">Places</th>
-                                <th class="py-3">Groupes concernés</th>
-                                <th class="py-3 text-end">Actions</th>
-                            </tr>
-                        </thead>
+                    <thead class="text-white" style="background-color: #0d274d;">
+                        <tr>
+                            <th class="py-3">Nom</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Horaire</th>
+                            <th class="py-3">Lieu</th>
+                            <th class="py-3">Frais</th>
+                            <th class="py-3">Places</th>
+                            <th class="py-3">Groupes concernés</th>
+                            <th class="py-3 text-end">Actions</th>
+                        </tr>
+                    </thead>
 
-                        <tbody>
+                    <tbody>
 
-                            {% for activite in activites %}
+                        {% for activite in activites %}
 
-                                <tr>
+                        <tr>
 
-                                    <td class="fw-semibold">
+                            <td class="fw-semibold">
 
-                                        {{ activite.nom }}
+                                {{ activite.nom }}
 
-                                        {% if activite.annulee %}
-                                            <span class="badge bg-secondary ms-1">
-                                                Annulée
-                                            </span>
-                                        {% endif %}
+                                {% if activite.annulee %}
+                                <span class="badge bg-secondary ms-1">
+                                    Annulée
+                                </span>
+                                {% endif %}
 
-                                    </td>
+                            </td>
 
-                                    <td>
-                                        {{ activite.date|date:"d/m/Y" }}
-                                    </td>
+                            <td>
+                                {{ activite.date|date:"d/m/Y" }}
+                            </td>
 
-                                    <td>
-                                        {{ activite.lieu }}
-                                    </td>
+                            <td class="text-nowrap">
+                                {% if activite.heure_debut and activite.heure_fin %}
+                                {{ activite.heure_debut|time:"H:i" }} – {{ activite.heure_fin|time:"H:i" }}
+                                {% else %}
+                                <span class="text-muted">À préciser</span>
+                                {% endif %}
+                            </td>
 
-                                    <td>
-                                        {{ activite.frais_affichage }}
-                                    </td>
+                            <td>
+                                {{ activite.lieu }}
+                            </td>
 
-                                    <td class="text-nowrap">
-                                        {{ activite.places_restantes }}/{{ activite.places_disponibles }}
-                                    </td>
+                            <td>
+                                {{ activite.frais_affichage }}
+                            </td>
 
-                                    <td class="text-nowrap">
+                            <td class="text-nowrap">
+                                {{ activite.places_restantes }}/{{ activite.places_disponibles }}
+                            </td>
 
-                                        {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
+                            <td class="text-nowrap">
 
-                                            <span class="text-muted">
-                                                Tous les groupes
-                                            </span>
+                                {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
 
-                                        {% else %}
+                                <span class="text-muted">
+                                    Tous les groupes
+                                </span>
 
-                                            <span
-                                                class="badge rounded-pill px-3 py-2"
-                                                style="
+                                {% else %}
+
+                                <span class="badge rounded-pill px-3 py-2" style="
                                                     background-color: #289b7b;
                                                     cursor: default;
                                                 "
-                                                title="{% for groupe in activite.groupes.all %}{{ groupe.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-                                            >
-                                                <i class="bi bi-diagram-3 me-1"></i>
-                                                {{ activite.nb_groupes }}
-                                                groupe{{ activite.nb_groupes|pluralize }}
-                                            </span>
+                                    title="{% for groupe in activite.groupes.all %}{{ groupe.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+                                    <i class="bi bi-diagram-3 me-1"></i>
+                                    {{ activite.nb_groupes }}
+                                    groupe{{ activite.nb_groupes|pluralize }}
+                                </span>
 
-                                        {% endif %}
+                                {% endif %}
 
-                                    </td>
+                            </td>
 
-                                    <td class="text-end text-nowrap">
+                            <td class="text-end text-nowrap">
 
-                                        <a
-                                            href="{% url 'detail_activite' activite.id %}"
-                                            class="btn btn-sm btn-outline-secondary me-1"
-                                            title="Voir"
-                                        >
-                                            <i class="bi bi-eye"></i>
-                                        </a>
+                                <a href="{% url 'detail_activite' activite.id %}"
+                                    class="btn btn-sm btn-outline-secondary me-1" title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
 
-                                        <a
-                                            href="{% url 'modifier_activite' activite.id %}"
-                                            class="btn btn-sm text-white me-1"
-                                            style="background-color: #f49f02;"
-                                            title="Modifier"
-                                        >
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
+                                <a href="{% url 'modifier_activite' activite.id %}" class="btn btn-sm text-white me-1"
+                                    style="background-color: #f49f02;" title="Modifier">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
 
-                                        {% if not activite.annulee %}
+                                {% if not activite.annulee %}
 
-                                            <a
-                                                href="{% url 'annuler_activite' activite.id %}"
-                                                class="btn btn-sm btn-outline-danger me-1"
-                                                title="Annuler"
-                                            >
-                                                <i class="bi bi-x-circle"></i>
-                                            </a>
+                                <a href="{% url 'annuler_activite' activite.id %}"
+                                    class="btn btn-sm btn-outline-danger me-1" title="Annuler">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
 
-                                        {% endif %}
+                                {% endif %}
 
-                                        <a
-                                            href="{% url 'supprimer_activite' activite.id %}"
-                                            class="btn btn-sm btn-danger"
-                                            title="Supprimer"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                <a href="{% url 'supprimer_activite' activite.id %}" class="btn btn-sm btn-danger"
+                                    title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </a>
 
-                                    </td>
+                            </td>
 
-                                </tr>
+                        </tr>
 
-                            {% endfor %}
+                        {% endfor %}
 
-                        </tbody>
+                    </tbody>
 
-                    </table>
-
-                </div>
+                </table>
 
             </div>
+
+        </div>
 
         {% else %}
 
-            <div class="card border-0 shadow-sm rounded-4">
+        <div class="card border-0 shadow-sm rounded-4">
 
-                <div class="card-body text-center py-5">
+            <div class="card-body text-center py-5">
 
-                    <i
-                        class="bi bi-calendar-event fs-1"
-                        style="color: #289b7b;"
-                    ></i>
+                <i class="bi bi-calendar-event fs-1" style="color: #289b7b;"></i>
 
-                    <h2
-                        class="h5 mt-3"
-                        style="color: #0d274d;"
-                    >
-                        Aucune activité
-                    </h2>
+                <h2 class="h5 mt-3" style="color: #0d274d;">
+                    Aucune activité
+                </h2>
 
-                    <p class="text-muted">
-                        Aucune activité n'a encore été créée.
-                    </p>
-
-                </div>
+                <p class="text-muted">
+                    Aucune activité n'a encore été créée.
+                </p>
 
             </div>
+
+        </div>
 
         {% endif %}
 
@@ -268,89 +223,93 @@
 </main>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-    const champRecherche =
-        document.getElementById("recherche-activite-admin");
+        const champRecherche =
+            document.getElementById("recherche-activite-admin");
 
-    const boutonRecherche =
-        document.getElementById("bouton-recherche");
+        const boutonRecherche =
+            document.getElementById("bouton-recherche");
 
-    const boutonReinitialiser =
-        document.getElementById("reinitialiser-recherche");
+        const boutonReinitialiser =
+            document.getElementById("reinitialiser-recherche");
 
-    const conteneurActivites =
-        document.getElementById("conteneur-activites");
+        const conteneurActivites =
+            document.getElementById("conteneur-activites");
 
-    let minuterie;
+        let minuterie;
 
-    function echapperHtml(valeur) {
+        function echapperHtml(valeur) {
 
-        const div =
-            document.createElement("div");
+            const div =
+                document.createElement("div");
 
-        div.textContent =
-            valeur ?? "";
+            div.textContent =
+                valeur ?? "";
 
-        return div.innerHTML;
-    }
+            return div.innerHTML;
+        }
 
-    function afficherActivites(activites) {
+        function afficherActivites(activites) {
 
-        if (activites.length === 0) {
+            if (activites.length === 0) {
 
-            conteneurActivites.innerHTML = `
+                conteneurActivites.innerHTML = `
                 <div class="alert alert-info">
                     Aucune activité ne correspond à votre recherche.
                 </div>
             `;
 
-            return;
-        }
+                return;
+            }
 
-        let lignes = "";
+            let lignes = "";
 
-        activites.forEach(function (activite) {
+            activites.forEach(function (activite) {
 
-            const nom =
-                echapperHtml(activite.nom);
+                const nom =
+                    echapperHtml(activite.nom);
 
-            const date =
-                echapperHtml(activite.date);
+                const date =
+                    echapperHtml(activite.date);
 
-            const lieu =
-                echapperHtml(activite.lieu);
+                const horaire = activite.heure_debut && activite.heure_fin
+                    ? `${echapperHtml(activite.heure_debut)} – ${echapperHtml(activite.heure_fin)}`
+                    : `<span class="text-muted">À préciser</span>`;
 
-            const frais =
-                echapperHtml(activite.frais);
+                const lieu =
+                    echapperHtml(activite.lieu);
 
-            const placesRestantes =
-                Number(activite.places_restantes) || 0;
+                const frais =
+                    echapperHtml(activite.frais);
 
-            const placesDisponibles =
-                Number(activite.places_disponibles) || 0;
+                const placesRestantes =
+                    Number(activite.places_restantes) || 0;
 
-            let groupes;
+                const placesDisponibles =
+                    Number(activite.places_disponibles) || 0;
 
-            if (
-                activite.nb_groupes === 0
-                || activite.nb_groupes === activite.total_groupes
-            ) {
+                let groupes;
 
-                groupes = `
+                if (
+                    activite.nb_groupes === 0
+                    || activite.nb_groupes === activite.total_groupes
+                ) {
+
+                    groupes = `
                     <span class="text-muted">
                         Tous les groupes
                     </span>
                 `;
 
-            } else {
+                } else {
 
-                const nomsGroupes =
-                    (activite.groupes || [])
-                        .map(echapperHtml)
-                        .join(", ");
+                    const nomsGroupes =
+                        (activite.groupes || [])
+                            .map(echapperHtml)
+                            .join(", ");
 
-                groupes = `
+                    groupes = `
                     <span
                         class="badge rounded-pill px-3 py-2"
                         style="
@@ -364,21 +323,21 @@ document.addEventListener("DOMContentLoaded", function () {
                         groupe${activite.nb_groupes > 1 ? "s" : ""}
                     </span>
                 `;
-            }
+                }
 
-            const badgeAnnulee =
-                activite.annulee
-                    ? `
+                const badgeAnnulee =
+                    activite.annulee
+                        ? `
                         <span class="badge bg-secondary ms-1">
                             Annulée
                         </span>
                     `
-                    : "";
+                        : "";
 
-            const boutonAnnuler =
-                activite.annulee
-                    ? ""
-                    : `
+                const boutonAnnuler =
+                    activite.annulee
+                        ? ""
+                        : `
                         <a
                             href="${echapperHtml(activite.url_annuler)}"
                             class="btn btn-sm btn-outline-danger me-1"
@@ -388,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </a>
                     `;
 
-            lignes += `
+                lignes += `
                 <tr>
 
                     <td class="fw-semibold">
@@ -398,6 +357,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <td>
                         ${date}
+                    </td>
+
+                    <td class="text-nowrap">
+                        ${horaire}
                     </td>
 
                     <td>
@@ -449,9 +412,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 </tr>
             `;
-        });
+            });
 
-        conteneurActivites.innerHTML = `
+            conteneurActivites.innerHTML = `
             <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
 
                 <div
@@ -474,6 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <tr>
                                 <th class="py-3">Nom</th>
                                 <th class="py-3">Date</th>
+                                <th class="py-3">Horaire</th>
                                 <th class="py-3">Lieu</th>
                                 <th class="py-3">Frais</th>
                                 <th class="py-3">Places</th>
@@ -492,94 +456,94 @@ document.addEventListener("DOMContentLoaded", function () {
 
             </div>
         `;
-    }
+        }
 
-    function rechercherActivites() {
+        function rechercherActivites() {
 
-        const recherche =
-            champRecherche.value.trim();
+            const recherche =
+                champRecherche.value.trim();
 
-        fetch(
-            "{% url 'liste_activites' %}?q="
-            + encodeURIComponent(recherche),
-            {
-                headers: {
-                    "X-Requested-With":
-                        "XMLHttpRequest"
+            fetch(
+                "{% url 'liste_activites' %}?q="
+                + encodeURIComponent(recherche),
+                {
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest"
+                    }
                 }
-            }
-        )
-        .then(response => {
+            )
+                .then(response => {
 
-            if (!response.ok) {
-                throw new Error(
-                    "Erreur lors de la recherche."
-                );
-            }
+                    if (!response.ok) {
+                        throw new Error(
+                            "Erreur lors de la recherche."
+                        );
+                    }
 
-            return response.json();
-        })
-        .then(data => {
+                    return response.json();
+                })
+                .then(data => {
 
-            afficherActivites(
-                data.activites
-            );
+                    afficherActivites(
+                        data.activites
+                    );
 
-        })
-        .catch(error => {
+                })
+                .catch(error => {
 
-            console.error(error);
+                    console.error(error);
 
-            conteneurActivites.innerHTML = `
+                    conteneurActivites.innerHTML = `
                 <div class="alert alert-danger">
                     Impossible d'effectuer la recherche.
                 </div>
             `;
-        });
-    }
+                });
+        }
 
-    boutonRecherche.addEventListener(
-        "click",
-        rechercherActivites
-    );
+        boutonRecherche.addEventListener(
+            "click",
+            rechercherActivites
+        );
 
-    champRecherche.addEventListener(
-        "keydown",
-        function (event) {
+        champRecherche.addEventListener(
+            "keydown",
+            function (event) {
 
-            if (event.key === "Enter") {
-                event.preventDefault();
-                rechercherActivites();
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    rechercherActivites();
+                }
             }
-        }
-    );
+        );
 
-    champRecherche.addEventListener(
-        "input",
-        function () {
+        champRecherche.addEventListener(
+            "input",
+            function () {
 
-            clearTimeout(minuterie);
+                clearTimeout(minuterie);
 
-            minuterie = setTimeout(
-                rechercherActivites,
-                300
-            );
-        }
-    );
+                minuterie = setTimeout(
+                    rechercherActivites,
+                    300
+                );
+            }
+        );
 
-    boutonReinitialiser.addEventListener(
-        "click",
-        function () {
+        boutonReinitialiser.addEventListener(
+            "click",
+            function () {
 
-            champRecherche.value = "";
+                champRecherche.value = "";
 
-            rechercherActivites();
+                rechercherActivites();
 
-            champRecherche.focus();
-        }
-    );
+                champRecherche.focus();
+            }
+        );
 
-});
+    });
 </script>
 
 {% endblock %}
