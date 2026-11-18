@@ -22,6 +22,12 @@ urlpatterns = [
     # tableaux de bord
 
     path(
+    "recherche-rapide-admin/",
+    views.recherche_rapide_admin,
+    name="recherche_rapide_admin",
+    ),
+    
+    path(
         "tableau-de-bord/administrateur/",
         views.tableau_bord_admin,
         name="tableau_bord_admin",

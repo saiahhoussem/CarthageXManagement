@@ -1,8 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.db.models import Count
+from django.db.models import Count, Prefetch, Q
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
+from django.utils import timezone
+from django.http import JsonResponse
+from datetime import timedelta
+
 from .models import (
     Activite,
     Enfant,
@@ -15,8 +19,9 @@ from .models import (
     Paiement,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
+    Presence,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm, PaiementCarteForm
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm, PaiementCarteForm, PresenceParentForm, PresenceEducateurForm, PresenceAdminForm
 from compte.models import creer_notification, Parent
 
 from django.contrib.auth.decorators import login_required
@@ -27,7 +32,6 @@ from .decorators import (
     parent_requis,
     educateur_requis,
     educateur_ou_parent_requis,
-    administrateur_educateur_ou_parent_requis,
 )
 
 
@@ -400,15 +404,33 @@ def supprimer_personne_autorisee(request, personne_id):
 @login_required
 @educateur_requis
 def mon_groupe(request):
+    enfants_actifs = Enfant.objects.filter(
+        actif=True
+    ).order_by(
+        "nom",
+        "prenom"
+    )
 
-    groupes = Groupe.objects.filter(
-        educateur__pk=request.user.pk
-    ).prefetch_related("enfant_set")
+    groupes = (
+        Groupe.objects
+        .filter(
+            educateur__pk=request.user.pk
+        )
+        .prefetch_related(
+            Prefetch(
+                "enfant_set",
+                queryset=enfants_actifs
+            )
+        )
+    )
 
-    return render(request, "mon_groupe.html", {
-        "groupes": groupes
-    })
-
+    return render(
+        request,
+        "mon_groupe.html",
+        {
+            "groupes": groupes
+        }
+    )
 
 @login_required
 @parent_requis
@@ -424,24 +446,71 @@ def mes_enfants(request):
     })
 
 
+
 @login_required
 @administrateur_requis
 def liste_enfants(request):
     statut = request.GET.get("statut")
+    recherche = request.GET.get("q", "").strip()
+
     actif = statut != "archives"
 
     enfants = (
         Enfant.objects
         .filter(actif=actif)
         .select_related("groupe")
-        .order_by("nom", "prenom")
     )
 
-    return render(request, "enfants/liste_enfants.html", {
-        "enfants": enfants,
-        "statut": statut or "actifs",
-    })
+    if recherche:
+        enfants = enfants.filter(
+            Q(prenom__icontains=recherche)
+            | Q(nom__icontains=recherche)
+        )
 
+    enfants = enfants.order_by("nom", "prenom")
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": enfant.id,
+                "nom": enfant.nom,
+                "prenom": enfant.prenom,
+                "date_naissance": enfant.date_naissance.strftime("%Y-%m-%d"),
+                "groupe": (
+                    enfant.groupe.nom
+                    if enfant.groupe
+                    else "Non assigné"
+                ),
+                "actif": enfant.actif,
+                "url_detail": reverse(
+                    "fiche_enfant",
+                    args=[enfant.id],
+                ),
+                "url_statut": reverse(
+                    "basculer_statut_enfant",
+                    args=[enfant.id],
+                ),
+            }
+            for enfant in enfants
+        ]
+
+        return JsonResponse(
+            {
+                "enfants": data,
+                "statut": statut or "actifs",
+                "recherche": recherche,
+            }
+        )
+
+    return render(
+        request,
+        "enfants/liste_enfants.html",
+        {
+            "enfants": enfants,
+            "statut": statut or "actifs",
+            "recherche": recherche,
+        }
+    )
 
 @login_required
 @administrateur_requis
@@ -480,12 +549,57 @@ def ajouter_groupe(request):
 @login_required
 @administrateur_requis
 def liste_groupes(request):
-    groupes = Groupe.objects.select_related("educateur").all()
+    recherche = request.GET.get("q", "").strip()
+
+    groupes = (
+        Groupe.objects
+        .select_related("educateur")
+        .order_by("nom")
+    )
+
+    if recherche:
+        groupes = groupes.filter(
+            nom__icontains=recherche
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": groupe.id,
+                "nom": groupe.nom,
+                "tranche_age": groupe.get_tranche_age_display(),
+                "capacite": groupe.capacite,
+                "educateur": (
+                    groupe.educateur.get_full_name()
+                    if groupe.educateur
+                    else "Non assigné"
+                ),
+                "places_restantes": groupe.places_restantes,
+                "url_detail": reverse(
+                    "detail_groupe",
+                    args=[groupe.id],
+                ),
+                "url_modifier": reverse(
+                    "modifier_groupe",
+                    args=[groupe.id],
+                ),
+                "url_supprimer": reverse(
+                    "supprimer_groupe",
+                    args=[groupe.id],
+                ),
+            }
+            for groupe in groupes
+        ]
+
+        return JsonResponse({"groupes": data})
 
     return render(
         request,
         "groupes/liste_groupes.html",
-        {"groupes": groupes}
+        {
+            "groupes": groupes,
+            "recherche": recherche,
+        }
     )
 
 @login_required
@@ -777,6 +891,10 @@ def ajouter_activite(request):
 @login_required
 @administrateur_requis
 def liste_activites(request):
+    recherche = request.GET.get("q", "").strip()
+
+    total_groupes = Groupe.objects.count()
+
     activites = (
         Activite.objects
         .prefetch_related("groupes")
@@ -784,18 +902,73 @@ def liste_activites(request):
             nb_groupes=Count("groupes", distinct=True),
             nb_inscriptions=Count("inscriptions", distinct=True),
         )
-        .order_by("date")
+        .order_by("date", "heure_debut")
     )
+
+    if recherche:
+        activites = activites.filter(
+            nom__icontains=recherche
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = [
+            {
+                "id": activite.id,
+                "nom": activite.nom,
+                "date": activite.date.strftime("%d/%m/%Y"),
+                "heure_debut": (
+                    activite.heure_debut.strftime("%H:%M")
+                    if activite.heure_debut else None
+                ),
+                "heure_fin": (
+                    activite.heure_fin.strftime("%H:%M")
+                    if activite.heure_fin else None
+                ),
+                "plage_horaire": activite.plage_horaire,
+                "lieu": activite.lieu,
+                "frais": activite.frais_affichage,
+                "places_restantes": activite.places_restantes,
+                "places_disponibles": activite.places_disponibles,
+                "nb_groupes": activite.nb_groupes,
+                "total_groupes": total_groupes,
+                "groupes": [
+                    groupe.nom
+                    for groupe in activite.groupes.all()
+                ],
+                "annulee": activite.annulee,
+                "url_detail": reverse(
+                    "detail_activite",
+                    args=[activite.id],
+                ),
+                "url_modifier": reverse(
+                    "modifier_activite",
+                    args=[activite.id],
+                ),
+                "url_annuler": reverse(
+                    "annuler_activite",
+                    args=[activite.id],
+                ),
+                "url_supprimer": reverse(
+                    "supprimer_activite",
+                    args=[activite.id],
+                ),
+            }
+            for activite in activites
+        ]
+
+        return JsonResponse({
+            "activites": data
+        })
 
     return render(
         request,
         "activites/liste_activites.html",
         {
             "activites": activites,
-            "total_groupes": Groupe.objects.count(),
+            "total_groupes": total_groupes,
+            "recherche": recherche,
         }
     )
-
 
 @login_required
 @administrateur_requis
@@ -831,21 +1004,27 @@ def supprimer_activite(request, activite_id):
     activite = get_object_or_404(Activite, id=activite_id)
 
     if request.method == "POST":
-        nom_activite = activite.nom
-        activite.delete()
+        if activite.inscriptions.exists():
+            messages.error(
+                request,
+                "Impossible de supprimer cette activité : "
+                "des enfants y sont inscrits. "
+                "Annulez-la plutôt, ou désinscrivez les enfants d'abord."
+            )
+            return redirect("liste_activites")
 
+        activite.delete()
         messages.success(
             request,
-            f"L'activité « {nom_activite} » a été supprimée avec succès."
+            f"L'activité « {activite.nom} » a été supprimée."
         )
         return redirect("liste_activites")
 
     return render(
         request,
         "activites/supprimer_activite.html",
-        {"activite": activite}
+        {"activite": activite},
     )
-
 
 @login_required
 @administrateur_requis
@@ -891,29 +1070,93 @@ def annuler_activite(request, activite_id):
 @login_required
 @educateur_ou_parent_requis
 def mes_activites(request):
+    recherche = request.GET.get("q", "").strip()
+
     total_groupes = Groupe.objects.count()
-    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(
+        request.user
+    )
 
     toutes_les_activites = (
         Activite.objects
         .prefetch_related("groupes")
         .annotate(
             nb_groupes=Count("groupes", distinct=True),
-            nb_inscriptions=Count("inscriptions", distinct=True),
+            nb_inscriptions=Count(
+                "inscriptions",
+                distinct=True
+            ),
         )
         .order_by("date")
     )
 
-    # Filtré en Python (pas en SQL) pour pouvoir réutiliser nb_groupes/
-    # total_groupes déjà annotés/calculés, sans requête supplémentaire par
-    # activité ni double comptage via une jointure sur groupes.
     activites = [
         activite
         for activite in toutes_les_activites
         if activite_visible_par(
-            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+            activite,
+            activite.nb_groupes,
+            total_groupes,
+            groupes_pertinents,
         )
     ]
+
+    if recherche:
+        recherche_min = recherche.lower()
+
+        activites = [
+            activite
+            for activite in activites
+            if recherche_min in activite.nom.lower()
+        ]
+
+    if (
+        request.headers.get("X-Requested-With")
+        == "XMLHttpRequest"
+    ):
+        data = [
+            {
+                "id": activite.id,
+                "nom": activite.nom,
+                "date": activite.date.strftime(
+                    "%d/%m/%Y"
+                ),
+                "heure_debut": (                                   
+                    activite.heure_debut.strftime("%H:%M")
+                    if activite.heure_debut else None
+                ),
+                "heure_fin": (                                      
+                    activite.heure_fin.strftime("%H:%M")
+                    if activite.heure_fin else None
+                ),
+                "photo_url": activite.photo_url,
+                "lieu": activite.lieu,
+                "description": activite.description,
+                "places_restantes": (
+                    activite.places_restantes
+                ),
+                "frais_affichage": (
+                    activite.frais_affichage
+                ),
+                "groupes": [
+                    {
+                        "id": groupe.id,
+                        "nom": groupe.nom,
+                    }
+                    for groupe
+                    in activite.groupes.all()
+                ],
+                "nb_groupes": activite.nb_groupes,
+                "total_groupes": total_groupes,
+                "annulee": activite.annulee,
+            }
+            for activite in activites
+        ]
+
+        return JsonResponse({
+            "activites": data
+        })
 
     return render(
         request,
@@ -921,12 +1164,11 @@ def mes_activites(request):
         {
             "activites": activites,
             "total_groupes": total_groupes,
+            "recherche": recherche,
         }
     )
 
-
 @login_required
-@administrateur_educateur_ou_parent_requis
 def detail_activite(request, activite_id):
     activite = get_object_or_404(
         Activite.objects.prefetch_related("groupes", "inscriptions__enfant")
@@ -985,6 +1227,420 @@ def detail_activite(request, activite_id):
         contexte,
     )
 
+@login_required
+@parent_requis
+def signaler_presence(request):
+    parent = request.user.parent
+
+    if request.method == "POST":
+        form = PresenceParentForm(
+            request.POST,
+            parent=parent
+        )
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.parent = parent
+            presence.source_signalement = Presence.SourceSignalement.PARENT
+
+            presence.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été enregistré."
+            )
+
+            return redirect("historique_presences_parent")
+
+    else:
+        form = PresenceParentForm(
+            parent=parent
+        )
+
+    return render(
+        request,
+        "presences/signaler_presence.html",
+        {
+            "form": form,
+        }
+    )
+
+@login_required
+@parent_requis
+def historique_presences_parent(request):
+    parent = request.user.parent
+    recherche = request.GET.get("q", "").strip()
+    today = timezone.localdate()
+
+    presences = (
+        Presence.objects
+        .filter(parent=parent)
+        .select_related("enfant")
+        .order_by("-date_signalement")
+    )
+
+    if recherche:
+        presences = presences.filter(
+            Q(enfant__prenom__icontains=recherche)
+            | Q(enfant__nom__icontains=recherche)
+        )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        data = []
+
+        for presence in presences:
+            date_limite = presence.date_fin or presence.date
+
+            data.append(
+                {
+                    "id": presence.id,
+                    "enfant": (
+                        f"{presence.enfant.prenom} "
+                        f"{presence.enfant.nom}"
+                    ),
+                    "type": presence.get_type_display(),
+                    "date": presence.date.strftime("%d/%m/%Y"),
+                    "date_fin": (
+                        presence.date_fin.strftime("%d/%m/%Y")
+                        if presence.date_fin
+                        else ""
+                    ),
+                    "heure": presence.heure.strftime("%H:%M"),
+                    "heure_fin": (
+                        presence.heure_fin.strftime("%H:%M")
+                        if presence.heure_fin
+                        else ""
+                    ),
+                    "motif": presence.motif,
+                    "source": (
+                        presence.get_source_signalement_display()
+                    ),
+                    "date_signalement": (
+                        timezone.localtime(
+                            presence.date_signalement
+                        ).strftime("%d/%m/%Y %H:%M")
+                    ),
+                    "modifiable": date_limite >= today,
+                    "url_modifier": reverse(
+                        "modifier_presence_parent",
+                        args=[presence.id],
+                    ),
+                    "url_supprimer": reverse(
+                        "supprimer_presence_parent",
+                        args=[presence.id],
+                    ),
+                }
+            )
+
+        return JsonResponse({
+            "presences": data
+        })
+
+    return render(
+        request,
+        "presences/historique_parent.html",
+        {
+            "presences": presences,
+            "today": today,
+            "recherche": recherche,
+        }
+    )
+
+
+@login_required
+@educateur_requis
+def enregistrer_presence(request):
+    educateur = request.user.educateur
+
+    enfant_id = request.GET.get("enfant")
+
+    if request.method == "POST":
+        form = PresenceEducateurForm(
+            request.POST,
+            educateur=educateur
+        )
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.educateur = educateur
+            presence.source_signalement = (
+                Presence.SourceSignalement.EDUCATEUR
+            )
+
+            presence.save()
+
+            messages.success(
+                request,
+                "La présence a bien été enregistrée."
+            )
+
+            # Retour direct au groupe pour continuer rapidement
+            # la prise de présence.
+            return redirect("mon_groupe")
+
+    else:
+        maintenant = timezone.localtime()
+
+        initial = {
+            "type": Presence.Type.ABSENCE,
+            "date": maintenant.date(),
+            "heure": maintenant.time().replace(
+                second=0,
+                microsecond=0
+            ),
+            "motif": "RAS",
+        }
+
+        if enfant_id:
+            initial["enfant"] = enfant_id
+
+        form = PresenceEducateurForm(
+            educateur=educateur,
+            initial=initial
+        )
+
+    return render(
+        request,
+        "presences/enregistrer_presence.html",
+        {
+            "form": form
+        }
+    )
+
+@login_required
+@administrateur_requis
+def enregistrer_presence_admin(request):
+
+    if request.method == "POST":
+        form = PresenceAdminForm(request.POST)
+
+        if form.is_valid():
+            presence = form.save(commit=False)
+
+            presence.source_signalement = (
+                Presence.SourceSignalement.ADMINISTRATEUR
+            )
+
+            presence.save()
+
+            messages.success(
+                request,
+                "L'absence ou le retard a bien été enregistré."
+            )
+
+            return redirect("registre_presences")
+
+    else:
+        form = PresenceAdminForm()
+
+    return render(
+        request,
+        "presences/enregistrer_presence_admin.html",
+        {
+            "form": form,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def modifier_presence_admin(request, presence_id):
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id
+    )
+
+    if request.method == "POST":
+        form = PresenceAdminForm(
+            request.POST,
+            instance=presence
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été modifié."
+            )
+
+            return redirect("registre_presences")
+
+    else:
+        form = PresenceAdminForm(
+            instance=presence
+        )
+
+    return render(
+        request,
+        "presences/modifier_presence_admin.html",
+        {
+            "form": form,
+            "presence": presence,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def supprimer_presence_admin(request, presence_id):
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id
+    )
+
+    if request.method == "POST":
+        presence.delete()
+
+        messages.success(
+            request,
+            "Le signalement a bien été supprimé."
+        )
+
+        return redirect("registre_presences")
+
+    return render(
+        request,
+        "presences/supprimer_presence_admin.html",
+        {
+            "presence": presence,
+        }
+    )
+
+
+
+@login_required
+@educateur_requis
+def historique_presences_educateur(request):
+    educateur = request.user.educateur
+
+    presences = (
+        Presence.objects
+        .filter(enfant__groupe__educateur=educateur)
+        .select_related("enfant")
+        .order_by("-date", "-heure")
+    )
+
+    return render(
+        request,
+        "presences/historique_educateur.html",
+        {
+            "presences": presences,
+        }
+    )
+
+
+@login_required
+@administrateur_requis
+def registre_presences(request):
+    presences = (
+        Presence.objects
+        .select_related(
+            "enfant",
+            "enfant__groupe",
+        )
+        .order_by("-date", "-heure")
+    )
+
+    groupe_id = request.GET.get("groupe")
+    date = request.GET.get("date")
+    enfant_id = request.GET.get("enfant")
+
+    if groupe_id:
+        presences = presences.filter(
+            enfant__groupe_id=groupe_id
+        )
+
+    if date:
+        presences = presences.filter(
+            date=date
+        )
+
+    if enfant_id:
+        presences = presences.filter(
+            enfant_id=enfant_id
+        )
+
+    groupes = Groupe.objects.order_by("nom")
+
+    enfants = Enfant.objects.order_by(
+        "nom",
+        "prenom"
+    )
+
+    if groupe_id:
+        enfants = enfants.filter(
+            groupe_id=groupe_id
+        )
+
+    return render(
+        request,
+        "presences/registre_presences.html",
+        {
+            "presences": presences,
+            "groupes": groupes,
+            "enfants": enfants,
+            "groupe_selectionne": groupe_id,
+            "date_selectionnee": date,
+            "enfant_selectionne": enfant_id,
+        }
+    )
+
+
+
+@login_required
+@parent_requis
+def modifier_presence_parent(request, presence_id):
+    parent = request.user.parent
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        parent=parent
+    )
+
+    date_limite = presence.date_fin or presence.date
+
+    if date_limite < timezone.now().date():
+        messages.error(
+            request,
+            "Ce signalement ne peut plus être modifié, car sa période est terminée."
+        )
+        return redirect("historique_presences_parent")
+
+    if request.method == "POST":
+        form = PresenceParentForm(
+            request.POST,
+            instance=presence,
+            parent=parent
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été modifié."
+            )
+
+            return redirect("historique_presences_parent")
+
+    else:
+        form = PresenceParentForm(
+            instance=presence,
+            parent=parent
+        )
+
+    return render(
+        request,
+        "presences/modifier_presence_parent.html",
+        {
+            "form": form,
+            "presence": presence,
+        }
+    )
 
 @login_required
 @parent_requis
@@ -1038,6 +1694,147 @@ def inscrire_activite(request, activite_id):
 
 @login_required
 @parent_requis
+def supprimer_presence_parent(request, presence_id):
+    parent = request.user.parent
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        parent=parent
+    )
+
+    date_limite = presence.date_fin or presence.date
+
+    if date_limite < timezone.now().date():
+        messages.error(
+            request,
+            "Ce signalement ne peut plus être supprimé, car sa période est terminée."
+        )
+        return redirect("historique_presences_parent")
+
+    if request.method == "POST":
+        presence.delete()
+
+        messages.success(
+            request,
+            "Le signalement a bien été supprimé."
+        )
+
+        return redirect("historique_presences_parent")
+
+    return render(
+        request,
+        "presences/supprimer_presence_parent.html",
+        {
+            "presence": presence,
+        }
+    )
+
+@login_required
+@administrateur_requis
+def enfants_par_groupe(request):
+    groupe_id = request.GET.get("groupe")
+
+    enfants = Enfant.objects.filter(
+        groupe_id=groupe_id
+    ).order_by("nom", "prenom")
+
+    data = [
+        {
+            "id": enfant.id,
+            "nom": f"{enfant.prenom} {enfant.nom}"
+        }
+        for enfant in enfants
+    ]
+
+    return JsonResponse(
+        {
+            "enfants": data
+        }
+    )
+
+
+
+@login_required
+@educateur_requis
+def modifier_presence_educateur(request, presence_id):
+    educateur = request.user.educateur
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        educateur=educateur,
+        enfant__groupe__educateur=educateur,
+    )
+
+    if request.method == "POST":
+        form = PresenceEducateurForm(
+            request.POST,
+            instance=presence,
+            educateur=educateur,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Le signalement a bien été modifié."
+            )
+
+            return redirect(
+                "historique_presences_educateur"
+            )
+
+    else:
+        form = PresenceEducateurForm(
+            instance=presence,
+            educateur=educateur,
+        )
+
+    return render(
+        request,
+        "presences/modifier_presence_educateur.html",
+        {
+            "form": form,
+            "presence": presence,
+        }
+    )
+
+
+@login_required
+@educateur_requis
+def supprimer_presence_educateur(request, presence_id):
+    educateur = request.user.educateur
+
+    presence = get_object_or_404(
+        Presence,
+        id=presence_id,
+        educateur=educateur,
+        enfant__groupe__educateur=educateur,
+    )
+
+    if request.method == "POST":
+        presence.delete()
+
+        messages.success(
+            request,
+            "Le signalement a bien été supprimé."
+        )
+
+        return redirect(
+            "historique_presences_educateur"
+        )
+
+    return render(
+        request,
+        "presences/supprimer_presence_educateur.html",
+        {
+            "presence": presence,
+        }
+    )
+
+
 def desinscrire_activite(request, inscription_id):
     inscription = get_object_or_404(
         InscriptionActivite,
@@ -1115,3 +1912,79 @@ def payer_inscription(request, inscription_id):
         "activite": activite,
         "form": form,
     })
+
+
+@login_required
+@administrateur_requis
+def detail_groupe(request, groupe_id):
+    groupe = get_object_or_404(
+        Groupe.objects.select_related("educateur"),
+        id=groupe_id,
+    )
+
+    enfants = (
+        Enfant.objects
+        .filter(groupe=groupe)
+        .order_by("nom", "prenom")
+    )
+
+    return render(
+        request,
+        "groupes/detail_groupe.html",
+        {
+            "groupe": groupe,
+            "enfants": enfants,
+        }
+    )
+
+
+@login_required
+@educateur_requis
+def horaire_educateur(request):
+    """
+    Affiche le calendrier d'horaire de travail de l'éducateur connecté.
+
+    Règle métier :
+      - activités non annulées,
+      - date dans [aujourd'hui, aujourd'hui + 90 jours],
+      - visibles par l'éducateur (ses groupes, ou tous les groupes).
+    """
+    aujourd_hui = timezone.localdate()
+    fin = aujourd_hui + timedelta(days=90)
+
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    activites_qs = (
+        Activite.objects
+        .filter(annulee=False)
+        .filter(date__gte=aujourd_hui, date__lte=fin)
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes", distinct=True))
+        .order_by("date", "heure_debut")
+    )
+
+    activites = [
+        a
+        for a in activites_qs
+        if activite_visible_par(
+            a, a.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ]
+
+    horaire = {}
+    for activite in activites:
+        horaire.setdefault(activite.date, []).append(activite)
+
+    horaire = dict(sorted(horaire.items()))
+
+    return render(
+        request,
+        "enfants/horaire_educateur.html",
+        {
+            "horaire": horaire,
+            "titre_page": "Mon horaire de travail",
+            "nb_activites": len(activites),
+            "aujourd_hui": aujourd_hui,
+        },
+    )

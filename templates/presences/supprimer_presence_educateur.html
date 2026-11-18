@@ -1,0 +1,92 @@
+
+
+{% extends "base.html" %}
+
+{% block title %}Supprimer le signalement{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main> <div class="container py-5">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h1 class="h4 mb-3">
+                Supprimer le signalement
+            </h1>
+
+            <p>
+                Voulez-vous vraiment supprimer ce signalement ?
+            </p>
+
+            <div class="mb-4">
+
+                <p class="mb-1">
+                    <strong>Enfant :</strong>
+                    {{ presence.enfant.prenom }}
+                    {{ presence.enfant.nom }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Type :</strong>
+                    {{ presence.get_type_display }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Date :</strong>
+                    {{ presence.date|date:"d/m/Y" }}
+                </p>
+
+                {% if presence.date_fin %}
+                    <p class="mb-1">
+                        <strong>Date de fin :</strong>
+                        {{ presence.date_fin|date:"d/m/Y" }}
+                    </p>
+                {% endif %}
+
+                <p class="mb-0">
+                    <strong>Motif :</strong>
+                    {{ presence.motif }}
+                </p>
+
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Supprimer
+                </button>
+
+                <a
+                    href="{% url 'historique_presences_educateur' %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</main> {% endblock %}
+
+
+
+
+
+
+
+
+
+
+

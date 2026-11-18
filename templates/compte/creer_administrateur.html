@@ -23,15 +23,6 @@
                     <h1>Créer un compte administrateur</h1>
                 </header>
 
-                {% if messages %}
-                {% for message in messages %}
-                <div class="alerte-carthage alerte-carthage-{{ message.tags }}" role="alert">
-                    <span class="alerte-carthage-icone"></span>
-                    <div>{{ message }}</div>
-                </div>
-                {% endfor %}
-                {% endif %}
-
                 <form method="post" novalidate>
                     {% csrf_token %}
 

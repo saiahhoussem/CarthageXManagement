@@ -11,8 +11,6 @@
 {% include "components/sidebar_menu.html" %}
 {% endblock %}
 
-{% block messages %}{% endblock %}
-
 {% block content %}
 <main>
     <div class="carte-formulaire">
@@ -22,16 +20,6 @@
                 <header class="text-center mb-4">
                     <h1>Créer un compte éducateur</h1>
                 </header>
-
-                {% if messages %}
-                {% for message in messages %}
-                <div class="alerte-carthage alerte-carthage-{{ message.tags }}" role="alert">
-                    <span class="alerte-carthage-icone"></span>
-                    <div>{{ message }}</div>
-                </div>
-                {% endfor %}
-                {% endif %}
-
                 <form method="post" novalidate>
                     {% csrf_token %}
 
