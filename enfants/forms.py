@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.db.models import Count, F
 
@@ -279,3 +281,31 @@ class PaiementCarteForm(forms.Form):
 
         for field in self.fields.values():
             field.widget.attrs.setdefault("class", "form-control")
+
+    def clean_numero_carte(self):
+        valeur = self.cleaned_data["numero_carte"]
+        chiffres = valeur.replace(" ", "")
+
+        if not chiffres.isdigit():
+            raise forms.ValidationError("Le numéro de carte ne doit contenir que des chiffres.")
+
+        if len(chiffres) < 13 or len(chiffres) > 19:
+            raise forms.ValidationError("Le numéro de carte doit contenir entre 13 et 19 chiffres.")
+
+        return valeur
+
+    def clean_expiration(self):
+        valeur = self.cleaned_data["expiration"]
+
+        if not re.fullmatch(r"(0[1-9]|1[0-2])/\d{2}", valeur):
+            raise forms.ValidationError("La date d'expiration doit être au format MM/AA.")
+
+        return valeur
+
+    def clean_cvv(self):
+        valeur = self.cleaned_data["cvv"]
+
+        if not re.fullmatch(r"\d{3,4}", valeur):
+            raise forms.ValidationError("Le code CVV doit contenir 3 ou 4 chiffres.")
+
+        return valeur
