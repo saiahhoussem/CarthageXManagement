@@ -122,14 +122,14 @@
                                 class="btn btn-sm btn-ck-bleu-clair"
                                 title="Voir le détail"
                             >
-                                <i class="bi bi-eye"></i>
+                                <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
                             </a>
 
                             <a
                                 href="{% url 'modifier_groupe' groupe.id %}"
                                 class="btn btn-sm btn-ck-orange"
                             >
-                                <i class="bi bi-pencil"></i>
+                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
                                 Modifier
                             </a>
 
@@ -137,7 +137,7 @@
                                 href="{% url 'supprimer_groupe' groupe.id %}"
                                 class="btn btn-sm btn-danger"
                             >
-                                <i class="bi bi-trash"></i>
+                                <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt="">
                                 Supprimer
                             </a>
 
@@ -151,13 +151,13 @@
 
             </table>
 
-            {% else %}
+        {% else %}
 
-            <div class="alert alert-info">
-                Aucun groupe enregistré pour le moment.
-            </div>
+        <div class="alert alert-info">
+            Aucun groupe enregistré pour le moment.
+        </div>
 
-            {% endif %}
+        {% endif %}
 
         </div>
 
@@ -244,14 +244,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             class="btn btn-sm btn-ck-bleu-clair"
                             title="Voir le détail"
                         >
-                            <i class="bi bi-eye"></i>
+                            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
                         </a>
 
                         <a
                             href="${groupe.url_modifier}"
                             class="btn btn-sm btn-ck-orange"
                         >
-                            <i class="bi bi-pencil"></i>
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
                             Modifier
                         </a>
 
@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             href="${groupe.url_supprimer}"
                             class="btn btn-sm btn-danger"
                         >
-                            <i class="bi bi-trash"></i>
+                            <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt="">
                             Supprimer
                         </a>
 

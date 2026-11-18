@@ -16,11 +16,12 @@ from .models import (
     Groupe,
     DemandeInscription,
     InscriptionActivite,
+    Paiement,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
     Presence,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm,PresenceParentForm, PresenceEducateurForm, PresenceAdminForm
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm, PaiementCarteForm, PresenceParentForm, PresenceEducateurForm, PresenceAdminForm
 from compte.models import creer_notification, Parent
 
 from django.contrib.auth.decorators import login_required
@@ -1844,6 +1845,14 @@ def desinscrire_activite(request, inscription_id):
     )
 
     if request.method == "POST":
+        if hasattr(inscription, "paiement"):
+            messages.error(
+                request,
+                f"Impossible de se désinscrire de « {inscription.activite.nom} » : "
+                "les frais d'inscription ont déjà été payés."
+            )
+            return redirect("detail_activite", activite_id=inscription.activite_id)
+
         activite_id = inscription.activite_id
         enfant = inscription.enfant
         nom_activite = inscription.activite.nom
@@ -1856,6 +1865,56 @@ def desinscrire_activite(request, inscription_id):
         return redirect("detail_activite", activite_id=activite_id)
 
     return redirect("detail_activite", activite_id=inscription.activite_id)
+
+
+@login_required
+@parent_requis
+def payer_inscription(request, inscription_id):
+    inscription = get_object_or_404(
+        InscriptionActivite,
+        id=inscription_id,
+        enfant__parents__pk=request.user.pk,
+    )
+    activite = inscription.activite
+
+    if activite.frais_inscription <= 0:
+        messages.info(
+            request,
+            f"L'activité « {activite.nom} » est gratuite, aucun paiement n'est requis."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    if hasattr(inscription, "paiement"):
+        messages.info(
+            request,
+            f"Les frais d'inscription de « {activite.nom} » ont déjà été payés."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    if request.method == "POST":
+        form = PaiementCarteForm(request.POST)
+
+        if form.is_valid():
+            Paiement.objects.create(
+                inscription=inscription,
+                parent=request.user.parent,
+                montant=activite.frais_inscription,
+            )
+
+            messages.success(
+                request,
+                f"Le paiement de {activite.frais_inscription} $ pour « {activite.nom} » a été effectué avec succès."
+            )
+            return redirect("detail_activite", activite_id=activite.id)
+    else:
+        form = PaiementCarteForm()
+
+    return render(request, "activites/payer_inscription.html", {
+        "inscription": inscription,
+        "activite": activite,
+        "form": form,
+    })
+
 
 @login_required
 @administrateur_requis
@@ -1923,6 +1982,7 @@ def horaire_groupe(request, groupe_id):
         },
     )
 
+
 @login_required
 @parent_requis
 def horaire_parent(request):
@@ -1947,8 +2007,6 @@ def horaire_parent(request):
             "titre_page": "Calendrier de mes enfants",
         },
     )
-
-from .decorators import administrateur_requis
 
 
 @login_required

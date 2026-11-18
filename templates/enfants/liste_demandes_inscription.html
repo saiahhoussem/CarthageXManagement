@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Demandes d'inscription{% endblock %}
 
@@ -49,7 +50,7 @@
                     <td class="text-end">
                         <a href="{% url 'detail_demande_inscription' demande.id %}"
                            class="btn btn-sm btn-ck-bleu-fonce">
-                            <i class="bi bi-eye"></i> Voir
+                            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt=""> Voir
                         </a>
                     </td>
                 </tr>

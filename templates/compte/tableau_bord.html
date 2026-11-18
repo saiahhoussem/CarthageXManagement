@@ -19,7 +19,6 @@
         Espace {{ titre|lower }}
     </h1>
 
-    {# ==================== ADMIN ==================== #}
     {% if role_page == "admin" %}
 
     <div class="ck-cartes-stats mb-4">
@@ -161,7 +160,6 @@
     </div>
 
 
-    {# ==================== ÉDUCATEUR + PARENT ==================== #}
     {% elif role_page == "educateur" or role_page == "parent" %}
 
     <div class="ck-section-activites">
@@ -201,8 +199,14 @@
 
                     <div class="ck-img-conteneur ck-carrousel-carte-image">
 
-                        <img src="{{ activite.photo_url }}" alt="{{ activite.nom }}" class="ck-img-conteneur-media"
-                            loading="lazy">
+                        <img
+                            src="{{ activite.photo_url }}"
+                            alt="{{ activite.nom }}"
+                            class="ck-img-conteneur-media"
+                            loading="lazy"
+                            onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                            onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                        >
 
                     </div>
 

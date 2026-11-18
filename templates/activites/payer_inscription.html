@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Payer les frais d'inscription{% endblock %}
+
+{% block sidebar %}
+    {% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div
+                    class="card-header text-white py-3 rounded-top-4"
+                    style="background-color: #0d274d;"
+                >
+                    <h1 class="h4 mb-0">
+                        Payer les frais d'inscription
+                    </h1>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <p class="mb-3">
+                        Frais d'inscription pour <strong>{{ inscription.enfant }}</strong>
+                        à l'activité <strong>{{ activite.nom }}</strong> du {{ activite.date|date:"d/m/Y" }} :
+                    </p>
+
+                    <p class="fs-4 fw-bold mb-4" style="color: #289b7b;">
+                        {{ activite.frais_inscription }} $
+                    </p>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.numero_carte.id_for_label }}" class="form-label">
+                                {{ form.numero_carte.label }}
+                            </label>
+                            {{ form.numero_carte }}
+                            {% for erreur in form.numero_carte.errors %}
+                                <div class="text-danger small mt-1">{{ erreur }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label for="{{ form.expiration.id_for_label }}" class="form-label">
+                                    {{ form.expiration.label }}
+                                </label>
+                                {{ form.expiration }}
+                                {% for erreur in form.expiration.errors %}
+                                    <div class="text-danger small mt-1">{{ erreur }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-6">
+                                <label for="{{ form.cvv.id_for_label }}" class="form-label">
+                                    {{ form.cvv.label }}
+                                </label>
+                                {{ form.cvv }}
+                                {% for erreur in form.cvv.errors %}
+                                    <div class="text-danger small mt-1">{{ erreur }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <p class="text-muted small mb-4">
+                            Paiement simulé à des fins de démonstration, aucune vraie carte n'est traitée.
+                        </p>
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a
+                                href="{% url 'detail_activite' activite.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Annuler
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn text-white"
+                                style="background-color: #289b7b;"
+                            >
+                                Payer {{ activite.frais_inscription }} $
+                            </button>
+
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</main>
+{% endblock %}

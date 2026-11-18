@@ -8,6 +8,7 @@ from .models import (
     DemandeInscription,
     Activite,
     InscriptionActivite,
+    Paiement,
 )
 
 
@@ -28,3 +29,9 @@ class InscriptionActiviteAdmin(admin.ModelAdmin):
 class ActiviteAdmin(admin.ModelAdmin):
     list_display = ["nom", "date", "lieu", "frais_inscription", "places_disponibles", "annulee"]
     list_filter = ["annulee"]
+
+
+@admin.register(Paiement)
+class PaiementAdmin(admin.ModelAdmin):
+    list_display = ["parent", "inscription", "montant", "methode", "date_paiement"]
+    list_filter = ["methode"]

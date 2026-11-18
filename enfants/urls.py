@@ -174,6 +174,11 @@ urlpatterns = [
         name="desinscrire_activite",
     ),
     path(
+        "inscriptions-activite/<int:inscription_id>/payer/",
+        views.payer_inscription,
+        name="payer_inscription",
+    ),
+    path(
         "mes-activites/",
         views.mes_activites,
         name="mes_activites",

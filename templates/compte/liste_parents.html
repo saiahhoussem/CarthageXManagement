@@ -117,7 +117,7 @@
                                 href="{% url 'compte:detail_parent' parent.pk %}"
                                 class="btn btn-sm btn-ck-bleu-fonce"
                             >
-                                <i class="bi bi-eye"></i>
+                                <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
                                 Voir
                             </a>
 
@@ -125,7 +125,7 @@
                                 href="{% url 'compte:modifier_parent' parent.pk %}"
                                 class="btn btn-sm btn-ck-orange"
                             >
-                                <i class="bi bi-pencil"></i>
+                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
                                 Modifier
                             </a>
 
@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             href="${parent.url_detail}"
                             class="btn btn-sm btn-ck-bleu-fonce"
                         >
-                            <i class="bi bi-eye"></i>
+                            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
                             Voir
                         </a>
 
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             href="${parent.url_modifier}"
                             class="btn btn-sm btn-ck-orange"
                         >
-                            <i class="bi bi-pencil"></i>
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
                             Modifier
                         </a>
 

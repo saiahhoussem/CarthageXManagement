@@ -110,10 +110,13 @@
                 </h2>
 
                 {% if not activite.annulee %}
-                <a href="{% url 'annuler_activite' activite.id %}" class="btn btn-sm btn-outline-danger">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Annuler l'activité
-                </a>
+                    <a
+                        href="{% url 'annuler_activite' activite.id %}"
+                        class="btn btn-sm btn-outline-danger"
+                    >
+                        <img src="{% static 'img/icones/actions/block-black.png' %}" class="ck-action-icone me-1" alt="">
+                        Annuler l'activité
+                    </a>
                 {% endif %}
 
             </div>
@@ -157,22 +160,51 @@
 
                 {% if item.inscription %}
 
-                <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                        Se désinscrire
-                    </button>
-                </form>
+                                <div class="d-flex align-items-center gap-2">
+
+                                    {% if activite.frais_inscription > 0 and item.inscription.paiement %}
+
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Payé
+                                        </span>
+
+                                    {% else %}
+
+                                        {% if activite.frais_inscription > 0 %}
+                                            <a
+                                                href="{% url 'payer_inscription' item.inscription.id %}"
+                                                class="btn btn-sm text-white"
+                                                style="background-color: #289b7b;"
+                                            >
+                                                Payer {{ activite.frais_inscription }} $
+                                            </a>
+                                        {% endif %}
+
+                                        <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                Se désinscrire
+                                            </button>
+                                        </form>
+
+                                    {% endif %}
+
+                                </div>
 
                 {% elif activite.places_restantes > 0 %}
 
-                <form method="post" action="{% url 'inscrire_activite' activite.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="enfant_id" value="{{ item.enfant.id }}">
-                    <button type="submit" class="btn btn-sm text-white" style="background-color: #289b7b;">
-                        S'inscrire
-                    </button>
-                </form>
+                                <form method="post" action="{% url 'inscrire_activite' activite.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="enfant_id" value="{{ item.enfant.id }}">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm text-white"
+                                        style="background-color: #289b7b;"
+                                    >
+                                        S'inscrire
+                                    </button>
+                                </form>
 
                 {% else %}
 
