@@ -252,3 +252,30 @@ class AccepterDemandeInscriptionForm(forms.Form):
             .annotate(nb_enfants=Count("enfant"))
             .filter(nb_enfants__lt=F("capacite"))
         )
+
+
+class PaiementCarteForm(forms.Form):
+    numero_carte = forms.CharField(
+        label="Numéro de carte",
+        max_length=19,
+        widget=forms.TextInput(attrs={"placeholder": "1234 5678 9012 3456"}),
+        error_messages={"required": "Veuillez indiquer le numéro de carte."},
+    )
+    expiration = forms.CharField(
+        label="Expiration",
+        max_length=5,
+        widget=forms.TextInput(attrs={"placeholder": "MM/AA"}),
+        error_messages={"required": "Veuillez indiquer la date d'expiration de la carte."},
+    )
+    cvv = forms.CharField(
+        label="CVV",
+        max_length=4,
+        widget=forms.TextInput(attrs={"placeholder": "123"}),
+        error_messages={"required": "Veuillez indiquer le code CVV de la carte."},
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")

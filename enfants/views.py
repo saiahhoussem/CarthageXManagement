@@ -16,7 +16,7 @@ from .models import (
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm, PaiementCarteForm
 from compte.models import creer_notification, Parent
 
 from django.contrib.auth.decorators import login_required
@@ -1093,19 +1093,25 @@ def payer_inscription(request, inscription_id):
         return redirect("detail_activite", activite_id=activite.id)
 
     if request.method == "POST":
-        Paiement.objects.create(
-            inscription=inscription,
-            parent=request.user.parent,
-            montant=activite.frais_inscription,
-        )
+        form = PaiementCarteForm(request.POST)
 
-        messages.success(
-            request,
-            f"Le paiement de {activite.frais_inscription} $ pour « {activite.nom} » a été effectué avec succès."
-        )
-        return redirect("detail_activite", activite_id=activite.id)
+        if form.is_valid():
+            Paiement.objects.create(
+                inscription=inscription,
+                parent=request.user.parent,
+                montant=activite.frais_inscription,
+            )
+
+            messages.success(
+                request,
+                f"Le paiement de {activite.frais_inscription} $ pour « {activite.nom} » a été effectué avec succès."
+            )
+            return redirect("detail_activite", activite_id=activite.id)
+    else:
+        form = PaiementCarteForm()
 
     return render(request, "activites/payer_inscription.html", {
         "inscription": inscription,
         "activite": activite,
+        "form": form,
     })

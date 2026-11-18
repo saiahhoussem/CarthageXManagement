@@ -34,45 +34,41 @@
                         {{ activite.frais_inscription }} $
                     </p>
 
-                    <form method="post">
+                    <form method="post" novalidate>
                         {% csrf_token %}
 
                         <div class="mb-3">
-                            <label class="form-label">Numéro de carte</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="1234 5678 9012 3456"
-                                maxlength="19"
-                                required
-                            >
+                            <label for="{{ form.numero_carte.id_for_label }}" class="form-label">
+                                {{ form.numero_carte.label }}
+                            </label>
+                            {{ form.numero_carte }}
+                            {% for erreur in form.numero_carte.errors %}
+                                <div class="text-danger small mt-1">{{ erreur }}</div>
+                            {% endfor %}
                         </div>
 
                         <div class="row g-2 mb-4">
                             <div class="col-6">
-                                <label class="form-label">Expiration</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="MM/AA"
-                                    maxlength="5"
-                                    required
-                                >
+                                <label for="{{ form.expiration.id_for_label }}" class="form-label">
+                                    {{ form.expiration.label }}
+                                </label>
+                                {{ form.expiration }}
+                                {% for erreur in form.expiration.errors %}
+                                    <div class="text-danger small mt-1">{{ erreur }}</div>
+                                {% endfor %}
                             </div>
                             <div class="col-6">
-                                <label class="form-label">CVV</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="123"
-                                    maxlength="4"
-                                    required
-                                >
+                                <label for="{{ form.cvv.id_for_label }}" class="form-label">
+                                    {{ form.cvv.label }}
+                                </label>
+                                {{ form.cvv }}
+                                {% for erreur in form.cvv.errors %}
+                                    <div class="text-danger small mt-1">{{ erreur }}</div>
+                                {% endfor %}
                             </div>
                         </div>
 
                         <p class="text-muted small mb-4">
-                            <i class="bi bi-shield-check me-1"></i>
                             Paiement simulé à des fins de démonstration, aucune vraie carte n'est traitée.
                         </p>
 
