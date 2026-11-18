@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Calendrier de tous les groupes{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: #0d274d;">
+                Calendrier de tous les groupes
+            </h1>
+            <p class="text-muted mb-0">
+                Sélectionnez un groupe pour consulter son horaire.
+            </p>
+        </div>
+
+        <span class="ck-horaire-compteur text-white rounded-pill px-3 py-2">
+            <i class="bi bi-diagram-3 me-1"></i>
+            {{ groupes_data|length }} groupe{{ groupes_data|length|pluralize }}
+        </span>
+    </div>
+
+    {% if groupes_data %}
+
+    <div class="row g-4">
+
+        {% for item in groupes_data %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <a href="{% url 'horaire_groupe' item.groupe.id %}"
+                class="card border-0 shadow-sm rounded-4 text-decoration-none text-reset h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 50px; height: 50px; background-color: #289b7b; color: white; font-weight: 600; font-size: 1.2rem;">
+                            <i class="bi bi-diagram-3"></i>
+                        </span>
+                        <div>
+                            <h2 class="h5 fw-semibold mb-0" style="color: #0d274d;">
+                                {{ item.groupe.nom }}
+                            </h2>
+                            <p class="text-muted small mb-0">
+                                {{ item.groupe.get_tranche_age_display }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <ul class="list-unstyled small text-muted mb-3">
+                        <li class="mb-1">
+                            <i class="bi bi-person-badge me-1"></i>
+                            {% if item.groupe.educateur %}
+                            {{ item.groupe.educateur.get_full_name|default:item.groupe.educateur.username }}
+                            {% else %}
+                            <span class="text-warning">Aucun éducateur</span>
+                            {% endif %}
+                        </li>
+                        <li class="mb-1">
+                            <i class="bi bi-people me-1"></i>
+                            {{ item.nb_enfants }} enfant{{ item.nb_enfants|pluralize }}
+                        </li>
+                        <li>
+                            <i class="bi bi-calendar-check me-1"></i>
+                            {{ item.nb_activites }} activité{{ item.nb_activites|pluralize }} à venir
+                        </li>
+                    </ul>
+
+                    <span class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        Voir le calendrier
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-diagram-3 fs-1" style="color: #289b7b;"></i>
+            <h2 class="h5 mt-3" style="color: #0d274d;">
+                Aucun groupe
+            </h2>
+            <p class="text-muted mb-0">
+                Aucun groupe n'a encore été créé.
+            </p>
+        </div>
+    </div>
+
+    {% endif %}
+
+</main>
+{% endblock %}

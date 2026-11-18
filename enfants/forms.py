@@ -389,7 +389,6 @@ class ActiviteForm(forms.ModelForm):
         self.fields["heure_debut"].required = True
         self.fields["heure_fin"].required = True
 
-
 class AccepterDemandeInscriptionForm(forms.Form):
     groupe = forms.ModelChoiceField(
         queryset=Groupe.objects.none(),

@@ -61,6 +61,7 @@ def tableau_bord_admin(request):
         return redirect(url_tableau_bord(request.user))
     contexte = {
         "titre": "Administrateur",
+        "role_page": "admin",
         "nb_educateurs": User.objects.filter(role=User.Role.EDUCATEUR).count(),
         "nb_parents": User.objects.filter(role=User.Role.PARENT).count(),
         "nb_enfants": Enfant.objects.filter(actif=True).count(),
@@ -72,8 +73,32 @@ def tableau_bord_admin(request):
 def tableau_bord_educateur(request):
     if request.user.role != User.Role.EDUCATEUR:
         return redirect(url_tableau_bord(request.user))
-    return render(request, "compte/tableau_bord.html", {"titre": "Éducateur"})
 
+    total_groupes = Groupe.objects.count()
+    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
+
+    activites_a_venir = (
+        Activite.objects
+        .filter(date__gte=timezone.now().date())
+        .exclude(lieu__icontains="garderie")  
+        .prefetch_related("groupes")
+        .annotate(nb_groupes=Count("groupes"))
+        .order_by("date")
+    )
+
+    activites = [
+        activite
+        for activite in activites_a_venir
+        if activite_visible_par(
+            activite, activite.nb_groupes, total_groupes, groupes_pertinents
+        )
+    ][:12]
+
+    return render(request, "compte/tableau_bord.html", {
+        "titre": "Éducateur",
+        "role_page": "educateur",   
+        "activites": activites,
+    })
 @login_required
 def tableau_bord_parent(request):
     if request.user.role != User.Role.PARENT:
@@ -85,6 +110,7 @@ def tableau_bord_parent(request):
     activites_a_venir = (
         Activite.objects
         .filter(date__gte=timezone.now().date())
+        .exclude(lieu__icontains="garderie") 
         .prefetch_related("groupes")
         .annotate(nb_groupes=Count("groupes"))
         .order_by("date")
@@ -100,6 +126,7 @@ def tableau_bord_parent(request):
 
     return render(request, "compte/tableau_bord.html", {
         "titre": "Parent",
+        "role_page": "parent",
         "activites": activites,
     })
 

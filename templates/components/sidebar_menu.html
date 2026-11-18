@@ -189,6 +189,14 @@
                 </a>
             </li>
 
+        <li>
+            <a href="{% url 'horaire_admin' %}"
+                class="{% if url_actif == 'horaire_admin' or url_actif == 'horaire_groupe' %}active{% endif %}">
+                <i class="bi bi-calendar3"></i>
+                Calendrier
+            </a>
+        </li>
+
         {% elif user.is_educateur %}
 
         <li>
@@ -208,10 +216,18 @@
         </li>
 
         <li>
-            <a href="{% url 'horaire_educateur' %}" class="{% if url_actif == 'horaire_educateur' %}active{% endif %}">
+            {% if educateur_groupe_id %}
+            <a href="{% url 'horaire_groupe' educateur_groupe_id %}"
+                class="{% if url_actif == 'horaire_groupe' %}active{% endif %}">
                 <i class="bi bi-calendar3"></i>
                 Calendrier
             </a>
+            {% else %}
+            <a href="#" class="text-muted" title="Aucun groupe assigné">
+                <i class="bi bi-calendar3"></i>
+                Calendrier
+            </a>
+            {% endif %}
         </li>
 
         <li>
@@ -274,7 +290,8 @@
         </li>
 
         <li>
-            <a href="#">
+            <a href="{% url 'horaire_parent' %}"
+                class="{% if url_actif == 'horaire_parent' or url_actif == 'horaire_groupe' %}active{% endif %}">
                 <i class="bi bi-calendar3"></i>
                 Calendrier
             </a>

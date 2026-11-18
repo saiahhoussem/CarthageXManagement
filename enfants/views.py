@@ -32,6 +32,7 @@ from .decorators import (
     parent_requis,
     educateur_requis,
     educateur_ou_parent_requis,
+    verifier_acces_groupe,
 )
 
 
@@ -1080,6 +1081,7 @@ def mes_activites(request):
 
     toutes_les_activites = (
         Activite.objects
+        .exclude(lieu__icontains="garderie")  
         .prefetch_related("groupes")
         .annotate(
             nb_groupes=Count("groupes", distinct=True),
@@ -1939,38 +1941,28 @@ def detail_groupe(request, groupe_id):
 
 
 @login_required
-@educateur_requis
-def horaire_educateur(request):
-    """
-    Affiche le calendrier d'horaire de travail de l'éducateur connecté.
+def horaire_groupe(request, groupe_id):
+    groupe = get_object_or_404(
+        Groupe.objects.select_related("educateur"),
+        id=groupe_id,
+    )
 
-    Règle métier :
-      - activités non annulées,
-      - date dans [aujourd'hui, aujourd'hui + 90 jours],
-      - visibles par l'éducateur (ses groupes, ou tous les groupes).
-    """
+    verifier_acces_groupe(request.user, groupe)
+
     aujourd_hui = timezone.localdate()
     fin = aujourd_hui + timedelta(days=90)
 
-    total_groupes = Groupe.objects.count()
-    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
-
-    activites_qs = (
+    activites = (
         Activite.objects
         .filter(annulee=False)
         .filter(date__gte=aujourd_hui, date__lte=fin)
+        .filter(
+            Q(groupes=groupe) | Q(groupes__isnull=True)
+        )
+        .distinct()
         .prefetch_related("groupes")
-        .annotate(nb_groupes=Count("groupes", distinct=True))
         .order_by("date", "heure_debut")
     )
-
-    activites = [
-        a
-        for a in activites_qs
-        if activite_visible_par(
-            a, a.nb_groupes, total_groupes, groupes_pertinents
-        )
-    ]
 
     horaire = {}
     for activite in activites:
@@ -1980,11 +1972,82 @@ def horaire_educateur(request):
 
     return render(
         request,
-        "enfants/horaire_educateur.html",
+        "enfants/horaire_groupe.html",
         {
+            "groupe": groupe,
             "horaire": horaire,
-            "titre_page": "Mon horaire de travail",
             "nb_activites": len(activites),
             "aujourd_hui": aujourd_hui,
+            "titre_page": f"Horaire – {groupe.nom}",
+        },
+    )
+
+
+@login_required
+@parent_requis
+def horaire_parent(request):
+    mes_enfants = (
+        Enfant.objects
+        .filter(parents=request.user, actif=True)
+        .select_related("groupe")
+        .order_by("prenom", "nom")
+    )
+
+    enfant_id = request.GET.get("enfant")
+
+    if enfant_id:
+        enfant = get_object_or_404(mes_enfants, id=enfant_id)
+        return redirect("horaire_groupe", groupe_id=enfant.groupe_id)
+
+    return render(
+        request,
+        "enfants/horaire_parent.html",
+        {
+            "mes_enfants": mes_enfants,
+            "titre_page": "Calendrier de mes enfants",
+        },
+    )
+
+
+@login_required
+@administrateur_requis
+def horaire_admin(request):
+    """
+    Page de sélection : liste tous les groupes avec accès à leur horaire.
+    """
+    groupes = (
+        Groupe.objects
+        .select_related("educateur")
+        .prefetch_related("enfant_set")
+        .order_by("nom")
+    )
+
+    aujourd_hui = timezone.localdate()
+    fin = aujourd_hui + timedelta(days=90)
+
+    groupes_data = []
+    for groupe in groupes:
+        nb_activites = (
+            Activite.objects
+            .filter(annulee=False)
+            .filter(date__gte=aujourd_hui, date__lte=fin)
+            .filter(
+                Q(groupes=groupe) | Q(groupes__isnull=True)
+            )
+            .distinct()
+            .count()
+        )
+        groupes_data.append({
+            "groupe": groupe,
+            "nb_activites": nb_activites,
+            "nb_enfants": groupe.enfant_set.count(),
+        })
+
+    return render(
+        request,
+        "enfants/horaire_admin.html",
+        {
+            "groupes_data": groupes_data,
+            "titre_page": "Calendrier de tous les groupes",
         },
     )
