@@ -258,6 +258,8 @@
                                         alt="{{ activite.nom }}"
                                         class="ck-img-conteneur-media"
                                         loading="lazy"
+                                        onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                                        onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
                                     >
 
                                 </div>
