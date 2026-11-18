@@ -1940,6 +1940,42 @@ def historique_paiements_parent(request):
 
 @login_required
 @administrateur_requis
+def historique_paiements_admin(request):
+    paiements = (
+        Paiement.objects
+        .select_related("inscription__activite", "inscription__enfant", "parent")
+        .order_by("-date_paiement")
+    )
+
+    parent_id = request.GET.get("parent")
+    activite_id = request.GET.get("activite")
+
+    if parent_id:
+        paiements = paiements.filter(parent_id=parent_id)
+
+    if activite_id:
+        paiements = paiements.filter(inscription__activite_id=activite_id)
+
+    montant_total = sum(
+        (paiement.montant for paiement in paiements),
+        Decimal("0"),
+    )
+
+    parents = Parent.objects.order_by("last_name", "first_name")
+    activites = Activite.objects.order_by("-date")
+
+    return render(request, "paiements/historique_admin.html", {
+        "paiements": paiements,
+        "montant_total": montant_total,
+        "parents": parents,
+        "activites": activites,
+        "parent_selectionne": parent_id,
+        "activite_selectionnee": activite_id,
+    })
+
+
+@login_required
+@administrateur_requis
 def detail_groupe(request, groupe_id):
     groupe = get_object_or_404(
         Groupe.objects.select_related("educateur"),

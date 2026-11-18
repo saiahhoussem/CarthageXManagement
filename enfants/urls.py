@@ -184,6 +184,11 @@ urlpatterns = [
         name="historique_paiements_parent",
     ),
     path(
+        "paiements/historique/admin/",
+        views.historique_paiements_admin,
+        name="historique_paiements_admin",
+    ),
+    path(
         "mes-activites/",
         views.mes_activites,
         name="mes_activites",

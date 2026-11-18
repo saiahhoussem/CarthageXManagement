@@ -21,6 +21,32 @@
 
     {% if role_page == "admin" %}
 
+    <div class="mb-5">
+
+        <h2 class="h4 mb-3">
+            Recherche rapide
+        </h2>
+
+        <div class="input-group mb-3">
+
+            <input type="text" id="recherche-rapide-admin" class="form-control" placeholder="Rechercher..."
+                autocomplete="off">
+
+            <button type="button" id="bouton-recherche-admin" class="btn btn-ck-orange">
+                Rechercher
+            </button>
+
+            <button type="button" id="reinitialiser-recherche-admin" class="btn btn-ck-bleu-fonce">
+                Réinitialiser
+            </button>
+
+        </div>
+
+        <div id="resultats-recherche-admin"></div>
+
+    </div>
+
+
     <div class="ck-cartes-stats mb-4">
 
         <div class="ck-carte-stat">
@@ -70,32 +96,6 @@
                 </p>
             </div>
         </div>
-
-    </div>
-
-
-    <div class="mb-5">
-
-        <h2 class="h4 mb-3">
-            Recherche rapide
-        </h2>
-
-        <div class="input-group mb-3">
-
-            <input type="text" id="recherche-rapide-admin" class="form-control" placeholder="Rechercher..."
-                autocomplete="off">
-
-            <button type="button" id="bouton-recherche-admin" class="btn btn-ck-orange">
-                Rechercher
-            </button>
-
-            <button type="button" id="reinitialiser-recherche-admin" class="btn btn-ck-bleu-fonce">
-                Réinitialiser
-            </button>
-
-        </div>
-
-        <div id="resultats-recherche-admin"></div>
 
     </div>
 
