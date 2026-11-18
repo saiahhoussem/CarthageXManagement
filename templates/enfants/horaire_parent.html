@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Calendrier de mes enfants{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: #0d274d;">
+                Calendrier de mes enfants
+            </h1>
+            <p class="text-muted mb-0">
+                Sélectionnez un enfant pour consulter son horaire.
+            </p>
+        </div>
+    </div>
+
+    {% if mes_enfants %}
+
+    <div class="row g-4">
+
+        {% for enfant in mes_enfants %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <a href="{% url 'horaire_groupe' enfant.groupe_id %}"
+                class="card border-0 shadow-sm rounded-4 text-decoration-none text-reset h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 50px; height: 50px; background-color: #289b7b; color: white; font-weight: 600; font-size: 1.2rem;">
+                            {{ enfant.prenom|first|upper }}{{ enfant.nom|first|upper }}
+                        </span>
+                        <div>
+                            <h2 class="h5 fw-semibold mb-0" style="color: #0d274d;">
+                                {{ enfant }}
+                            </h2>
+                            <p class="text-muted small mb-0">
+                                <i class="bi bi-diagram-3 me-1"></i>
+                                {{ enfant.groupe.nom }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <span class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        Voir le calendrier
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-person-x fs-1" style="color: #289b7b;"></i>
+            <h2 class="h5 mt-3" style="color: #0d274d;">
+                Aucun enfant
+            </h2>
+            <p class="text-muted mb-0">
+                Aucun enfant actif n'est associé à votre compte.
+            </p>
+        </div>
+    </div>
+
+    {% endif %}
+
+</main>
+{% endblock %}

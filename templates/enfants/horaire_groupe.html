@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Mon horaire - CarthageKids{% endblock %}
+{% block title %}Horaire – {{ groupe.nom }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'enfants/horaires.css' %}">
@@ -17,17 +17,20 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="fw-bold mb-1" style="color: #0d274d;">
-                Mon horaire de travail
+                Horaire – {{ groupe.nom }}
             </h1>
             <p class="text-muted mb-0">
-                Consultez vos activités planifiées.
+                <i class="bi bi-person-badge me-1"></i>
+                {{ groupe.get_tranche_age_display }}
+
+                {% if groupe.educateur %}
+                <span class="mx-2">·</span>
+                <i class="bi bi-person me-1"></i>
+                {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
+                {% endif %}
             </p>
         </div>
 
-        <span class="ck-horaire-compteur text-white rounded-pill px-3 py-2">
-            <i class="bi bi-calendar-check me-1"></i>
-            {{ nb_activites }} activité{{ nb_activites|pluralize }}
-        </span>
     </div>
 
     {% if horaire %}
@@ -99,7 +102,7 @@
                 Aucune activité planifiée
             </h2>
             <p class="text-muted mb-0">
-                Vous n'avez aucune activité dans les 90 prochains jours.
+                Aucune activité pour ce groupe dans les 90 prochains jours.
             </p>
         </div>
     </div>
