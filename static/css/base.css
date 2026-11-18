@@ -98,6 +98,11 @@ main {
   padding: 40px;
 }
 
+.ck-page main {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
 .ck-sidebar {
   width: 280px;
   position: sticky;
@@ -213,5 +218,10 @@ main {
   }
   .ck-sidebar.ck-sidebar-ouverte {
     transform: translateX(0);
+  }
+
+  .ck-page main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }
