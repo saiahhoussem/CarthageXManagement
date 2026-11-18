@@ -179,6 +179,11 @@ urlpatterns = [
         name="payer_inscription",
     ),
     path(
+        "paiements/historique/",
+        views.historique_paiements_parent,
+        name="historique_paiements_parent",
+    ),
+    path(
         "mes-activites/",
         views.mes_activites,
         name="mes_activites",

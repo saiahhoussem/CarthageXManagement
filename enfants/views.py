@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from datetime import timedelta
+from decimal import Decimal
 
 from .models import (
     Activite,
@@ -1913,6 +1914,27 @@ def payer_inscription(request, inscription_id):
         "inscription": inscription,
         "activite": activite,
         "form": form,
+    })
+
+
+@login_required
+@parent_requis
+def historique_paiements_parent(request):
+    paiements = (
+        Paiement.objects
+        .filter(parent=request.user.parent)
+        .select_related("inscription__activite", "inscription__enfant")
+        .order_by("-date_paiement")
+    )
+
+    montant_total = sum(
+        (paiement.montant for paiement in paiements),
+        Decimal("0"),
+    )
+
+    return render(request, "paiements/historique_parent.html", {
+        "paiements": paiements,
+        "montant_total": montant_total,
     })
 
 
