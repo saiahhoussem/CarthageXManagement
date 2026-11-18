@@ -1946,3 +1946,49 @@ def horaire_parent(request):
             "titre_page": "Calendrier de mes enfants",
         },
     )
+
+from .decorators import administrateur_requis
+
+
+@login_required
+@administrateur_requis
+def horaire_admin(request):
+    """
+    Page de sélection : liste tous les groupes avec accès à leur horaire.
+    """
+    groupes = (
+        Groupe.objects
+        .select_related("educateur")
+        .prefetch_related("enfant_set")
+        .order_by("nom")
+    )
+
+    aujourd_hui = timezone.localdate()
+    fin = aujourd_hui + timedelta(days=90)
+
+    groupes_data = []
+    for groupe in groupes:
+        nb_activites = (
+            Activite.objects
+            .filter(annulee=False)
+            .filter(date__gte=aujourd_hui, date__lte=fin)
+            .filter(
+                Q(groupes=groupe) | Q(groupes__isnull=True)
+            )
+            .distinct()
+            .count()
+        )
+        groupes_data.append({
+            "groupe": groupe,
+            "nb_activites": nb_activites,
+            "nb_enfants": groupe.enfant_set.count(),
+        })
+
+    return render(
+        request,
+        "enfants/horaire_admin.html",
+        {
+            "groupes_data": groupes_data,
+            "titre_page": "Calendrier de tous les groupes",
+        },
+    )

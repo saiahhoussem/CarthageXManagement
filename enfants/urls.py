@@ -271,4 +271,10 @@ urlpatterns = [
         name="horaire_parent",
     ),
 
+    path(
+        "horaire/admin/",
+        views.horaire_admin,
+        name="horaire_admin",
+    ),
+
 ]

@@ -186,6 +186,14 @@
             </a>
         </li>
 
+        <li>
+            <a href="{% url 'horaire_admin' %}"
+                class="{% if url_actif == 'horaire_admin' or url_actif == 'horaire_groupe' %}active{% endif %}">
+                <i class="bi bi-calendar3"></i>
+                Calendrier
+            </a>
+        </li>
+
         {% elif user.is_educateur %}
 
         <li>

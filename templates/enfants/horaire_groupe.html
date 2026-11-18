@@ -80,6 +80,13 @@
                             <i class="bi bi-eye"></i>
                             Détail
                         </a>
+
+                        {% if user.is_administrateur or user.is_superuser %}
+                        <a href="{% url 'modifier_activite' activite.id %}" class="btn btn-sm text-white ms-1"
+                            style="background-color: #f49f02;" title="Modifier">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        {% endif %}
                     </div>
 
                 </div>
