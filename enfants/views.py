@@ -1080,6 +1080,7 @@ def mes_activites(request):
 
     toutes_les_activites = (
         Activite.objects
+        .exclude(lieu__icontains="garderie")  
         .prefetch_related("groupes")
         .annotate(
             nb_groupes=Count("groupes", distinct=True),
