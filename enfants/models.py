@@ -433,6 +433,12 @@ class Activite(models.Model):
                         "dans le passé."
                 })
 
+        if self.heure_debut and self.heure_fin:
+            if self.heure_fin <= self.heure_debut:
+                raise ValidationError({
+                    "heure_fin": "L'heure de fin doit être postérieure à l'heure de début."
+                })
+
     @property
     def plage_horaire(self):
         """Retourne 'HH:MM – HH:MM' ou 'Horaire à préciser'."""
