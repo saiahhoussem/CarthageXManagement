@@ -9,17 +9,14 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
 <main class="container py-5 px-4 px-xl-5">
 
-    <a
-        href="{% if user.is_administrateur or user.is_superuser %}{% url 'liste_activites' %}{% else %}{% url 'mes_activites' %}{% endif %}"
-        class="d-inline-flex align-items-center gap-1 mb-4 text-decoration-none fw-semibold"
-        style="color: #1c88eb;"
-    >
+    <a href="{% if user.is_administrateur or user.is_superuser %}{% url 'liste_activites' %}{% else %}{% url 'mes_activites' %}{% endif %}"
+        class="d-inline-flex align-items-center gap-1 mb-4 text-decoration-none fw-semibold" style="color: #1c88eb;">
         <i class="bi bi-arrow-left"></i>
         Retour aux activités
     </a>
@@ -32,14 +29,9 @@
                 <span class="visually-hidden">Chargement...</span>
             </div>
 
-            <img
-                src="{{ activite.photo_url }}"
-                alt="{{ activite.nom }}"
-                class="ck-img-conteneur-media"
-                loading="lazy"
+            <img src="{{ activite.photo_url }}" alt="{{ activite.nom }}" class="ck-img-conteneur-media" loading="lazy"
                 onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
-                onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
-            >
+                onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')">
 
         </div>
 
@@ -50,15 +42,24 @@
             </h1>
 
             {% if activite.annulee %}
-                <div class="alert alert-secondary d-inline-flex align-items-center gap-2 mb-3">
-                    <i class="bi bi-x-circle"></i>
-                    Cette activité a été annulée.
-                </div>
+            <div class="alert alert-secondary d-inline-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-x-circle"></i>
+                Cette activité a été annulée.
+            </div>
             {% endif %}
 
             <p class="text-muted mb-4">
                 <i class="bi bi-calendar-event me-1"></i>
                 {{ activite.date|date:"d F Y" }}
+
+                <span class="mx-2">·</span>
+
+                <i class="bi bi-clock me-1"></i>
+                {% if activite.heure_debut and activite.heure_fin %}
+                {{ activite.heure_debut|time:"H:i" }} – {{ activite.heure_fin|time:"H:i" }}
+                {% else %}
+                À préciser
+                {% endif %}
 
                 <span class="mx-2">·</span>
 
@@ -68,7 +69,8 @@
                 <span class="mx-2">·</span>
 
                 <i class="bi bi-people me-1"></i>
-                {{ activite.places_restantes }} place{{ activite.places_restantes|pluralize }} restante{{ activite.places_restantes|pluralize }} sur {{ activite.places_disponibles }}
+                {{ activite.places_restantes }} place{{ activite.places_restantes|pluralize }}
+                restante{{activite.places_restantes|pluralize }} sur {{ activite.places_disponibles }}
             </p>
 
             <p class="mb-4" style="white-space: pre-line;">
@@ -83,18 +85,15 @@
 
                 <div>
                     {% if activite.applique_a_tous_les_groupes %}
-                        <span class="badge rounded-pill px-3 py-2" style="background-color: #289b7b;">
-                            Tous les groupes
-                        </span>
+                    <span class="badge rounded-pill px-3 py-2" style="background-color: #289b7b;">
+                        Tous les groupes
+                    </span>
                     {% else %}
-                        {% for groupe in activite.groupes.all %}
-                            <span
-                                class="badge rounded-pill px-3 py-2 me-1"
-                                style="background-color: #289b7b;"
-                            >
-                                {{ groupe.nom }}
-                            </span>
-                        {% endfor %}
+                    {% for groupe in activite.groupes.all %}
+                    <span class="badge rounded-pill px-3 py-2 me-1" style="background-color: #289b7b;">
+                        {{ groupe.nom }}
+                    </span>
+                    {% endfor %}
                     {% endif %}
                 </div>
 
@@ -102,109 +101,103 @@
 
             {% if user.is_administrateur or user.is_superuser %}
 
-                <hr class="my-4">
+            <hr class="my-4">
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
 
-                    <h2 class="h5 fw-semibold mb-0" style="color: #0d274d;">
-                        Enfants inscrits
-                    </h2>
+                <h2 class="h5 fw-semibold mb-0" style="color: #0d274d;">
+                    Enfants inscrits
+                </h2>
 
-                    {% if not activite.annulee %}
-                        <a
-                            href="{% url 'annuler_activite' activite.id %}"
-                            class="btn btn-sm btn-outline-danger"
-                        >
-                            <i class="bi bi-x-circle me-1"></i>
-                            Annuler l'activité
-                        </a>
-                    {% endif %}
-
-                </div>
-
-                {% if inscriptions %}
-                    <ul class="list-group">
-                        {% for inscription in inscriptions %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ inscription.enfant }}
-                                <small class="text-muted">{{ inscription.date_inscription|date:"d/m/Y" }}</small>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted mb-0">
-                        Aucun enfant inscrit pour le moment.
-                    </p>
+                {% if not activite.annulee %}
+                <a href="{% url 'annuler_activite' activite.id %}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Annuler l'activité
+                </a>
                 {% endif %}
+
+            </div>
+
+            {% if inscriptions %}
+            <ul class="list-group">
+                {% for inscription in inscriptions %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ inscription.enfant }}
+                    <small class="text-muted">{{ inscription.date_inscription|date:"d/m/Y" }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted mb-0">
+                Aucun enfant inscrit pour le moment.
+            </p>
+            {% endif %}
 
             {% elif user.is_parent %}
 
-                <hr class="my-4">
+            <hr class="my-4">
 
-                <h2 class="h5 fw-semibold mb-3" style="color: #0d274d;">
-                    Inscription
-                </h2>
+            <h2 class="h5 fw-semibold mb-3" style="color: #0d274d;">
+                Inscription
+            </h2>
 
-                {% if activite.annulee %}
+            {% if activite.annulee %}
 
-                    <p class="text-muted mb-0">
-                        Cette activité a été annulée, l'inscription n'est plus possible.
-                    </p>
+            <p class="text-muted mb-0">
+                Cette activité a été annulée, l'inscription n'est plus possible.
+            </p>
 
-                {% elif enfants_inscription %}
+            {% elif enfants_inscription %}
 
-                    {% for item in enfants_inscription %}
+            {% for item in enfants_inscription %}
 
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
 
-                            <span>{{ item.enfant }}</span>
+                <span>{{ item.enfant }}</span>
 
-                            {% if item.inscription %}
+                {% if item.inscription %}
 
-                                <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        Se désinscrire
-                                    </button>
-                                </form>
+                <form method="post" action="{% url 'desinscrire_activite' item.inscription.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        Se désinscrire
+                    </button>
+                </form>
 
-                            {% elif activite.places_restantes > 0 %}
+                {% elif activite.places_restantes > 0 %}
 
-                                <form method="post" action="{% url 'inscrire_activite' activite.id %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="enfant_id" value="{{ item.enfant.id }}">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm text-white"
-                                        style="background-color: #289b7b;"
-                                    >
-                                        S'inscrire
-                                    </button>
-                                </form>
-
-                            {% else %}
-
-                                <span class="badge bg-secondary">Complet</span>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% endfor %}
-
-                    {% if activite.frais_inscription > 0 %}
-                        <p class="text-muted small mt-3 mb-0">
-                            Le paiement des frais d'inscription se fera ultérieurement, via le centre de paiement (bientôt disponible).
-                        </p>
-                    {% endif %}
+                <form method="post" action="{% url 'inscrire_activite' activite.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="enfant_id" value="{{ item.enfant.id }}">
+                    <button type="submit" class="btn btn-sm text-white" style="background-color: #289b7b;">
+                        S'inscrire
+                    </button>
+                </form>
 
                 {% else %}
 
-                    <p class="text-muted mb-0">
-                        Aucun de vos enfants ne fait partie des groupes concernés par cette activité.
-                    </p>
+                <span class="badge bg-secondary">Complet</span>
 
                 {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+            {% if activite.frais_inscription > 0 %}
+            <p class="text-muted small mt-3 mb-0">
+                Le paiement des frais d'inscription se fera ultérieurement, via le centre de paiement (bientôt
+                disponible).
+            </p>
+            {% endif %}
+
+            {% else %}
+
+            <p class="text-muted mb-0">
+                Aucun de vos enfants ne fait partie des groupes concernés par cette activité.
+            </p>
+
+            {% endif %}
 
             {% endif %}
 

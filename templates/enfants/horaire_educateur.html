@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mon horaire - CarthageKids{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'enfants/horaires.css' %}">
+{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: #0d274d;">
+                Mon horaire de travail
+            </h1>
+            <p class="text-muted mb-0">
+                Consultez vos activités planifiées.
+            </p>
+        </div>
+
+        <span class="ck-horaire-compteur text-white rounded-pill px-3 py-2">
+            <i class="bi bi-calendar-check me-1"></i>
+            {{ nb_activites }} activité{{ nb_activites|pluralize }}
+        </span>
+    </div>
+
+    {% if horaire %}
+
+    {% for jour, activites in horaire.items %}
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+        <div class="ck-horaire-entete text-white py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0 fw-semibold">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    {{ jour|date:"l d F Y"|capfirst }}
+                </h2>
+                {% if jour == aujourd_hui %}
+                <span class="badge bg-success">Aujourd'hui</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <ul class="list-group list-group-flush">
+
+            {% for activite in activites %}
+
+            <li class="list-group-item py-3">
+                <div class="row align-items-center g-3">
+
+                    <div class="col-md-3">
+                        <span class="ck-horaire-badge text-white rounded-pill px-3 py-2 d-inline-block">
+                            <i class="bi bi-clock me-1"></i>
+                            {{ activite.plage_horaire }}
+                        </span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6 fw-semibold mb-1" style="color: #0d274d;">
+                            {{ activite.nom }}
+                        </h3>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            {{ activite.lieu }}
+                        </p>
+                    </div>
+
+                    <div class="col-md-3 text-md-end">
+                        <a href="{% url 'detail_activite' activite.id %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i>
+                            Détail
+                        </a>
+                    </div>
+
+                </div>
+            </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+    {% endfor %}
+
+    {% else %}
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x fs-1" style="color: #289b7b;"></i>
+            <h2 class="h5 mt-3" style="color: #0d274d;">
+                Aucune activité planifiée
+            </h2>
+            <p class="text-muted mb-0">
+                Vous n'avez aucune activité dans les 90 prochains jours.
+            </p>
+        </div>
+    </div>
+
+    {% endif %}
+
+</main>
+{% endblock %}

@@ -401,6 +401,14 @@ class Activite(models.Model):
         validators=[valider_taille_photo],
     )
 
+    heure_debut = models.TimeField(
+        verbose_name="Heure de début",
+        help_text="Heure de début de l'activité (pour l'horaire des éducateurs).",
+    )
+    heure_fin = models.TimeField(
+        verbose_name="Heure de fin",
+        help_text="Heure de fin de l'activité.",
+    )
     annulee = models.BooleanField(default=False, verbose_name="Annulée")
 
     def clean(self):
@@ -424,6 +432,13 @@ class Activite(models.Model):
                         "La date de l'activité ne peut pas être "
                         "dans le passé."
                 })
+
+    @property
+    def plage_horaire(self):
+        """Retourne 'HH:MM – HH:MM' ou 'Horaire à préciser'."""
+        if self.heure_debut and self.heure_fin:
+            return f"{self.heure_debut:%H:%M} – {self.heure_fin:%H:%M}"
+        return "Horaire à préciser"
 
     @property
     def places_restantes(self):

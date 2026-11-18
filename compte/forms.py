@@ -108,6 +108,19 @@ class CreationParentForm(BaseCreationCompteForm):
 
 
 class BaseModificationCompteForm(forms.ModelForm):
+    password1 = forms.CharField(
+        label="Nouveau mot de passe",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        help_text="Laissez vide pour conserver le mot de passe actuel.",
+    )
+    password2 = forms.CharField(
+        label="Confirmation du mot de passe",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        help_text="Ressaisissez le nouveau mot de passe.",
+    )
+
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email", "telephone"]
@@ -126,6 +139,25 @@ class BaseModificationCompteForm(forms.ModelForm):
             "telephone": "Téléphone",
         }
 
+    AIDE_CHAMPS = {
+        "username": "Veuillez choisir un nom d'utilisateur.",
+        "first_name": "Veuillez entrer le prénom de l'utilisateur.",
+        "last_name": "Veuillez entrer le nom de l'utilisateur.",
+        "email": "Veuillez entrer l'adresse courriel de l'utilisateur.",
+        "telephone": "Veuillez entrer le numéro de téléphone de l'utilisateur.",
+    }
+
+    CHAMPS_OBLIGATOIRES = {"username", "first_name", "last_name", "email", "telephone"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs.setdefault("class", "form-control")
+            if name in self.AIDE_CHAMPS:
+                field.help_text = self.AIDE_CHAMPS[name]
+            if name in self.CHAMPS_OBLIGATOIRES:
+                field.required = True
+
     def clean_email(self):
         email = self.cleaned_data["email"]
         qs = User.objects.filter(email__iexact=email)
@@ -134,6 +166,23 @@ class BaseModificationCompteForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError("Un compte existe déjà avec ce courriel.")
         return email
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("password1")
+        p2 = cleaned.get("password2")
+        if p1 or p2:
+            if p1 != p2:
+                self.add_error("password2", "Les mots de passe ne correspondent pas.")
+        return cleaned
+
+    def save(self, commit=True):
+        utilisateur = super().save(commit=False)
+        if self.cleaned_data.get("password1"):
+            utilisateur.set_password(self.cleaned_data["password1"])
+        if commit:
+            utilisateur.save()
+        return utilisateur
 
 class ModificationParentForm(BaseModificationCompteForm):
     class Meta(BaseModificationCompteForm.Meta):
