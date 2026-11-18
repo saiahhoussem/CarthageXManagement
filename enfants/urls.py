@@ -261,9 +261,14 @@ urlpatterns = [
     ),
 
     path(
-        "horaire/",
-        views.horaire_educateur,
-        name="horaire_educateur",
+        "horaire/groupe/<int:groupe_id>/",
+        views.horaire_groupe,
+        name="horaire_groupe",
+    ),
+    path(
+        "horaire/parent/",
+        views.horaire_parent,
+        name="horaire_parent",
     ),
 
 ]

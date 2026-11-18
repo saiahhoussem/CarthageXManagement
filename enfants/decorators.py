@@ -44,3 +44,37 @@ educateur_ou_parent_requis = _acces_reserve(
     lambda user: user.is_educateur or user.is_parent
 )
 
+def verifier_acces_groupe(user, groupe):
+    """
+    Vérifie que l'utilisateur peut accéder à l'horaire de CE groupe précis.
+
+    Contrairement aux décorateurs ci-dessus, cette fonction dépend d'un
+    OBJET (le groupe), donc elle s'appelle inline dans la vue, après
+    @login_required.
+
+    Règles :
+      - Admin/superuser : toujours autorisé.
+      - Éducateur : uniquement si groupe.educateur == user.
+      - Parent : uniquement si un de ses enfants appartient à ce groupe.
+      - Autre : refusé.
+
+    Lève PermissionDenied si l'accès est refusé.
+    """
+    if user.is_superuser or user.is_administrateur:
+        return
+
+    if user.is_educateur:
+        if groupe.educateur_id != user.pk:
+            raise PermissionDenied(
+                "Vous n'avez pas accès à l'horaire de ce groupe."
+            )
+        return
+
+    if user.is_parent:
+        if not groupe.enfant_set.filter(parents=user).exists():
+            raise PermissionDenied(
+                "Aucun de vos enfants ne fait partie de ce groupe."
+            )
+        return
+
+    raise PermissionDenied("Accès refusé.")
