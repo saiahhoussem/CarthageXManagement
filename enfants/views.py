@@ -1929,3 +1929,35 @@ def horaire_educateur(request):
             "aujourd_hui": aujourd_hui,
         },
     )
+
+def erreur_400(request, exception):
+    return render(
+        request,
+        "erreurs/400.html",
+        status=400,
+    )
+
+
+def erreur_403(request, exception):
+    return render(
+        request,
+        "erreurs/403.html",
+        status=403,
+    )
+
+
+def erreur_404(request, exception):
+    return render(
+        request,
+        "erreurs/404.html",
+        status=404,
+    )
+
+
+def erreur_500(request):
+    return render(
+        request,
+        "erreurs/500.html",
+        status=500,
+    )
+
