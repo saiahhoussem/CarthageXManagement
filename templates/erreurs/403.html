@@ -1,0 +1,63 @@
+{% extends "erreurs/base_erreur.html" %}
+
+{% block title %}
+Accès refusé - CarthageKids
+{% endblock %}
+
+{% block icon %}
+<i class="bi bi-shield-lock"></i>
+{% endblock %}
+
+{% block error_code %}
+403
+{% endblock %}
+
+{% block error_title %}
+Accès non autorisé
+{% endblock %}
+
+{% block error_message %}
+Vous êtes bien connecté, mais vous n'avez pas
+les permissions nécessaires pour accéder à cette page.
+{% endblock %}
+
+{% block error_actions %}
+
+    {% if user.role == "administrateur" %}
+        <a
+            href="{% url 'compte:tableau_bord_admin' %}"
+            class="btn-error-secondary"
+        >
+            <i class="bi bi-speedometer2"></i>
+            Retour au tableau de bord
+        </a>
+
+    {% elif user.role == "educateur(trice)" %}
+        <a
+            href="{% url 'compte:tableau_bord_educateur' %}"
+            class="btn-error-secondary"
+        >
+            <i class="bi bi-speedometer2"></i>
+            Retour au tableau de bord
+        </a>
+
+    {% elif user.role == "parent" %}
+        <a
+            href="{% url 'compte:tableau_bord_parent' %}"
+            class="btn-error-secondary"
+        >
+            <i class="bi bi-speedometer2"></i>
+            Retour au tableau de bord
+        </a>
+
+    {% else %}
+        <a
+            href="/"
+            class="btn-error-secondary"
+        >
+            <i class="bi bi-house-door"></i>
+            Retour à l'accueil
+        </a>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "erreurs/base_erreur.html" %}
+
+{% block title %}
+Requête invalide - CarthageKids
+{% endblock %}
+
+{% block icon %}
+<i class="bi bi-exclamation-triangle"></i>
+{% endblock %}
+
+{% block error_code %}
+400
+{% endblock %}
+
+{% block error_title %}
+Requête invalide
+{% endblock %}
+
+{% block error_message %}
+La requête envoyée au serveur n'est pas valide.
+Veuillez vérifier les informations et réessayer.
+{% endblock %}
+
+{% block error_actions %}
+    <button
+        type="button"
+        class="btn-error-secondary"
+        onclick="history.back()"
+    >
+        <i class="bi bi-arrow-left"></i>
+        Retour à la page précédente
+    </button>
+{% endblock %}
