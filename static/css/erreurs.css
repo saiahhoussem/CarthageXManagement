@@ -1,0 +1,424 @@
+:root {
+    --ck-bleu-fonce: #0d274d;
+    --ck-orange: #f49f02;
+    --ck-vert: #289b7b;
+    --ck-rouge: #fb363f;
+    --ck-bleu-clair: #1c88eb;
+    --ck-blanc: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff 0%,
+            #eef5fb 50%,
+            #fff8ec 100%
+        );
+
+    overflow-x: hidden;
+}
+
+.error-page {
+    position: relative;
+
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px 20px;
+
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+
+    border-radius: 50%;
+
+    opacity: 0.16;
+
+    filter: blur(2px);
+
+    animation: float 8s ease-in-out infinite;
+}
+
+.shape-one {
+    width: 280px;
+    height: 280px;
+
+    background: var(--ck-bleu-clair);
+
+    top: -80px;
+    left: -80px;
+}
+
+.shape-two {
+    width: 230px;
+    height: 230px;
+
+    background: var(--ck-orange);
+
+    right: -70px;
+    bottom: -60px;
+
+    animation-delay: 1.5s;
+}
+
+.shape-three {
+    width: 150px;
+    height: 150px;
+
+    background: var(--ck-vert);
+
+    top: 17%;
+    right: 10%;
+
+    animation-delay: 3s;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            translateX(0)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translateY(-20px)
+            translateX(12px)
+            scale(1.05);
+    }
+}
+
+.error-card {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 680px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border: 1px solid rgba(13, 39, 77, 0.08);
+
+    border-radius: 28px;
+
+    padding: 55px 40px;
+
+    text-align: center;
+
+    box-shadow:
+        0 25px 65px
+        rgba(13, 39, 77, 0.12);
+
+    backdrop-filter: blur(12px);
+
+    animation: cardAppear 0.7s ease-out;
+}
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(25px)
+            scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.brand {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 30px;
+
+    font-size: 1.1rem;
+
+    font-weight: 700;
+
+    color: var(--ck-bleu-fonce);
+}
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--ck-vert),
+            var(--ck-bleu-clair)
+        );
+
+    color: white;
+}
+
+.error-icon-wrapper {
+    position: relative;
+
+    width: 110px;
+    height: 110px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.error-icon-circle {
+    width: 90px;
+    height: 90px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(28, 136, 235, 0.13),
+            rgba(244, 159, 2, 0.15)
+        );
+
+    color: var(--ck-bleu-fonce);
+
+    font-size: 2.7rem;
+
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+.error-icon-wrapper::before {
+    content: "";
+
+    position: absolute;
+
+    width: 108px;
+    height: 108px;
+
+    border: 2px dashed rgba(28, 136, 235, 0.25);
+
+    border-radius: 50%;
+
+    animation: rotateRing 12s linear infinite;
+}
+
+@keyframes iconFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@keyframes rotateRing {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-code {
+    margin: 0;
+
+    font-size: clamp(4.5rem, 15vw, 8rem);
+
+    line-height: 1;
+
+    font-weight: 900;
+
+    letter-spacing: -5px;
+
+    color: var(--ck-bleu-fonce);
+
+    text-shadow:
+        4px 4px 0
+        rgba(244, 159, 2, 0.22);
+}
+
+.error-title {
+    margin-top: 18px;
+    margin-bottom: 12px;
+
+    color: var(--ck-bleu-fonce);
+
+    font-size: 1.75rem;
+
+    font-weight: 750;
+}
+
+.error-message {
+    max-width: 500px;
+
+    margin: 0 auto 30px;
+
+    color: #6c757d;
+
+    font-size: 1.03rem;
+
+    line-height: 1.7;
+}
+
+.color-line {
+    width: 90px;
+    height: 5px;
+
+    margin: 20px auto 24px;
+
+    border-radius: 50px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--ck-bleu-clair),
+            var(--ck-vert),
+            var(--ck-orange)
+        );
+}
+
+.error-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 12px;
+}
+
+.btn-error-primary,
+.btn-error-secondary {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 11px 22px;
+
+    border-radius: 12px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.btn-error-primary {
+    border: none;
+
+    background: var(--ck-bleu-fonce);
+
+    color: white;
+}
+
+.btn-error-primary:hover {
+    background: #153c70;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(13, 39, 77, 0.22);
+}
+
+.btn-error-secondary {
+    border: 2px solid var(--ck-orange);
+
+    background: white;
+
+    color: var(--ck-bleu-fonce);
+}
+
+.btn-error-secondary:hover {
+    background: var(--ck-orange);
+
+    color: white;
+
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .error-card {
+        padding: 40px 22px;
+
+        border-radius: 22px;
+    }
+
+    .error-title {
+        font-size: 1.45rem;
+    }
+
+    .error-message {
+        font-size: 0.95rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .error-actions a,
+    .error-actions button {
+        width: 100%;
+
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+
+        animation-iteration-count: 1 !important;
+    }
+}
