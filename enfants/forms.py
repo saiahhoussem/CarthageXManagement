@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.utils import timezone
 from django.db.models import Count, F
@@ -387,7 +389,6 @@ class ActiviteForm(forms.ModelForm):
         self.fields["heure_debut"].required = True
         self.fields["heure_fin"].required = True
 
-
 class AccepterDemandeInscriptionForm(forms.Form):
     groupe = forms.ModelChoiceField(
         queryset=Groupe.objects.none(),
@@ -408,6 +409,61 @@ class AccepterDemandeInscriptionForm(forms.Form):
                 nb_enfants__lt=F("capacite")
             )
         )
+
+
+class PaiementCarteForm(forms.Form):
+    numero_carte = forms.CharField(
+        label="Numéro de carte",
+        max_length=19,
+        widget=forms.TextInput(attrs={"placeholder": "1234 5678 9012 3456"}),
+        error_messages={"required": "Veuillez indiquer le numéro de carte."},
+    )
+    expiration = forms.CharField(
+        label="Expiration",
+        max_length=5,
+        widget=forms.TextInput(attrs={"placeholder": "MM/AA"}),
+        error_messages={"required": "Veuillez indiquer la date d'expiration de la carte."},
+    )
+    cvv = forms.CharField(
+        label="CVV",
+        max_length=4,
+        widget=forms.TextInput(attrs={"placeholder": "123"}),
+        error_messages={"required": "Veuillez indiquer le code CVV de la carte."},
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
+
+    def clean_numero_carte(self):
+        valeur = self.cleaned_data["numero_carte"]
+        chiffres = valeur.replace(" ", "")
+
+        if not chiffres.isdigit():
+            raise forms.ValidationError("Le numéro de carte ne doit contenir que des chiffres.")
+
+        if len(chiffres) < 13 or len(chiffres) > 19:
+            raise forms.ValidationError("Le numéro de carte doit contenir entre 13 et 19 chiffres.")
+
+        return valeur
+
+    def clean_expiration(self):
+        valeur = self.cleaned_data["expiration"]
+
+        if not re.fullmatch(r"(0[1-9]|1[0-2])/\d{2}", valeur):
+            raise forms.ValidationError("La date d'expiration doit être au format MM/AA.")
+
+        return valeur
+
+    def clean_cvv(self):
+        valeur = self.cleaned_data["cvv"]
+
+        if not re.fullmatch(r"\d{3,4}", valeur):
+            raise forms.ValidationError("Le code CVV doit contenir 3 ou 4 chiffres.")
+
+        return valeur
 
 
 class PresenceParentForm(forms.ModelForm):

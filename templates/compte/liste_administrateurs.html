@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Liste des administrateurs - CarthageKids{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<main>
+    <div class="container mt-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Liste des administrateurs</h2>
+
+            {% if request.user.is_superuser %}
+            <a
+                href="{% url 'compte:creer_administrateur' %}"
+                class="btn btn-carthage"
+            >
+                <i class="bi bi-plus-circle"></i>
+                Nouvel administrateur
+            </a>
+            {% endif %}
+        </div>
+
+
+        <div class="input-group mb-4">
+
+            <input
+                type="text"
+                id="recherche-administrateur"
+                class="form-control"
+                placeholder="Rechercher par nom ou prénom..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="bouton-recherche"
+                class="btn btn-ck-orange"
+            >
+                Rechercher
+            </button>
+
+            <button
+                type="button"
+                id="bouton-reinitialiser"
+                class="btn btn-ck-bleu-fonce"
+            >
+                Réinitialiser
+            </button>
+
+        </div>
+
+
+        <div id="conteneur-administrateurs">
+
+            {% if administrateurs %}
+
+            <table class="table table-striped table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Courriel</th>
+                        <th>Téléphone</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for administrateur in administrateurs %}
+
+                    <tr>
+
+                        <td>
+                            {{ administrateur.last_name }}
+                        </td>
+
+                        <td>
+                            {{ administrateur.first_name }}
+                        </td>
+
+                        <td>
+                            {{ administrateur.email }}
+                        </td>
+
+                        <td>
+                            {{ administrateur.telephone }}
+                        </td>
+
+                        <td>
+
+                            {% if administrateur.is_active %}
+
+                            <span class="badge bg-success">
+                                Actif
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-secondary">
+                                Désactivé
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td class="text-end">
+
+                            <a
+                                href="{% url 'compte:detail_administrateur' administrateur.pk %}"
+                                class="btn btn-sm btn-ck-bleu-fonce"
+                            >
+                                <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
+                                Voir
+                            </a>
+
+                            <a
+                                href="{% url 'compte:modifier_administrateur' administrateur.pk %}"
+                                class="btn btn-sm btn-ck-orange"
+                            >
+                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                                Modifier
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="alert alert-info">
+                Aucun administrateur enregistré pour le moment.
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+</main>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const champRecherche =
+        document.getElementById("recherche-administrateur");
+
+    const boutonRecherche =
+        document.getElementById("bouton-recherche");
+
+    const boutonReinitialiser =
+        document.getElementById("bouton-reinitialiser");
+
+    const conteneur =
+        document.getElementById("conteneur-administrateurs");
+
+    let minuterie;
+
+
+    function echapperHtml(valeur) {
+
+        const element =
+            document.createElement("div");
+
+        element.textContent =
+            valeur ?? "";
+
+        return element.innerHTML;
+    }
+
+
+    function afficherAdministrateurs(administrateurs) {
+
+        if (administrateurs.length === 0) {
+
+            conteneur.innerHTML = `
+                <div class="alert alert-info">
+                    Aucun administrateur trouvé.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        let lignes = "";
+
+
+        administrateurs.forEach(function (administrateur) {
+
+            const statut = administrateur.actif
+                ? '<span class="badge bg-success">Actif</span>'
+                : '<span class="badge bg-secondary">Désactivé</span>';
+
+
+            lignes += `
+                <tr>
+
+                    <td>
+                        ${echapperHtml(administrateur.nom)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(administrateur.prenom)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(administrateur.email)}
+                    </td>
+
+                    <td>
+                        ${echapperHtml(administrateur.telephone)}
+                    </td>
+
+                    <td>
+                        ${statut}
+                    </td>
+
+                    <td class="text-end">
+
+                        <a
+                            href="${administrateur.url_detail}"
+                            class="btn btn-sm btn-ck-bleu-fonce"
+                        >
+                            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
+                            Voir
+                        </a>
+
+                        <a
+                            href="${administrateur.url_modifier}"
+                            class="btn btn-sm btn-ck-orange"
+                        >
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                            Modifier
+                        </a>
+
+                    </td>
+
+                </tr>
+            `;
+        });
+
+
+        conteneur.innerHTML = `
+            <table
+                class="table table-striped table-hover align-middle"
+            >
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Courriel</th>
+                        <th>Téléphone</th>
+                        <th>Statut</th>
+                        <th class="text-end">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${lignes}
+                </tbody>
+
+            </table>
+        `;
+    }
+
+
+    function rechercher() {
+
+        const recherche =
+            champRecherche.value.trim();
+
+
+        fetch(
+            "{% url 'compte:liste_administrateurs' %}?q="
+            + encodeURIComponent(recherche),
+            {
+                headers: {
+                    "X-Requested-With":
+                        "XMLHttpRequest"
+                }
+            }
+        )
+
+        .then(function (response) {
+
+            if (!response.ok) {
+                throw new Error();
+            }
+
+            return response.json();
+        })
+
+        .then(function (data) {
+
+            afficherAdministrateurs(
+                data.administrateurs
+            );
+        })
+
+        .catch(function () {
+
+            conteneur.innerHTML = `
+                <div class="alert alert-danger">
+                    Impossible d'effectuer la recherche.
+                </div>
+            `;
+        });
+    }
+
+
+    boutonRecherche.addEventListener(
+        "click",
+        rechercher
+    );
+
+
+    champRecherche.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                rechercher();
+            }
+        }
+    );
+
+
+    champRecherche.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(minuterie);
+
+            minuterie =
+                setTimeout(
+                    rechercher,
+                    300
+                );
+        }
+    );
+
+
+    boutonReinitialiser.addEventListener(
+        "click",
+        function () {
+
+            champRecherche.value = "";
+
+            rechercher();
+
+            champRecherche.focus();
+        }
+    );
+
+});
+</script>
+
+{% endblock %}

@@ -433,6 +433,12 @@ class Activite(models.Model):
                         "dans le passé."
                 })
 
+        if self.heure_debut and self.heure_fin:
+            if self.heure_fin <= self.heure_debut:
+                raise ValidationError({
+                    "heure_fin": "L'heure de fin doit être postérieure à l'heure de début."
+                })
+
     @property
     def plage_horaire(self):
         """Retourne 'HH:MM – HH:MM' ou 'Horaire à préciser'."""
@@ -560,6 +566,39 @@ class InscriptionActivite(models.Model):
 
     def __str__(self):
         return f"{self.enfant} - {self.activite}"
+
+
+class Paiement(models.Model):
+    class Methode(models.TextChoices):
+        CARTE = "carte", "Carte de crédit"
+
+    inscription = models.OneToOneField(
+        InscriptionActivite,
+        on_delete=models.CASCADE,
+        related_name="paiement",
+    )
+
+    parent = models.ForeignKey(
+        "compte.Parent",
+        on_delete=models.PROTECT,
+        related_name="paiements",
+    )
+
+    montant = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+    )
+
+    methode = models.CharField(
+        max_length=20,
+        choices=Methode.choices,
+        default=Methode.CARTE,
+    )
+
+    date_paiement = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.inscription} - {self.montant} $"
 
 
 def groupes_pertinents_pour_utilisateur(utilisateur):

@@ -98,6 +98,11 @@ main {
   padding: 40px;
 }
 
+.ck-page main {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
 .ck-sidebar {
   width: 280px;
   position: sticky;
@@ -163,6 +168,20 @@ main {
   font-size: 17px;
 }
 
+.ck-sidebar-icone {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.ck-action-icone {
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  vertical-align: -0.125em;
+}
+
 .ck-sidebar .logout {
   margin-top: auto;
 }
@@ -199,5 +218,10 @@ main {
   }
   .ck-sidebar.ck-sidebar-ouverte {
     transform: translateX(0);
+  }
+
+  .ck-page main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }

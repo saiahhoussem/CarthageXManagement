@@ -54,7 +54,7 @@
   <div class="d-flex gap-2">
     <a href="{% url 'compte:modifier_educateur' educateur.pk %}"
        class="btn btn-warning">
-      <i class="bi bi-pencil"></i> Modifier
+      <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt=""> Modifier
     </a>
 
     <form method="post"
@@ -63,7 +63,7 @@
       {% csrf_token %}
       {% if educateur.is_active %}
         <button type="submit" class="btn btn-danger">
-          <i class="bi bi-x-circle"></i> Désactiver le compte
+          <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Désactiver le compte
         </button>
       {% else %}
         <button type="submit" class="btn btn-success">

@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from datetime import timedelta
+from decimal import Decimal
 
 from .models import (
     Activite,
@@ -16,11 +17,12 @@ from .models import (
     Groupe,
     DemandeInscription,
     InscriptionActivite,
+    Paiement,
     groupes_pertinents_pour_utilisateur,
     activite_visible_par,
     Presence,
 )
-from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm,PresenceParentForm, PresenceEducateurForm, PresenceAdminForm
+from .forms import ActiviteForm, AllergieForm, ContactUrgenceForm, PersonneAutoriseeForm, GroupeForm, DemandeInscriptionForm, AccepterDemandeInscriptionForm, PaiementCarteForm, PresenceParentForm, PresenceEducateurForm, PresenceAdminForm
 from compte.models import creer_notification, Parent
 
 from django.contrib.auth.decorators import login_required
@@ -31,6 +33,7 @@ from .decorators import (
     parent_requis,
     educateur_requis,
     educateur_ou_parent_requis,
+    verifier_acces_groupe,
 )
 
 
@@ -1079,6 +1082,7 @@ def mes_activites(request):
 
     toutes_les_activites = (
         Activite.objects
+        .exclude(lieu__icontains="garderie")  
         .prefetch_related("groupes")
         .annotate(
             nb_groupes=Count("groupes", distinct=True),
@@ -1842,6 +1846,14 @@ def desinscrire_activite(request, inscription_id):
     )
 
     if request.method == "POST":
+        if hasattr(inscription, "paiement"):
+            messages.error(
+                request,
+                f"Impossible de se désinscrire de « {inscription.activite.nom} » : "
+                "les frais d'inscription ont déjà été payés."
+            )
+            return redirect("detail_activite", activite_id=inscription.activite_id)
+
         activite_id = inscription.activite_id
         enfant = inscription.enfant
         nom_activite = inscription.activite.nom
@@ -1854,6 +1866,113 @@ def desinscrire_activite(request, inscription_id):
         return redirect("detail_activite", activite_id=activite_id)
 
     return redirect("detail_activite", activite_id=inscription.activite_id)
+
+
+@login_required
+@parent_requis
+def payer_inscription(request, inscription_id):
+    inscription = get_object_or_404(
+        InscriptionActivite,
+        id=inscription_id,
+        enfant__parents__pk=request.user.pk,
+    )
+    activite = inscription.activite
+
+    if activite.frais_inscription <= 0:
+        messages.info(
+            request,
+            f"L'activité « {activite.nom} » est gratuite, aucun paiement n'est requis."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    if hasattr(inscription, "paiement"):
+        messages.info(
+            request,
+            f"Les frais d'inscription de « {activite.nom} » ont déjà été payés."
+        )
+        return redirect("detail_activite", activite_id=activite.id)
+
+    if request.method == "POST":
+        form = PaiementCarteForm(request.POST)
+
+        if form.is_valid():
+            Paiement.objects.create(
+                inscription=inscription,
+                parent=request.user.parent,
+                montant=activite.frais_inscription,
+            )
+
+            messages.success(
+                request,
+                f"Le paiement de {activite.frais_inscription} $ pour « {activite.nom} » a été effectué avec succès."
+            )
+            return redirect("detail_activite", activite_id=activite.id)
+    else:
+        form = PaiementCarteForm()
+
+    return render(request, "activites/payer_inscription.html", {
+        "inscription": inscription,
+        "activite": activite,
+        "form": form,
+    })
+
+
+@login_required
+@parent_requis
+def historique_paiements_parent(request):
+    paiements = (
+        Paiement.objects
+        .filter(parent=request.user.parent)
+        .select_related("inscription__activite", "inscription__enfant")
+        .order_by("-date_paiement")
+    )
+
+    montant_total = sum(
+        (paiement.montant for paiement in paiements),
+        Decimal("0"),
+    )
+
+    return render(request, "paiements/historique_parent.html", {
+        "paiements": paiements,
+        "montant_total": montant_total,
+    })
+
+
+@login_required
+@administrateur_requis
+def historique_paiements_admin(request):
+    paiements = (
+        Paiement.objects
+        .select_related("inscription__activite", "inscription__enfant", "parent")
+        .order_by("-date_paiement")
+    )
+
+    parent_id = request.GET.get("parent")
+    activite_id = request.GET.get("activite")
+
+    if parent_id:
+        paiements = paiements.filter(parent_id=parent_id)
+
+    if activite_id:
+        paiements = paiements.filter(inscription__activite_id=activite_id)
+
+    montant_total = sum(
+        (paiement.montant for paiement in paiements),
+        Decimal("0"),
+    )
+
+    parents = Parent.objects.order_by("last_name", "first_name")
+    activites = Activite.objects.order_by("-date")
+
+    return render(request, "paiements/historique_admin.html", {
+        "paiements": paiements,
+        "montant_total": montant_total,
+        "parents": parents,
+        "activites": activites,
+        "parent_selectionne": parent_id,
+        "activite_selectionnee": activite_id,
+    })
+
 
 @login_required
 @administrateur_requis
@@ -1880,38 +1999,28 @@ def detail_groupe(request, groupe_id):
 
 
 @login_required
-@educateur_requis
-def horaire_educateur(request):
-    """
-    Affiche le calendrier d'horaire de travail de l'éducateur connecté.
+def horaire_groupe(request, groupe_id):
+    groupe = get_object_or_404(
+        Groupe.objects.select_related("educateur"),
+        id=groupe_id,
+    )
 
-    Règle métier :
-      - activités non annulées,
-      - date dans [aujourd'hui, aujourd'hui + 90 jours],
-      - visibles par l'éducateur (ses groupes, ou tous les groupes).
-    """
+    verifier_acces_groupe(request.user, groupe)
+
     aujourd_hui = timezone.localdate()
     fin = aujourd_hui + timedelta(days=90)
 
-    total_groupes = Groupe.objects.count()
-    groupes_pertinents = groupes_pertinents_pour_utilisateur(request.user)
-
-    activites_qs = (
+    activites = (
         Activite.objects
         .filter(annulee=False)
         .filter(date__gte=aujourd_hui, date__lte=fin)
+        .filter(
+            Q(groupes=groupe) | Q(groupes__isnull=True)
+        )
+        .distinct()
         .prefetch_related("groupes")
-        .annotate(nb_groupes=Count("groupes", distinct=True))
         .order_by("date", "heure_debut")
     )
-
-    activites = [
-        a
-        for a in activites_qs
-        if activite_visible_par(
-            a, a.nb_groupes, total_groupes, groupes_pertinents
-        )
-    ]
 
     horaire = {}
     for activite in activites:
@@ -1921,12 +2030,83 @@ def horaire_educateur(request):
 
     return render(
         request,
-        "enfants/horaire_educateur.html",
+        "enfants/horaire_groupe.html",
         {
+            "groupe": groupe,
             "horaire": horaire,
-            "titre_page": "Mon horaire de travail",
             "nb_activites": len(activites),
             "aujourd_hui": aujourd_hui,
+            "titre_page": f"Horaire – {groupe.nom}",
+        },
+    )
+
+
+@login_required
+@parent_requis
+def horaire_parent(request):
+    mes_enfants = (
+        Enfant.objects
+        .filter(parents=request.user, actif=True)
+        .select_related("groupe")
+        .order_by("prenom", "nom")
+    )
+
+    enfant_id = request.GET.get("enfant")
+
+    if enfant_id:
+        enfant = get_object_or_404(mes_enfants, id=enfant_id)
+        return redirect("horaire_groupe", groupe_id=enfant.groupe_id)
+
+    return render(
+        request,
+        "enfants/horaire_parent.html",
+        {
+            "mes_enfants": mes_enfants,
+            "titre_page": "Calendrier de mes enfants",
+        },
+    )
+
+
+@login_required
+@administrateur_requis
+def horaire_admin(request):
+    """
+    Page de sélection : liste tous les groupes avec accès à leur horaire.
+    """
+    groupes = (
+        Groupe.objects
+        .select_related("educateur")
+        .prefetch_related("enfant_set")
+        .order_by("nom")
+    )
+
+    aujourd_hui = timezone.localdate()
+    fin = aujourd_hui + timedelta(days=90)
+
+    groupes_data = []
+    for groupe in groupes:
+        nb_activites = (
+            Activite.objects
+            .filter(annulee=False)
+            .filter(date__gte=aujourd_hui, date__lte=fin)
+            .filter(
+                Q(groupes=groupe) | Q(groupes__isnull=True)
+            )
+            .distinct()
+            .count()
+        )
+        groupes_data.append({
+            "groupe": groupe,
+            "nb_activites": nb_activites,
+            "nb_enfants": groupe.enfant_set.count(),
+        })
+
+    return render(
+        request,
+        "enfants/horaire_admin.html",
+        {
+            "groupes_data": groupes_data,
+            "titre_page": "Calendrier de tous les groupes",
         },
     )
 

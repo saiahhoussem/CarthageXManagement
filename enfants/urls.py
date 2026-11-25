@@ -174,6 +174,21 @@ urlpatterns = [
         name="desinscrire_activite",
     ),
     path(
+        "inscriptions-activite/<int:inscription_id>/payer/",
+        views.payer_inscription,
+        name="payer_inscription",
+    ),
+    path(
+        "paiements/historique/",
+        views.historique_paiements_parent,
+        name="historique_paiements_parent",
+    ),
+    path(
+        "paiements/historique/admin/",
+        views.historique_paiements_admin,
+        name="historique_paiements_admin",
+    ),
+    path(
         "mes-activites/",
         views.mes_activites,
         name="mes_activites",
@@ -261,9 +276,20 @@ urlpatterns = [
     ),
 
     path(
-        "horaire/",
-        views.horaire_educateur,
-        name="horaire_educateur",
+        "horaire/groupe/<int:groupe_id>/",
+        views.horaire_groupe,
+        name="horaire_groupe",
+    ),
+    path(
+        "horaire/parent/",
+        views.horaire_parent,
+        name="horaire_parent",
+    ),
+
+    path(
+        "horaire/admin/",
+        views.horaire_admin,
+        name="horaire_admin",
     ),
 
 ]

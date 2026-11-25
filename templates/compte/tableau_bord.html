@@ -19,296 +19,240 @@
         Espace {{ titre|lower }}
     </h1>
 
-    {% if nb_educateurs is not None %}
+    {% if role_page == "admin" %}
 
-        <div class="ck-cartes-stats mb-4">
+    <div class="mb-5">
 
-            <div class="ck-carte-stat">
-                <img
-                    src="{% static 'img/icones/educ1.png' %}"
-                    alt="Éducateurs"
-                    class="ck-icone-dashboard"
-                >
-                <div>
-                    <p class="ck-carte-stat-valeur">
-                        {{ nb_educateurs }}
-                    </p>
-                    <p class="ck-carte-stat-libelle">
-                        Éducateurs
-                    </p>
-                </div>
-            </div>
+        <h2 class="h4 mb-3">
+            Recherche rapide
+        </h2>
 
-            <div class="ck-carte-stat">
-                <img
-                    src="{% static 'img/icones/parent1.png' %}"
-                    alt="Parents"
-                    class="ck-icone-dashboard"
-                >
-                <div>
-                    <p class="ck-carte-stat-valeur">
-                        {{ nb_parents }}
-                    </p>
-                    <p class="ck-carte-stat-libelle">
-                        Parents
-                    </p>
-                </div>
-            </div>
+        <div class="input-group mb-3">
 
-            <div class="ck-carte-stat">
-                <img
-                    src="{% static 'img/icones/enfant.png' %}"
-                    alt="Enfants"
-                    class="ck-icone-dashboard"
-                >
-                <div>
-                    <p class="ck-carte-stat-valeur">
-                        {{ nb_enfants }}
-                    </p>
-                    <p class="ck-carte-stat-libelle">
-                        Enfants
-                    </p>
-                </div>
-            </div>
+            <input type="text" id="recherche-rapide-admin" class="form-control" placeholder="Rechercher..."
+                autocomplete="off">
 
-            <div class="ck-carte-stat">
-                <img
-                    src="{% static 'img/icones/enfants.png' %}"
-                    alt="Groupes"
-                    class="ck-icone-dashboard"
-                >
-                <div>
-                    <p class="ck-carte-stat-valeur">
-                        {{ nb_groupes }}
-                    </p>
-                    <p class="ck-carte-stat-libelle">
-                        Groupes
-                    </p>
-                </div>
-            </div>
+            <button type="button" id="bouton-recherche-admin" class="btn btn-ck-orange">
+                Rechercher
+            </button>
+
+            <button type="button" id="reinitialiser-recherche-admin" class="btn btn-ck-bleu-fonce">
+                Réinitialiser
+            </button>
 
         </div>
 
+        <div id="resultats-recherche-admin"></div>
 
-        <div class="mb-5">
+    </div>
 
-            <h2 class="h4 mb-3">
-                Recherche rapide
-            </h2>
 
-            <div class="input-group mb-3">
+    <div class="ck-cartes-stats mb-4">
 
-                <input
-                    type="text"
-                    id="recherche-rapide-admin"
-                    class="form-control"
-                    placeholder="Rechercher..."
-                    autocomplete="off"
-                >
-
-                <button
-                    type="button"
-                    id="bouton-recherche-admin"
-                    class="btn btn-ck-orange"
-                >
-                    Rechercher
-                </button>
-
-                <button
-                    type="button"
-                    id="reinitialiser-recherche-admin"
-                    class="btn btn-ck-bleu-fonce"
-                >
-                    Réinitialiser
-                </button>
-
+        <div class="ck-carte-stat">
+            <img src="{% static 'img/icones/educ1.png' %}" alt="Éducateurs" class="ck-icone-dashboard">
+            <div>
+                <p class="ck-carte-stat-valeur">
+                    {{ nb_educateurs }}
+                </p>
+                <p class="ck-carte-stat-libelle">
+                    Éducateurs
+                </p>
             </div>
-
-            <div id="resultats-recherche-admin"></div>
-
         </div>
 
-
-        <div class="ck-actions-rapides">
-
-            <h2 class="h4 mb-3">
-                Actions rapides
-            </h2>
-
-            <div class="ck-actions-rapides-carte">
-
-                <a
-                    href="{% url 'ajouter_groupe' %}"
-                    class="ck-action-rapide"
-                >
-                    <img
-                        src="{% static 'img/icones/ajout_groupe_1.png' %}"
-                        alt="Ajouter un groupe"
-                        class="ck-icone-dashboard"
-                    >
-
-                    <div class="ck-action-rapide-contenu">
-                        <p class="ck-action-rapide-titre">
-                            Ajouter un groupe
-                        </p>
-
-                        <p class="ck-action-rapide-description">
-                            Créer un nouveau groupe.
-                        </p>
-                    </div>
-                </a>
-
-
-                <a
-                    href="{% url 'compte:creer_educateur' %}"
-                    class="ck-action-rapide"
-                >
-                    <img
-                        src="{% static 'img/icones/ajout_educ.png' %}"
-                        alt="Ajouter un éducateur"
-                        class="ck-icone-dashboard"
-                    >
-
-                    <div class="ck-action-rapide-contenu">
-                        <p class="ck-action-rapide-titre">
-                            Ajouter un éducateur
-                        </p>
-
-                        <p class="ck-action-rapide-description">
-                            Créer un nouveau compte éducateur.
-                        </p>
-                    </div>
-                </a>
-
-
-                <a
-                    href="{% url 'compte:creer_parent' %}"
-                    class="ck-action-rapide"
-                >
-                    <img
-                        src="{% static 'img/icones/ajout_parent.png' %}"
-                        alt="Ajouter un parent"
-                        class="ck-icone-dashboard"
-                    >
-
-                    <div class="ck-action-rapide-contenu">
-                        <p class="ck-action-rapide-titre">
-                            Ajouter un parent
-                        </p>
-
-                        <p class="ck-action-rapide-description">
-                            Créer un nouveau compte parent.
-                        </p>
-                    </div>
-                </a>
-
+        <div class="ck-carte-stat">
+            <img src="{% static 'img/icones/parent1.png' %}" alt="Parents" class="ck-icone-dashboard">
+            <div>
+                <p class="ck-carte-stat-valeur">
+                    {{ nb_parents }}
+                </p>
+                <p class="ck-carte-stat-libelle">
+                    Parents
+                </p>
             </div>
-
         </div>
 
+        <div class="ck-carte-stat">
+            <img src="{% static 'img/icones/enfant.png' %}" alt="Enfants" class="ck-icone-dashboard">
+            <div>
+                <p class="ck-carte-stat-valeur">
+                    {{ nb_enfants }}
+                </p>
+                <p class="ck-carte-stat-libelle">
+                    Enfants
+                </p>
+            </div>
+        </div>
 
-    {% elif activites is not None %}
+        <div class="ck-carte-stat">
+            <img src="{% static 'img/icones/enfants.png' %}" alt="Groupes" class="ck-icone-dashboard">
+            <div>
+                <p class="ck-carte-stat-valeur">
+                    {{ nb_groupes }}
+                </p>
+                <p class="ck-carte-stat-libelle">
+                    Groupes
+                </p>
+            </div>
+        </div>
 
-        <div class="ck-section-activites">
+    </div>
 
-            <div class="ck-actions-rapides-entete">
 
-                <div>
-                    <p class="ck-actions-rapides-eyebrow">
-                        À venir
+    <div class="ck-actions-rapides">
+
+        <h2 class="h4 mb-3">
+            Actions rapides
+        </h2>
+
+        <div class="ck-actions-rapides-carte">
+
+            <a href="{% url 'ajouter_groupe' %}" class="ck-action-rapide">
+                <img src="{% static 'img/icones/ajout_groupe_1.png' %}" alt="Ajouter un groupe"
+                    class="ck-icone-dashboard">
+
+                <div class="ck-action-rapide-contenu">
+                    <p class="ck-action-rapide-titre">
+                        Ajouter un groupe
                     </p>
 
-                    <h2 class="ck-actions-rapides-titre">
-                        Activités et événements
-                    </h2>
+                    <p class="ck-action-rapide-description">
+                        Créer un nouveau groupe.
+                    </p>
                 </div>
-
-                <a
-                    href="{% url 'mes_activites' %}"
-                    class="ck-voir-tout"
-                >
-                    Voir tout
-                </a>
-
-            </div>
+            </a>
 
 
-            {% if activites %}
+            <a href="{% url 'compte:creer_educateur' %}" class="ck-action-rapide">
+                <img src="{% static 'img/icones/ajout_educ.png' %}" alt="Ajouter un éducateur"
+                    class="ck-icone-dashboard">
 
-                <div class="ck-carrousel">
+                <div class="ck-action-rapide-contenu">
+                    <p class="ck-action-rapide-titre">
+                        Ajouter un éducateur
+                    </p>
 
-                    <button
-                        type="button"
-                        class="ck-carrousel-fleche ck-carrousel-fleche--gauche"
-                        data-direction="-1"
-                    >
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-
-                    <div class="ck-carrousel-piste">
-
-                        {% for activite in activites %}
-
-                            <div class="ck-carrousel-carte">
-
-                                <div class="ck-img-conteneur ck-carrousel-carte-image">
-
-                                    <img
-                                        src="{{ activite.photo_url }}"
-                                        alt="{{ activite.nom }}"
-                                        class="ck-img-conteneur-media"
-                                        loading="lazy"
-                                    >
-
-                                </div>
-
-                                <div class="ck-carrousel-carte-corps">
-
-                                    <p class="ck-carrousel-carte-date">
-                                        {{ activite.date|date:"d M Y" }}
-                                    </p>
-
-                                    <h3 class="ck-carrousel-carte-titre">
-                                        {{ activite.nom }}
-                                    </h3>
-
-                                    <p class="ck-carrousel-carte-lieu">
-                                        {{ activite.lieu }}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                    <button
-                        type="button"
-                        class="ck-carrousel-fleche ck-carrousel-fleche--droite"
-                        data-direction="1"
-                    >
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-
+                    <p class="ck-action-rapide-description">
+                        Créer un nouveau compte éducateur.
+                    </p>
                 </div>
+            </a>
 
-            {% else %}
 
-                <p class="text-muted">
-                    Aucune activité à venir.
+            <a href="{% url 'compte:creer_parent' %}" class="ck-action-rapide">
+                <img src="{% static 'img/icones/ajout_parent.png' %}" alt="Ajouter un parent"
+                    class="ck-icone-dashboard">
+
+                <div class="ck-action-rapide-contenu">
+                    <p class="ck-action-rapide-titre">
+                        Ajouter un parent
+                    </p>
+
+                    <p class="ck-action-rapide-description">
+                        Créer un nouveau compte parent.
+                    </p>
+                </div>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% elif role_page == "educateur" or role_page == "parent" %}
+
+    <div class="ck-section-activites">
+
+        <div class="ck-actions-rapides-entete">
+
+            <div>
+                <p class="ck-actions-rapides-eyebrow">
+                    À venir
                 </p>
 
-            {% endif %}
+                <h2 class="ck-actions-rapides-titre">
+                    Activités et événements
+                </h2>
+            </div>
+
+            <a href="{% url 'mes_activites' %}" class="ck-voir-tout">
+                Voir tout
+            </a>
 
         </div>
+
+
+        {% if activites %}
+
+        <div class="ck-carrousel">
+
+            <button type="button" class="ck-carrousel-fleche ck-carrousel-fleche--gauche" data-direction="-1">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <div class="ck-carrousel-piste">
+
+                {% for activite in activites %}
+
+                <div class="ck-carrousel-carte">
+
+                    <div class="ck-img-conteneur ck-carrousel-carte-image">
+
+                        <img
+                            src="{{ activite.photo_url }}"
+                            alt="{{ activite.nom }}"
+                            class="ck-img-conteneur-media"
+                            loading="lazy"
+                            onload="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                            onerror="this.classList.add('ck-img-chargee'); this.parentElement.classList.add('ck-img-pret')"
+                        >
+
+                    </div>
+
+                    <div class="ck-carrousel-carte-corps">
+
+                        <p class="ck-carrousel-carte-date">
+                            {{ activite.date|date:"d M Y" }}
+                        </p>
+
+                        <h3 class="ck-carrousel-carte-titre">
+                            {{ activite.nom }}
+                        </h3>
+
+                        <p class="ck-carrousel-carte-lieu">
+                            {{ activite.lieu }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <button type="button" class="ck-carrousel-fleche ck-carrousel-fleche--droite" data-direction="1">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+        </div>
+
+        {% else %}
+
+        <p class="text-muted">
+            Aucune activité à venir.
+        </p>
+
+        {% endif %}
+
+    </div>
 
     {% else %}
 
-        <div class="alert alert-light border">
-            Cet espace est en construction.
-        </div>
+    <div class="alert alert-light border">
+        Cet espace est en construction.
+    </div>
 
     {% endif %}
 
@@ -320,75 +264,75 @@
 {% block extra_js %}
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll(".ck-carrousel").forEach(function (carrousel) {
+        document.querySelectorAll(".ck-carrousel").forEach(function (carrousel) {
 
-        const piste = carrousel.querySelector(".ck-carrousel-piste");
+            const piste = carrousel.querySelector(".ck-carrousel-piste");
 
-        if (!piste) {
-            return;
-        }
+            if (!piste) {
+                return;
+            }
 
-        carrousel.querySelectorAll(".ck-carrousel-fleche").forEach(function (bouton) {
+            carrousel.querySelectorAll(".ck-carrousel-fleche").forEach(function (bouton) {
 
-            bouton.addEventListener("click", function () {
+                bouton.addEventListener("click", function () {
 
-                const direction =
-                    parseInt(bouton.dataset.direction, 10) || 1;
+                    const direction =
+                        parseInt(bouton.dataset.direction, 10) || 1;
 
-                piste.scrollBy({
-                    left: direction * 300,
-                    behavior: "smooth"
+                    piste.scrollBy({
+                        left: direction * 300,
+                        behavior: "smooth"
+                    });
+
                 });
 
             });
 
         });
 
-    });
+
+        const champRecherche =
+            document.getElementById("recherche-rapide-admin");
+
+        const boutonRecherche =
+            document.getElementById("bouton-recherche-admin");
+
+        const boutonReinitialiser =
+            document.getElementById("reinitialiser-recherche-admin");
+
+        const conteneur =
+            document.getElementById("resultats-recherche-admin");
 
 
-    const champRecherche =
-        document.getElementById("recherche-rapide-admin");
-
-    const boutonRecherche =
-        document.getElementById("bouton-recherche-admin");
-
-    const boutonReinitialiser =
-        document.getElementById("reinitialiser-recherche-admin");
-
-    const conteneur =
-        document.getElementById("resultats-recherche-admin");
-
-
-    if (
-        !champRecherche
-        || !boutonRecherche
-        || !boutonReinitialiser
-        || !conteneur
-    ) {
-        return;
-    }
-
-
-    let minuterie;
-
-
-    function echapperHtml(valeur) {
-        const element = document.createElement("div");
-        element.textContent = valeur ?? "";
-        return element.innerHTML;
-    }
-
-
-    function afficherCategorie(titre, elements) {
-
-        if (!elements || elements.length === 0) {
-            return "";
+        if (
+            !champRecherche
+            || !boutonRecherche
+            || !boutonReinitialiser
+            || !conteneur
+        ) {
+            return;
         }
 
-        let html = `
+
+        let minuterie;
+
+
+        function echapperHtml(valeur) {
+            const element = document.createElement("div");
+            element.textContent = valeur ?? "";
+            return element.innerHTML;
+        }
+
+
+        function afficherCategorie(titre, elements) {
+
+            if (!elements || elements.length === 0) {
+                return "";
+            }
+
+            let html = `
             <div class="mb-3">
 
                 <strong>
@@ -399,9 +343,9 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
 
 
-        elements.forEach(function (element) {
+            elements.forEach(function (element) {
 
-            html += `
+                html += `
                 <li
                     class="
                         list-group-item
@@ -423,160 +367,160 @@ document.addEventListener("DOMContentLoaded", function () {
                 </li>
             `;
 
-        });
+            });
 
 
-        html += `
+            html += `
                 </ul>
             </div>
         `;
 
-        return html;
-    }
+            return html;
+        }
 
 
-    function afficherResultats(data) {
+        function afficherResultats(data) {
 
-        let html = "";
+            let html = "";
 
-        html += afficherCategorie(
-            "Éducateurs",
-            data.educateurs
-        );
+            html += afficherCategorie(
+                "Éducateurs",
+                data.educateurs
+            );
 
-        html += afficherCategorie(
-            "Parents",
-            data.parents
-        );
+            html += afficherCategorie(
+                "Parents",
+                data.parents
+            );
 
-        html += afficherCategorie(
-            "Groupes",
-            data.groupes
-        );
+            html += afficherCategorie(
+                "Groupes",
+                data.groupes
+            );
 
-        html += afficherCategorie(
-            "Enfants",
-            data.enfants
-        );
+            html += afficherCategorie(
+                "Enfants",
+                data.enfants
+            );
 
-        html += afficherCategorie(
-            "Activités",
-            data.activites
-        );
+            html += afficherCategorie(
+                "Activités",
+                data.activites
+            );
 
 
-        if (html === "") {
+            if (html === "") {
 
-            conteneur.innerHTML = `
+                conteneur.innerHTML = `
                 <p class="text-muted">
                     Aucun résultat trouvé.
                 </p>
             `;
 
-            return;
+                return;
+            }
+
+
+            conteneur.innerHTML = html;
         }
 
 
-        conteneur.innerHTML = html;
-    }
+        function rechercher() {
+
+            const recherche =
+                champRecherche.value.trim();
 
 
-    function rechercher() {
+            if (!recherche) {
 
-        const recherche =
-            champRecherche.value.trim();
-
-
-        if (!recherche) {
-
-            conteneur.innerHTML = "";
-            return;
-        }
+                conteneur.innerHTML = "";
+                return;
+            }
 
 
-        fetch(
-            "{% url 'compte:recherche_rapide_admin' %}?q="
-            + encodeURIComponent(recherche),
-            {
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
+            fetch(
+                "{% url 'compte:recherche_rapide_admin' %}?q="
+                + encodeURIComponent(recherche),
+                {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
                 }
-            }
-        )
+            )
 
-        .then(function (response) {
+                .then(function (response) {
 
-            if (!response.ok) {
-                throw new Error();
-            }
+                    if (!response.ok) {
+                        throw new Error();
+                    }
 
-            return response.json();
+                    return response.json();
 
-        })
+                })
 
-        .then(function (data) {
-            afficherResultats(data);
-        })
+                .then(function (data) {
+                    afficherResultats(data);
+                })
 
-        .catch(function () {
+                .catch(function () {
 
-            conteneur.innerHTML = `
+                    conteneur.innerHTML = `
                 <div class="alert alert-danger">
                     Impossible d'effectuer la recherche.
                 </div>
             `;
 
-        });
-
-    }
-
-
-    boutonRecherche.addEventListener(
-        "click",
-        rechercher
-    );
-
-
-    champRecherche.addEventListener(
-        "input",
-        function () {
-
-            clearTimeout(minuterie);
-
-            minuterie =
-                setTimeout(rechercher, 300);
+                });
 
         }
-    );
 
 
-    champRecherche.addEventListener(
-        "keydown",
-        function (event) {
+        boutonRecherche.addEventListener(
+            "click",
+            rechercher
+        );
 
-            if (event.key === "Enter") {
 
-                event.preventDefault();
-                rechercher();
+        champRecherche.addEventListener(
+            "input",
+            function () {
+
+                clearTimeout(minuterie);
+
+                minuterie =
+                    setTimeout(rechercher, 300);
 
             }
-
-        }
-    );
+        );
 
 
-    boutonReinitialiser.addEventListener(
-        "click",
-        function () {
+        champRecherche.addEventListener(
+            "keydown",
+            function (event) {
 
-            champRecherche.value = "";
-            conteneur.innerHTML = "";
-            champRecherche.focus();
+                if (event.key === "Enter") {
 
-        }
-    );
+                    event.preventDefault();
+                    rechercher();
 
-});
+                }
+
+            }
+        );
+
+
+        boutonReinitialiser.addEventListener(
+            "click",
+            function () {
+
+                champRecherche.value = "";
+                conteneur.innerHTML = "";
+                champRecherche.focus();
+
+            }
+        );
+
+    });
 </script>
 
 {% endblock %}
