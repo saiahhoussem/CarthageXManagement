@@ -13,5 +13,9 @@ urlpatterns = [
     path('', include('enfants.urls')),
 ]
 
+handler400 = "enfants.views.erreur_400"
+handler403 = "enfants.views.erreur_403"
+handler404 = "enfants.views.erreur_404"
+handler500 = "enfants.views.erreur_500"
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

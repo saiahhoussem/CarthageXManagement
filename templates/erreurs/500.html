@@ -1,0 +1,33 @@
+{% extends "erreurs/base_erreur.html" %}
+
+{% block title %}
+Erreur serveur - CarthageKids
+{% endblock %}
+
+{% block icon %}
+<i class="bi bi-tools"></i>
+{% endblock %}
+
+{% block error_code %}
+500
+{% endblock %}
+
+{% block error_title %}
+Une erreur s'est produite
+{% endblock %}
+
+{% block error_message %}
+Le serveur a rencontré un problème inattendu.
+Veuillez réessayer dans quelques instants.
+{% endblock %}
+
+{% block error_actions %}
+    <button
+        type="button"
+        class="btn-error-secondary"
+        onclick="window.location.reload()"
+    >
+        <i class="bi bi-arrow-clockwise"></i>
+        Réessayer
+    </button>
+{% endblock %}
