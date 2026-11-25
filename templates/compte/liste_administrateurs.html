@@ -15,41 +15,23 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Liste des administrateurs</h2>
 
-            {% if request.user.is_superuser %}
-            <a
-                href="{% url 'compte:creer_administrateur' %}"
-                class="btn btn-carthage"
-            >
+            <a href="{% url 'compte:creer_administrateur' %}" class="btn btn-carthage">
                 <i class="bi bi-plus-circle"></i>
                 Nouvel administrateur
             </a>
-            {% endif %}
         </div>
 
 
         <div class="input-group mb-4">
 
-            <input
-                type="text"
-                id="recherche-administrateur"
-                class="form-control"
-                placeholder="Rechercher par nom ou prénom..."
-                autocomplete="off"
-            >
+            <input type="text" id="recherche-administrateur" class="form-control"
+                placeholder="Rechercher par nom ou prénom..." autocomplete="off">
 
-            <button
-                type="button"
-                id="bouton-recherche"
-                class="btn btn-ck-orange"
-            >
+            <button type="button" id="bouton-recherche" class="btn btn-ck-orange">
                 Rechercher
             </button>
 
-            <button
-                type="button"
-                id="bouton-reinitialiser"
-                class="btn btn-ck-bleu-fonce"
-            >
+            <button type="button" id="bouton-reinitialiser" class="btn btn-ck-bleu-fonce">
                 Réinitialiser
             </button>
 
@@ -115,20 +97,24 @@
 
                         <td class="text-end">
 
-                            <a
-                                href="{% url 'compte:detail_administrateur' administrateur.pk %}"
-                                class="btn btn-sm btn-ck-bleu-fonce"
-                            >
-                                <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
-                                Voir
+                            <a href="{% url 'compte:detail_administrateur' administrateur.pk %}"
+                                class="btn btn-sm btn-ck-bleu-clair" title="Voir le détail">
+                                <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone"
+                                    alt="">
                             </a>
 
-                            <a
-                                href="{% url 'compte:modifier_administrateur' administrateur.pk %}"
-                                class="btn btn-sm btn-ck-orange"
-                            >
-                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                            <a href="{% url 'compte:modifier_administrateur' administrateur.pk %}"
+                                class="btn btn-sm btn-ck-orange">
+                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone"
+                                    alt="">
                                 Modifier
+                            </a>
+
+                            <a href="{% url 'compte:supprimer_administrateur' administrateur.pk %}"
+                                class="btn btn-sm btn-danger">
+                                <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone"
+                                    alt="">
+                                Supprimer
                             </a>
 
                         </td>
@@ -156,60 +142,60 @@
 
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-    const champRecherche =
-        document.getElementById("recherche-administrateur");
+        const champRecherche =
+            document.getElementById("recherche-administrateur");
 
-    const boutonRecherche =
-        document.getElementById("bouton-recherche");
+        const boutonRecherche =
+            document.getElementById("bouton-recherche");
 
-    const boutonReinitialiser =
-        document.getElementById("bouton-reinitialiser");
+        const boutonReinitialiser =
+            document.getElementById("bouton-reinitialiser");
 
-    const conteneur =
-        document.getElementById("conteneur-administrateurs");
+        const conteneur =
+            document.getElementById("conteneur-administrateurs");
 
-    let minuterie;
-
-
-    function echapperHtml(valeur) {
-
-        const element =
-            document.createElement("div");
-
-        element.textContent =
-            valeur ?? "";
-
-        return element.innerHTML;
-    }
+        let minuterie;
 
 
-    function afficherAdministrateurs(administrateurs) {
+        function echapperHtml(valeur) {
 
-        if (administrateurs.length === 0) {
+            const element =
+                document.createElement("div");
 
-            conteneur.innerHTML = `
+            element.textContent =
+                valeur ?? "";
+
+            return element.innerHTML;
+        }
+
+
+        function afficherAdministrateurs(administrateurs) {
+
+            if (administrateurs.length === 0) {
+
+                conteneur.innerHTML = `
                 <div class="alert alert-info">
                     Aucun administrateur trouvé.
                 </div>
             `;
 
-            return;
-        }
+                return;
+            }
 
 
-        let lignes = "";
+            let lignes = "";
 
 
-        administrateurs.forEach(function (administrateur) {
+            administrateurs.forEach(function (administrateur) {
 
-            const statut = administrateur.actif
-                ? '<span class="badge bg-success">Actif</span>'
-                : '<span class="badge bg-secondary">Désactivé</span>';
+                const statut = administrateur.actif
+                    ? '<span class="badge bg-success">Actif</span>'
+                    : '<span class="badge bg-secondary">Désactivé</span>';
 
 
-            lignes += `
+                lignes += `
                 <tr>
 
                     <td>
@@ -236,10 +222,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <a
                             href="${administrateur.url_detail}"
-                            class="btn btn-sm btn-ck-bleu-fonce"
+                            class="btn btn-sm btn-ck-bleu-clair"
+                            title="Voir le détail"
                         >
                             <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
-                            Voir
                         </a>
 
                         <a
@@ -250,14 +236,22 @@ document.addEventListener("DOMContentLoaded", function () {
                             Modifier
                         </a>
 
+                        <a
+                            href="${administrateur.url_supprimer}"
+                            class="btn btn-sm btn-danger"
+                        >
+                            <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt="">
+                            Supprimer
+                        </a>
+
                     </td>
 
                 </tr>
             `;
-        });
+            });
 
 
-        conteneur.innerHTML = `
+            conteneur.innerHTML = `
             <table
                 class="table table-striped table-hover align-middle"
             >
@@ -281,101 +275,101 @@ document.addEventListener("DOMContentLoaded", function () {
 
             </table>
         `;
-    }
+        }
 
 
-    function rechercher() {
+        function rechercher() {
 
-        const recherche =
-            champRecherche.value.trim();
+            const recherche =
+                champRecherche.value.trim();
 
 
-        fetch(
-            "{% url 'compte:liste_administrateurs' %}?q="
-            + encodeURIComponent(recherche),
-            {
-                headers: {
-                    "X-Requested-With":
-                        "XMLHttpRequest"
+            fetch(
+                "{% url 'compte:liste_administrateurs' %}?q="
+                + encodeURIComponent(recherche),
+                {
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest"
+                    }
                 }
-            }
-        )
+            )
 
-        .then(function (response) {
+                .then(function (response) {
 
-            if (!response.ok) {
-                throw new Error();
-            }
+                    if (!response.ok) {
+                        throw new Error();
+                    }
 
-            return response.json();
-        })
+                    return response.json();
+                })
 
-        .then(function (data) {
+                .then(function (data) {
 
-            afficherAdministrateurs(
-                data.administrateurs
-            );
-        })
+                    afficherAdministrateurs(
+                        data.administrateurs
+                    );
+                })
 
-        .catch(function () {
+                .catch(function () {
 
-            conteneur.innerHTML = `
+                    conteneur.innerHTML = `
                 <div class="alert alert-danger">
                     Impossible d'effectuer la recherche.
                 </div>
             `;
-        });
-    }
+                });
+        }
 
 
-    boutonRecherche.addEventListener(
-        "click",
-        rechercher
-    );
+        boutonRecherche.addEventListener(
+            "click",
+            rechercher
+        );
 
 
-    champRecherche.addEventListener(
-        "keydown",
-        function (event) {
+        champRecherche.addEventListener(
+            "keydown",
+            function (event) {
 
-            if (event.key === "Enter") {
+                if (event.key === "Enter") {
 
-                event.preventDefault();
+                    event.preventDefault();
+
+                    rechercher();
+                }
+            }
+        );
+
+
+        champRecherche.addEventListener(
+            "input",
+            function () {
+
+                clearTimeout(minuterie);
+
+                minuterie =
+                    setTimeout(
+                        rechercher,
+                        300
+                    );
+            }
+        );
+
+
+        boutonReinitialiser.addEventListener(
+            "click",
+            function () {
+
+                champRecherche.value = "";
 
                 rechercher();
+
+                champRecherche.focus();
             }
-        }
-    );
+        );
 
-
-    champRecherche.addEventListener(
-        "input",
-        function () {
-
-            clearTimeout(minuterie);
-
-            minuterie =
-                setTimeout(
-                    rechercher,
-                    300
-                );
-        }
-    );
-
-
-    boutonReinitialiser.addEventListener(
-        "click",
-        function () {
-
-            champRecherche.value = "";
-
-            rechercher();
-
-            champRecherche.focus();
-        }
-    );
-
-});
+    });
 </script>
 
 {% endblock %}

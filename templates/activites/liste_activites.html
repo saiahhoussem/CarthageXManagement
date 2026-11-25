@@ -85,93 +85,81 @@
 
                 {% for activite in activites %}
 
-                    <tr>
+                <tr>
 
-                        <td>
-                            {{ activite.nom }}
-                            {% if activite.annulee %}
-                                <span class="badge bg-secondary ms-1">Annulée</span>
-                            {% endif %}
-                        </td>
+                    <td>
+                        {{ activite.nom }}
+                        {% if activite.annulee %}
+                        <span class="badge bg-secondary ms-1">Annulée</span>
+                        {% endif %}
+                    </td>
 
-                        <td>
-                            {{ activite.date|date:"d/m/Y" }}
-                        </td>
+                    <td>
+                        {{ activite.date|date:"d/m/Y" }}
+                    </td>
 
-                        <td class="text-nowrap">
-                            {% if activite.heure_debut and activite.heure_fin %}
-                                {{ activite.heure_debut|time:"H:i" }} – {{ activite.heure_fin|time:"H:i" }}
-                            {% else %}
-                                <span class="text-muted">À préciser</span>
-                            {% endif %}
-                        </td>
+                    <td class="text-nowrap">
+                        {% if activite.heure_debut and activite.heure_fin %}
+                        {{ activite.heure_debut|time:"H:i" }} – {{ activite.heure_fin|time:"H:i" }}
+                        {% else %}
+                        <span class="text-muted">À préciser</span>
+                        {% endif %}
+                    </td>
 
-                        <td>
-                            {{ activite.lieu }}
-                        </td>
+                    <td>
+                        {{ activite.lieu }}
+                    </td>
 
-                        <td>
-                            {{ activite.frais_affichage }}
-                        </td>
+                    <td>
+                        {{ activite.frais_affichage }}
+                    </td>
 
-                        <td>
-                            {{ activite.places_restantes }}/{{ activite.places_disponibles }}
-                        </td>
+                    <td>
+                        {{ activite.places_restantes }}/{{ activite.places_disponibles }}
+                    </td>
 
-                        <td>
-                            {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
-                                <span class="text-muted">Tous les groupes</span>
-                            {% else %}
-                                <span
-                                    class="badge rounded-pill px-3 py-2 text-dark border"
-                                    style="background-color: #e9ecef; cursor: default;"
-                                    title="{% for groupe in activite.groupes.all %}{{ groupe.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-                                >
-                                    <i class="bi bi-diagram-3 me-1"></i>
-                                    {{ activite.nb_groupes }} groupe{{ activite.nb_groupes|pluralize }}
-                                </span>
-                            {% endif %}
-                        </td>
+                    <td>
+                        {% if activite.nb_groupes == 0 or activite.nb_groupes == total_groupes %}
+                        <span class="text-muted">Tous les groupes</span>
+                        {% else %}
+                        <span class="badge rounded-pill px-3 py-2 text-dark border"
+                            style="background-color: #e9ecef; cursor: default;"
+                            title="{% for groupe in activite.groupes.all %}{{ groupe.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+                            <i class="bi bi-diagram-3 me-1"></i>
+                            {{ activite.nb_groupes }} groupe{{ activite.nb_groupes|pluralize }}
+                        </span>
+                        {% endif %}
+                    </td>
 
-                        <td class="text-end text-nowrap">
-                            <div class="dropdown">
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline-secondary"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'detail_activite' activite.id %}">
-                                            Voir
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'modifier_activite' activite.id %}">
-                                            Modifier
-                                        </a>
-                                    </li>
-                                    {% if not activite.annulee %}
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'annuler_activite' activite.id %}">
-                                                Annuler
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="{% url 'supprimer_activite' activite.id %}">
-                                            Supprimer
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
+                    <td class="text-end text-nowrap">
 
-                    </tr>
+                        <a href="{% url 'detail_activite' activite.id %}" class="btn btn-sm btn-ck-bleu-clair"
+                            title="Voir le détail">
+                            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
+                        </a>
+
+                        <a href="{% url 'modifier_activite' activite.id %}" class="btn btn-sm btn-ck-orange">
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                            Modifier
+                        </a>
+
+                        {% if not activite.annulee %}
+                        <a href="{% url 'annuler_activite' activite.id %}" class="btn btn-sm btn-outline-danger"
+                            title="Annuler l'activité">
+                            <i class="bi bi-x-circle"></i>
+                            Annuler
+                        </a>
+                        {% endif %}
+
+                        <a href="{% url 'supprimer_activite' activite.id %}" class="btn btn-sm btn-danger">
+                            <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone"
+                                alt="">
+                            Supprimer
+                        </a>
+
+                    </td>
+
+                </tr>
 
                 {% endfor %}
 
@@ -323,10 +311,11 @@
                         : `
                         <a
                             href="${echapperHtml(activite.url_annuler)}"
-                            class="btn btn-sm btn-outline-danger me-1"
-                            title="Annuler"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Annuler l'activité"
                         >
                             <i class="bi bi-x-circle"></i>
+                            Annuler
                         </a>
                     `;
 
@@ -366,19 +355,18 @@
 
                         <a
                             href="${echapperHtml(activite.url_detail)}"
-                            class="btn btn-sm btn-outline-secondary me-1"
-                            title="Voir"
+                            class="btn btn-sm btn-ck-bleu-clair"
+                            title="Voir le détail"
                         >
-                            <i class="bi bi-eye"></i>
+                            <img src="{% static 'img/icones/actions/view-white.png' %}" class="ck-action-icone" alt="">
                         </a>
 
                         <a
                             href="${echapperHtml(activite.url_modifier)}"
-                            class="btn btn-sm text-white me-1"
-                            style="background-color: #f49f02;"
-                            title="Modifier"
+                            class="btn btn-sm btn-ck-orange"
                         >
-                            <i class="bi bi-pencil-square"></i>
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                            Modifier
                         </a>
 
                         ${boutonAnnuler}
@@ -386,9 +374,9 @@
                         <a
                             href="${echapperHtml(activite.url_supprimer)}"
                             class="btn btn-sm btn-danger"
-                            title="Supprimer"
                         >
-                            <i class="bi bi-trash"></i>
+                            <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt="">
+                            Supprimer
                         </a>
 
                     </td>

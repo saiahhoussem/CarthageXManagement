@@ -14,11 +14,23 @@
 {% block content %}
 <main>
     <div class="carte-formulaire">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="mb-0">
+                Modifier {{ administrateur.get_full_name|default:administrateur.username }}
+            </h1>
+
+            <a href="{% url 'compte:detail_administrateur' administrateur.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Retour
+            </a>
+        </div>
+
         <div class="card shadow-sm">
             <div class="card-body p-4">
 
                 <header class="text-center mb-4">
-                    <h1>Modifier {{ administrateur.get_full_name|default:administrateur.username }}</h1>
+                    <h2 class="h4 mb-0">Informations de l'administrateur</h2>
                 </header>
 
                 <form method="post" novalidate>
@@ -134,8 +146,12 @@
                     </div>
 
                     <div class="conteneur-bouton-creer">
-                        <button type="submit" class="btn btn-carthage bouton-creer-compte">Enregistrer</button>
-                        <a href="{% url 'compte:liste_administrateurs' %}" class="btn btn-outline-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-carthage bouton-creer-compte">
+                            Enregistrer
+                        </button>
+                        <a href="{% url 'compte:liste_administrateurs' %}" class="btn btn-outline-secondary">
+                            Annuler
+                        </a>
                     </div>
                 </form>
 

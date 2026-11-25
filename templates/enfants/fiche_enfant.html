@@ -1,107 +1,86 @@
 {% extends "base.html" %}
-
 {% load static %}
 
-{% block title %}Dossier de l'enfant{% endblock %}
+{% block title %}Dossier de l'enfant - CarthageKids{% endblock %}
 
 {% block extra_css %}
-<link
-    rel="stylesheet"
-    href="{% static 'enfants/fiche_enfant.css' %}">
+<link rel="stylesheet" href="{% static 'enfants/fiche_enfant.css' %}">
 {% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
 <main>
 
-<div class="container py-5 fiche-enfant">
+    <div class="container py-5 fiche-enfant">
 
-    {% if retour == "mes-enfants" %}
-        <a href="{% url 'mes_enfants' %}" class="btn-retour">
-            <i class="bi bi-arrow-left"></i>
-            Retour à mes enfants
-        </a>
-    {% elif retour == "mon-groupe" %}
-        <a href="{% url 'mon_groupe' %}" class="btn-retour">
-            <i class="bi bi-arrow-left"></i>
-            Retour à mon groupe
-        </a>
-    {% elif user.is_administrateur or user.is_superuser %}
-        <a href="{% url 'liste_enfants' %}" class="btn-retour">
-            <i class="bi bi-arrow-left"></i>
-            Retour à la liste des enfants
-        </a>
-    {% endif %}
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-semibold mb-0">Dossier de l'enfant</h1>
-
-        {% if user.is_administrateur or user.is_superuser %}
-            <div class="d-flex align-items-center gap-3">
-                {% if enfant.actif %}
-                    <span class="badge bg-success">Actif</span>
-                {% else %}
-                    <span class="badge bg-secondary">Archivé</span>
-                {% endif %}
-
-                <form method="post" action="{% url 'basculer_statut_enfant' enfant.id %}">
-                    {% csrf_token %}
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h2 class="mb-1">{{ enfant.prenom }} {{ enfant.nom }}</h2>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-person-badge"></i> Dossier de l'enfant
                     {% if enfant.actif %}
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="bi bi-archive"></i>
-                            Archiver le dossier
-                        </button>
+                    <span class="badge bg-success ms-2">Actif</span>
                     {% else %}
-                        <button type="submit" class="btn btn-sm btn-success">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                            Réactiver le dossier
-                        </button>
+                    <span class="badge bg-secondary ms-2">Archivé</span>
                     {% endif %}
-                </form>
+                </p>
             </div>
-        {% endif %}
-    </div>
 
-    <div class="card shadow-sm mb-4 section-generale">
-        <div class="card-body">
-
-            <p>
-                <strong>Prénom :</strong>
-                {{ enfant.prenom }}
-            </p>
-
-            <p>
-                <strong>Nom :</strong>
-                {{ enfant.nom }}
-            </p>
-
-            <p>
-                <strong>Groupe :</strong>
-                {{ enfant.groupe.nom }}
-            </p>
-
-            <p class="mb-0">
-                <strong>Date de naissance :</strong>
-                {{ enfant.date_naissance }}
-            </p>
-
-        </div>
-    </div>
-
-    <div class="card shadow-sm mb-4 section-medicale">
-
-        <div class="card-header bg-white">
-            <h2 class="h5 mb-0">Informations médicales</h2>
+            {% if retour == "mes-enfants" %}
+            <a href="{% url 'mes_enfants' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+            {% elif retour == "mon-groupe" %}
+            <a href="{% url 'mon_groupe' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+            {% elif user.is_administrateur or user.is_superuser %}
+            <a href="{% url 'liste_enfants' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+            {% endif %}
         </div>
 
-        <div class="card-body">
+        <div class="card shadow-sm mb-4 section-generale">
+            <div class="card-body">
 
-            <h3 class="h5 mb-3">Allergies</h3>
+                <p>
+                    <strong>Prénom :</strong>
+                    {{ enfant.prenom }}
+                </p>
 
-            {% for allergie in enfant.allergie_set.all %}
+                <p>
+                    <strong>Nom :</strong>
+                    {{ enfant.nom }}
+                </p>
+
+                <p>
+                    <strong>Groupe :</strong>
+                    {{ enfant.groupe.nom }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Date de naissance :</strong>
+                    {{ enfant.date_naissance }}
+                </p>
+
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4 section-medicale">
+
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Informations médicales</h2>
+            </div>
+
+            <div class="card-body">
+
+                <h3 class="h5 mb-3">Allergies</h3>
+
+                {% for allergie in enfant.allergie_set.all %}
 
                 <div class="border rounded p-3 mb-3">
 
@@ -116,59 +95,51 @@
                     </p>
 
                     {% if est_parent %}
-                        <div class="actions-droite">
+                    <div class="actions-droite">
 
-                            <a
-                                href="{% url 'modifier_allergie' allergie.id %}?retour={{ retour }}"
-                                class="action-icon modifier"
-                                title="Modifier"
-                            >
-                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
-                            </a>
+                        <a href="{% url 'modifier_allergie' allergie.id %}?retour={{ retour }}"
+                            class="action-icon modifier" title="Modifier">
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                        </a>
 
-                            <a
-                                href="{% url 'supprimer_allergie' allergie.id %}?retour={{ retour }}"
-                                class="action-icon supprimer"
-                                title="Supprimer"
-                            >
-                                <img src="{% static 'img/icones/actions/delete-black.png' %}" class="ck-action-icone" alt="">
-                            </a>
+                        <a href="{% url 'supprimer_allergie' allergie.id %}?retour={{ retour }}"
+                            class="action-icon supprimer" title="Supprimer">
+                            <img src="{% static 'img/icones/actions/delete-black.png' %}" class="ck-action-icone"
+                                alt="">
+                        </a>
 
-                        </div>
+                    </div>
                     {% endif %}
 
                 </div>
 
-            {% empty %}
+                {% empty %}
 
                 <p class="text-muted mb-3">
                     Aucune allergie enregistrée.
                 </p>
 
-            {% endfor %}
+                {% endfor %}
 
-            {% if est_parent %}
-                <a
-                    href="{% url 'ajouter_allergie' enfant.id %}?retour={{ retour }}"
-                    class="action-add"
-                >
+                {% if est_parent %}
+                <a href="{% url 'ajouter_allergie' enfant.id %}?retour={{ retour }}" class="action-add">
                     <span class="action-add-icon">+</span>
                     Ajouter une allergie
                 </a>
-            {% endif %}
+                {% endif %}
 
-        </div>
-    </div>
-
-    <div class="card shadow-sm mb-4 section-urgence">
-
-        <div class="card-header bg-white">
-            <h2 class="h5 mb-0">Contacts d'urgence</h2>
+            </div>
         </div>
 
-        <div class="card-body">
+        <div class="card shadow-sm mb-4 section-urgence">
 
-            {% for contact in enfant.contacturgence_set.all %}
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Contacts d'urgence</h2>
+            </div>
+
+            <div class="card-body">
+
+                {% for contact in enfant.contacturgence_set.all %}
 
                 <div class="border rounded p-3 mb-3">
 
@@ -188,59 +159,50 @@
                     </p>
 
                     {% if est_parent %}
-                        <div class="actions-droite">
+                    <div class="actions-droite">
 
-                            <a
-                                href="{% url 'modifier_contact' contact.id %}"
-                                class="action-icon modifier"
-                                title="Modifier"
-                            >
-                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
-                            </a>
+                        <a href="{% url 'modifier_contact' contact.id %}" class="action-icon modifier" title="Modifier">
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                        </a>
 
-                            <a
-                                href="{% url 'supprimer_contact' contact.id %}"
-                                class="action-icon supprimer"
-                                title="Supprimer"
-                            >
-                                <img src="{% static 'img/icones/actions/delete-black.png' %}" class="ck-action-icone" alt="">
-                            </a>
+                        <a href="{% url 'supprimer_contact' contact.id %}" class="action-icon supprimer"
+                            title="Supprimer">
+                            <img src="{% static 'img/icones/actions/delete-black.png' %}" class="ck-action-icone"
+                                alt="">
+                        </a>
 
-                        </div>
+                    </div>
                     {% endif %}
 
                 </div>
 
-            {% empty %}
+                {% empty %}
 
                 <p class="text-muted mb-3">
                     Aucun contact d'urgence enregistré.
                 </p>
 
-            {% endfor %}
+                {% endfor %}
 
-            {% if est_parent %}
-                <a
-                    href="{% url 'ajouter_contact' enfant.id %}"
-                    class="action-add"
-                >
+                {% if est_parent %}
+                <a href="{% url 'ajouter_contact' enfant.id %}" class="action-add">
                     <span class="action-add-icon">+</span>
                     Ajouter un contact
                 </a>
-            {% endif %}
+                {% endif %}
 
-        </div>
-    </div>
-
-    <div class="card shadow-sm mb-4 section-autorisees">
-
-        <div class="card-header bg-white">
-            <h2 class="h5 mb-0">Personnes autorisées</h2>
+            </div>
         </div>
 
-        <div class="card-body">
+        <div class="card shadow-sm mb-4 section-autorisees">
 
-            {% for personne in enfant.personneautorisee_set.all %}
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Personnes autorisées</h2>
+            </div>
+
+            <div class="card-body">
+
+                {% for personne in enfant.personneautorisee_set.all %}
 
                 <div class="border rounded p-3 mb-3">
 
@@ -265,51 +227,60 @@
                     </p>
 
                     {% if est_parent %}
-                        <div class="actions-droite">
+                    <div class="actions-droite">
 
-                            <a
-                                href="{% url 'modifier_personne_autorisee' personne.id %}"
-                                class="action-icon modifier"
-                                title="Modifier"
-                            >
-                                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
-                            </a>
+                        <a href="{% url 'modifier_personne_autorisee' personne.id %}" class="action-icon modifier"
+                            title="Modifier">
+                            <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt="">
+                        </a>
 
-                            <a
-                                href="{% url 'supprimer_personne_autorisee' personne.id %}"
-                                class="action-icon supprimer"
-                                title="Supprimer"
-                            >
-                                <img src="{% static 'img/icones/actions/delete-black.png' %}" class="ck-action-icone" alt="">
-                            </a>
+                        <a href="{% url 'supprimer_personne_autorisee' personne.id %}" class="action-icon supprimer"
+                            title="Supprimer">
+                            <img src="{% static 'img/icones/actions/delete-black.png' %}" class="ck-action-icone"
+                                alt="">
+                        </a>
 
-                        </div>
+                    </div>
                     {% endif %}
 
                 </div>
 
-            {% empty %}
+                {% empty %}
 
                 <p class="text-muted mb-3">
                     Aucune personne autorisée enregistrée.
                 </p>
 
-            {% endfor %}
+                {% endfor %}
 
-            {% if est_parent %}
-                <a
-                    href="{% url 'ajouter_personne_autorisee' enfant.id %}"
-                    class="action-add"
-                >
+                {% if est_parent %}
+                <a href="{% url 'ajouter_personne_autorisee' enfant.id %}" class="action-add">
                     <span class="action-add-icon">+</span>
                     Ajouter une personne
                 </a>
-            {% endif %}
+                {% endif %}
 
+            </div>
         </div>
-    </div>
 
-</div>
+        {% if user.is_administrateur or user.is_superuser %}
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-4">
+            <form method="post" action="{% url 'basculer_statut_enfant' enfant.id %}">
+                {% csrf_token %}
+                {% if enfant.actif %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-archive"></i> Archiver le dossier
+                </button>
+                {% else %}
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-arrow-counterclockwise"></i> Réactiver le dossier
+                </button>
+                {% endif %}
+            </form>
+        </div>
+        {% endif %}
+
+    </div>
 
 </main>
 {% endblock %}

@@ -85,6 +85,11 @@ urlpatterns = [
         views.basculer_statut_administrateur,
         name="basculer_statut_administrateur",
     ),
+    path(
+        "administrateurs/<int:pk>/supprimer/",
+        views.supprimer_administrateur,
+        name="supprimer_administrateur",
+    ),
 
     # CRUD educateur
 
@@ -113,6 +118,12 @@ urlpatterns = [
         name="basculer_statut_educateur",
     ),
 
+    path(
+        "educateurs/<int:pk>/supprimer/",
+        views.supprimer_educateur,
+        name="supprimer_educateur",
+    ),
+
     # CRUD parent
 
     path(
@@ -138,5 +149,10 @@ urlpatterns = [
         "parents/<int:pk>/basculer/",
         views.basculer_statut_parent,
         name="basculer_statut_parent",
+    ),
+    path(
+        "parents/<int:pk>/supprimer/",
+        views.supprimer_parent,
+        name="supprimer_parent",
     ),
 ]

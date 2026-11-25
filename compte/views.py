@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q
+from django.db.models import Count, Q, ProtectedError
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Administrateur, Educateur, User, Parent, Notification, est_administrateur
 from .forms import ConnexionForm, CreationAdministrateurForm, ModificationAdministrateurForm, CreationEducateurForm, ModificationEducateurForm, CreationParentForm, ModificationParentForm
@@ -157,7 +157,7 @@ def marquer_notification_lue(request, pk):
     return redirect("compte:liste_notifications")
 
 @login_required
-@user_passes_test(est_superutilisateur)
+@user_passes_test(est_administrateur)
 def creer_administrateur(request):
     if request.method == "POST":
         form = CreationAdministrateurForm(request.POST)
@@ -263,6 +263,27 @@ def modifier_administrateur(request, pk):
 
 @login_required
 @user_passes_test(est_administrateur)
+def supprimer_administrateur(request, pk):
+    administrateur = get_object_or_404(Administrateur, pk=pk)
+
+    if administrateur.pk == request.user.pk:
+        messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
+        return redirect("compte:detail_administrateur", pk=pk)
+
+    if request.method == "POST":
+        nom = administrateur.get_full_name() or administrateur.username
+        administrateur.delete()
+        messages.success(request, f"Le compte de {nom} a été supprimé.")
+        return redirect("compte:liste_administrateurs")
+
+    return render(
+        request,
+        "compte/supprimer_administrateur.html",
+        {"administrateur": administrateur},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
 def basculer_statut_administrateur(request, pk):
     administrateur = get_object_or_404(Administrateur, pk=pk)
     if request.method != "POST":
@@ -311,6 +332,10 @@ def liste_educateurs(request):
                 ),
                 "url_modifier": reverse(
                     "compte:modifier_educateur",
+                    args=[educ.id],
+                ),
+                "url_supprimer": reverse(
+                    "compte:supprimer_educateur",
                     args=[educ.id],
                 ),
             }
@@ -384,6 +409,35 @@ def modifier_educateur(request, pk):
 
 @login_required
 @user_passes_test(est_administrateur)
+def supprimer_educateur(request, pk):
+    educateur = get_object_or_404(Educateur, pk=pk)
+
+    if educateur.pk == request.user.pk:
+        messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
+        return redirect("compte:detail_educateur", pk=pk)
+
+    if request.method == "POST":
+        nom = educateur.get_full_name() or educateur.username
+        try:
+            educateur.delete()
+            messages.success(request, f"Le compte de {nom} a été supprimé.")
+        except ProtectedError:
+            messages.error(
+                request,
+                f"Impossible de supprimer le compte de {nom} : "
+                f"cet éducateur est actuellement assigné à un ou plusieurs groupes. "
+                f"Veuillez d'abord lui retirer l'assignation de ses groupes avant de le supprimer."
+            )
+        return redirect("compte:liste_educateurs")
+
+    return render(
+        request,
+        "compte/supprimer_educateur.html",
+        {"educateur": educateur},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
 def basculer_statut_educateur(request, pk):
     educateur = get_object_or_404(Educateur, pk=pk)
     if request.method != "POST":
@@ -432,6 +486,10 @@ def liste_parents(request):
                 ),
                 "url_modifier": reverse(
                     "compte:modifier_parent",
+                    args=[parent.id],
+                ),
+                "url_supprimer": reverse(
+                    "compte:supprimer_parent",
                     args=[parent.id],
                 ),
             }
@@ -502,6 +560,23 @@ def modifier_parent(request, pk):
         request,
         "compte/modifier_parent.html",
         {"form": form, "parent": parent},
+    )
+
+@login_required
+@user_passes_test(est_administrateur)
+def supprimer_parent(request, pk):
+    parent = get_object_or_404(Parent, pk=pk)
+
+    if request.method == "POST":
+        nom = parent.get_full_name() or parent.username
+        parent.delete()
+        messages.success(request, f"Le compte de {nom} a été supprimé.")
+        return redirect("compte:liste_parents")
+
+    return render(
+        request,
+        "compte/supprimer_parent.html",
+        {"parent": parent},
     )
 
 @login_required

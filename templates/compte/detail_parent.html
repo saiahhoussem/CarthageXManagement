@@ -73,15 +73,23 @@
                 <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt=""> Modifier
             </a>
 
+            {% if parent.pk != request.user.pk %}
             <button type="button"
                 class="btn {% if parent.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
                 data-bs-toggle="modal" data-bs-target="#modalStatut">
                 {% if parent.is_active %}
-                <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Désactiver le compte
+                <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Désactiver
+                le compte
                 {% else %}
                 <i class="bi bi-check-circle"></i> Réactiver le compte
                 {% endif %}
             </button>
+
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalSuppression">
+                <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt=""> Supprimer
+                le compte
+            </button>
+            {% endif %}
         </div>
     </div>
 </main>
@@ -106,6 +114,31 @@
                     <button type="submit"
                         class="btn {% if parent.is_active %}btn-danger{% else %}btn-success{% endif %}">
                         Oui, confirmer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSuppression" tabindex="-1" aria-labelledby="modalSuppressionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalSuppressionLabel">Supprimer le parent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                Voulez-vous vraiment supprimer le compte de
+                <strong>{{ parent.get_full_name|default:parent.username }}</strong> ?
+                Cette action est <strong>irréversible</strong>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'compte:supprimer_parent' parent.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        Oui, supprimer
                     </button>
                 </form>
             </div>

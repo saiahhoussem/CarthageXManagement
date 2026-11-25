@@ -4,75 +4,144 @@
 {% block title %}Fiche éducatrice - CarthageKids{% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
 <main>
-<div class="container mt-4">
+  <div class="container mt-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Fiche de {{ educateur.get_full_name|default:educateur.username }}</h2>
-    <a href="{% url 'compte:liste_educateurs' %}" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> Retour à la liste
-    </a>
-  </div>
-
-  <div class="card mb-3">
-    <div class="card-body">
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-          <strong>Nom d'utilisateur :</strong> {{ educateur.username }}
-        </li>
-        <li class="list-group-item">
-          <strong>Prénom :</strong> {{ educateur.first_name }}
-        </li>
-        <li class="list-group-item">
-          <strong>Nom :</strong> {{ educateur.last_name }}
-        </li>
-        <li class="list-group-item">
-          <strong>Courriel :</strong> {{ educateur.email }}
-        </li>
-        <li class="list-group-item">
-          <strong>Téléphone :</strong> {{ educateur.telephone }}
-        </li>
-        <li class="list-group-item">
-          <strong>Rôle :</strong> {{ educateur.get_role_display }}
-        </li>
-        <li class="list-group-item">
-          <strong>Statut :</strong>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h2 class="mb-1">{{ educateur.get_full_name|default:educateur.username }}</h2>
+        <p class="text-muted mb-0">
+          <i class="bi bi-person-badge"></i> {{ educateur.get_role_display }}
           {% if educateur.is_active %}
-            <span class="badge bg-success">Actif</span>
+          <span class="badge bg-success ms-2">Actif</span>
           {% else %}
-            <span class="badge bg-secondary">Désactivé</span>
+          <span class="badge bg-secondary ms-2">Désactivé</span>
           {% endif %}
-        </li>
-      </ul>
+        </p>
+      </div>
+      <a href="{% url 'compte:liste_educateurs' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Retour
+      </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <div class="text-uppercase text-muted small mb-1">Nom d'utilisateur</div>
+          <div>{{ educateur.username }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <div class="text-uppercase text-muted small mb-1">Courriel</div>
+          <div><a href="mailto:{{ educateur.email }}" class="text-decoration-none">{{ educateur.email }}</a></div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <div class="text-uppercase text-muted small mb-1">Prénom</div>
+          <div>{{ educateur.first_name|default:"—" }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <div class="text-uppercase text-muted small mb-1">Nom</div>
+          <div>{{ educateur.last_name|default:"—" }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <div class="text-uppercase text-muted small mb-1">Téléphone</div>
+          <div><a href="tel:{{ educateur.telephone }}" class="text-decoration-none">{{ educateur.telephone }}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <div class="text-uppercase text-muted small mb-1">Rôle</div>
+          <div>{{ educateur.get_role_display }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+      <a href="{% url 'compte:modifier_educateur' educateur.pk %}" class="btn btn-warning">
+        <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt=""> Modifier
+      </a>
+
+      {% if educateur.pk != request.user.pk %}
+      <button type="button"
+        class="btn {% if educateur.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+        data-bs-toggle="modal" data-bs-target="#modalStatut">
+        {% if educateur.is_active %}
+        <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Désactiver le
+        compte
+        {% else %}
+        <i class="bi bi-check-circle"></i> Réactiver le compte
+        {% endif %}
+      </button>
+
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalSuppression">
+        <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt=""> Supprimer le
+        compte
+      </button>
+      {% endif %}
     </div>
   </div>
-
-  <div class="d-flex gap-2">
-    <a href="{% url 'compte:modifier_educateur' educateur.pk %}"
-       class="btn btn-warning">
-      <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt=""> Modifier
-    </a>
-
-    <form method="post"
-          action="{% url 'compte:basculer_statut_educateur' educateur.pk %}"
-          onsubmit="return confirm('Confirmer le changement de statut ?');">
-      {% csrf_token %}
-      {% if educateur.is_active %}
-        <button type="submit" class="btn btn-danger">
-          <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Désactiver le compte
-        </button>
-      {% else %}
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-check-circle"></i> Réactiver le compte
-        </button>
-      {% endif %}
-    </form>
-  </div>
-
-</div>
 </main>
+
+<div class="modal fade" id="modalStatut" tabindex="-1" aria-labelledby="modalStatutLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalStatutLabel">Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr de vouloir
+        {% if educateur.is_active %}désactiver{% else %}réactiver{% endif %}
+        le compte de
+        <strong>{{ educateur.get_full_name|default:educateur.username }}</strong> ?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <form method="post" action="{% url 'compte:basculer_statut_educateur' educateur.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn {% if educateur.is_active %}btn-danger{% else %}btn-success{% endif %}">
+            Oui, confirmer
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalSuppression" tabindex="-1" aria-labelledby="modalSuppressionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSuppressionLabel">Supprimer l'éducatrice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        Voulez-vous vraiment supprimer le compte de
+        <strong>{{ educateur.get_full_name|default:educateur.username }}</strong> ?
+        Cette action est <strong>irréversible</strong>.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <form method="post" action="{% url 'compte:supprimer_educateur' educateur.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            Oui, supprimer
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

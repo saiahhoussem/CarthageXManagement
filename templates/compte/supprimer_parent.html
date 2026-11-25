@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Supprimer un parent - CarthageKids{% endblock %}
+
+{% block sidebar %}
+{% include "components/sidebar_menu.html" %}
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container mt-4">
+
+        <h2>Supprimer un parent</h2>
+
+        <div class="alert alert-warning mt-3">
+            Voulez-vous vraiment supprimer le compte de
+            <strong>{{ parent.get_full_name|default:parent.username }}</strong> ?
+            Cette action est irréversible.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <a href="{% url 'compte:liste_parents' %}" class="btn btn-ck-bleu-fonce">
+                Annuler
+            </a>
+
+            <button type="submit" class="btn btn-danger">
+                <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt="">
+                Confirmer la suppression
+            </button>
+        </form>
+
+    </div>
+</main>
+{% endblock %}
