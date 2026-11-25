@@ -1,120 +1,120 @@
 {% extends "base.html" %}
-
 {% load static %}
 
-{% block title %}Ajouter un groupe{% endblock %}
+{% block title %}Ajouter un groupe - CarthageKids{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'enfants/fiche_enfant.css' %}">
+<link href="{% static 'compte/creer_compte.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
+
+{% block messages %}{% endblock %}
 
 {% block content %}
 <main>
+    <div class="carte-formulaire">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
 
-<div class="container py-5 fiche-enfant">
+                <header class="text-center mb-4">
+                    <h1>Ajouter un groupe</h1>
+                </header>
 
-    <h1 class="fw-semibold mb-4">Ajouter un groupe</h1>
+                <form method="post" novalidate>
+                    {% csrf_token %}
 
-    <div class="card shadow-sm">
+                    <div class="corps-formulaire-champs">
 
-        <div class="card-header">
-            <h2 class="h5 mb-0">Informations du groupe</h2>
+                        {% if form.aucun_educateur_disponible %}
+                        <div class="alert alert-info">
+                            Aucun éducateur n'est actuellement disponible. Vous pouvez créer
+                            le groupe maintenant et lui assigner un éducateur plus tard, mais
+                            le groupe ne pourra pas accueillir d'enfants tant qu'aucun
+                            éducateur ne lui sera assigné.
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <label for="{{ form.nom.id_for_label }}" class="form-label">
+                                    {{ form.nom.label }} <span class="champ-requis">*</span>
+                                </label>
+                                {{ form.nom }}
+                                {% if form.nom.help_text %}
+                                <div class="form-text">{{ form.nom.help_text }}</div>
+                                {% endif %}
+                                {% for error in form.nom.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="{{ form.tranche_age.id_for_label }}" class="form-label">
+                                    {{ form.tranche_age.label }} <span class="champ-requis">*</span>
+                                </label>
+                                {{ form.tranche_age }}
+                                {% if form.tranche_age.help_text %}
+                                <div class="form-text">{{ form.tranche_age.help_text }}</div>
+                                {% endif %}
+                                {% for error in form.tranche_age.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <label for="{{ form.capacite.id_for_label }}" class="form-label">
+                                    {{ form.capacite.label }} <span class="champ-requis">*</span>
+                                </label>
+                                {{ form.capacite }}
+                                {% if form.capacite.help_text %}
+                                <div class="form-text">{{ form.capacite.help_text }}</div>
+                                {% endif %}
+                                {% for error in form.capacite.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="{{ form.educateur.id_for_label }}" class="form-label">
+                                    {{ form.educateur.label }}
+                                    {% if form.educateur.field.required %}
+                                    <span class="champ-requis">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ form.educateur }}
+                                {% if form.educateur.help_text %}
+                                <div class="form-text">{{ form.educateur.help_text }}</div>
+                                {% endif %}
+                                {% for error in form.educateur.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {% for error in form.non_field_errors %}
+                        <div class="alerte-carthage alerte-carthage-danger" role="alert">
+                            <span class="alerte-carthage-icone"></span>
+                            <div>{{ error }}</div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="conteneur-bouton-creer gap-3">
+                        <button type="submit" class="btn btn-carthage bouton-creer-compte">
+                            Ajouter le groupe
+                        </button>
+                        <a href="{% url 'liste_groupes' %}" class="btn btn-outline-secondary">
+                            Annuler
+                        </a>
+                    </div>
+                </form>
+
+            </div>
         </div>
-
-        <div class="card-body">
-
-            <form method="post" novalidate>
-
-                {% csrf_token %}
-
-                {% if form.aucun_educateur_disponible %}
-                    <div class="alert alert-info">
-                        Aucun éducateur n'est actuellement disponible. Vous pouvez créer
-                        le groupe maintenant et lui assigner un éducateur plus tard, mais
-                        le groupe ne pourra pas accueillir d'enfants tant qu'aucun
-                        éducateur ne lui sera assigné.
-                    </div>
-                {% endif %}
-
-                <div class="row g-3">
-
-                    <div class="col-md-6">
-                        <label for="{{ form.nom.id_for_label }}" class="form-label">
-                            {{ form.nom.label }} <span class="champ-requis">*</span>
-                        </label>
-                        {{ form.nom }}
-                        {% for erreur in form.nom.errors %}
-                            <div class="text-danger small mt-1">{{ erreur }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="{{ form.tranche_age.id_for_label }}" class="form-label">
-                            {{ form.tranche_age.label }} <span class="champ-requis">*</span>
-                        </label>
-                        {{ form.tranche_age }}
-                        {% for erreur in form.tranche_age.errors %}
-                            <div class="text-danger small mt-1">{{ erreur }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="{{ form.capacite.id_for_label }}" class="form-label">
-                            {{ form.capacite.label }} <span class="champ-requis">*</span>
-                        </label>
-                        {{ form.capacite }}
-                        {% for erreur in form.capacite.errors %}
-                            <div class="text-danger small mt-1">{{ erreur }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="{{ form.educateur.id_for_label }}" class="form-label">
-                            {{ form.educateur.label }}
-                            {% if form.educateur.field.required %}
-                                <span class="champ-requis">*</span>
-                            {% endif %}
-                        </label>
-                        {{ form.educateur }}
-                        {% for erreur in form.educateur.errors %}
-                            <div class="text-danger small mt-1">{{ erreur }}</div>
-                        {% endfor %}
-                    </div>
-
-                </div>
-
-                {% for erreur in form.non_field_errors %}
-                    <div class="text-danger small mt-3">
-                        {{ erreur }}
-                    </div>
-                {% endfor %}
-
-                <div class="mt-4">
-
-                    <button
-                        type="submit"
-                        class="btn btn-success"
-                    >
-                        Ajouter le groupe
-                    </button>
-
-                    <a href="{% url 'liste_groupes' %}" class="btn btn-secondary">
-                        Annuler
-                    </a>
-
-                </div>
-
-            </form>
-
-        </div>
-
     </div>
-
-</div>
-
 </main>
 {% endblock %}

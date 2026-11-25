@@ -1,77 +1,112 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Détail de la demande d'inscription{% endblock %}
+{% block title %}Détail de la demande d'inscription - CarthageKids{% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
 <main>
-<div class="container py-5">
+    <div class="container mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-semibold mb-0">
-            Demande d'inscription de {{ demande.prenom_enfant }} {{ demande.nom_enfant }}
-        </h1>
-        <a href="{% url 'liste_demandes_inscription' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Retour à la liste
-        </a>
-    </div>
-
-    <div class="card mb-3">
-        <div class="card-body">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <strong>Enfant :</strong> {{ demande.prenom_enfant }} {{ demande.nom_enfant }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Date de naissance :</strong> {{ demande.date_naissance }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Parent :</strong>
-                    {{ demande.parent.get_full_name|default:demande.parent.username }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Note :</strong>
-                    {{ demande.note|default:"Le parent n'a pas ajouté une note." }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Soumise le :</strong> {{ demande.date_creation|date:"d/m/Y" }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Statut :</strong>
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h2 class="mb-1">
+                    {{ demande.prenom_enfant }} {{ demande.nom_enfant }}
+                </h2>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-file-earmark-text"></i> Demande d'inscription
                     {% if demande.statut == "en_attente" %}
-                        <span class="badge bg-secondary">En attente</span>
+                    <span class="badge bg-secondary ms-2">En attente</span>
                     {% elif demande.statut == "approuvee" %}
-                        <span class="badge bg-success">Approuvée</span>
+                    <span class="badge bg-success ms-2">Approuvée</span>
                     {% else %}
-                        <span class="badge bg-danger">Refusée</span>
+                    <span class="badge bg-danger ms-2">Refusée</span>
                     {% endif %}
-                </li>
-            </ul>
+                </p>
+            </div>
+            <a href="{% url 'liste_demandes_inscription' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
         </div>
-    </div>
 
-    {% if demande.statut == "en_attente" %}
-        <div class="d-flex gap-2">
-            <a href="{% url 'accepter_demande_inscription' demande.id %}"
-               class="btn btn-success">
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Enfant</div>
+                    <div>{{ demande.prenom_enfant }} {{ demande.nom_enfant }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Date de naissance</div>
+                    <div>{{ demande.date_naissance|date:"d/m/Y" }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Parent</div>
+                    <div>{{ demande.parent.get_full_name|default:demande.parent.username }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Soumise le</div>
+                    <div>{{ demande.date_creation|date:"d/m/Y" }}</div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Note du parent</div>
+                    <div>
+                        {% if demande.note %}
+                        {{ demande.note }}
+                        {% else %}
+                        <span class="text-muted">Le parent n'a pas ajouté de note.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if demande.statut == "en_attente" %}
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a href="{% url 'accepter_demande_inscription' demande.id %}" class="btn btn-success">
                 <i class="bi bi-check-circle"></i> Accepter
             </a>
 
-            <form method="post"
-                  action="{% url 'refuser_demande_inscription' demande.id %}"
-                  onsubmit="return confirm('Confirmer le refus de cette demande d\'inscription ?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">
-                    <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Refuser
-                </button>
-            </form>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalRefus">
+                <img src="{% static 'img/icones/actions/block-white.png' %}" class="ck-action-icone" alt=""> Refuser
+            </button>
         </div>
-    {% endif %}
-
-</div>
+        {% endif %}
+    </div>
 </main>
+
+<div class="modal fade" id="modalRefus" tabindex="-1" aria-labelledby="modalRefusLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalRefusLabel">Refuser la demande</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                Voulez-vous vraiment refuser la demande d'inscription de
+                <strong>{{ demande.prenom_enfant }} {{ demande.nom_enfant }}</strong> ?
+                Cette action est <strong>irréversible</strong>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'refuser_demande_inscription' demande.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        Oui, refuser
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

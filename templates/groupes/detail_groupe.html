@@ -1,141 +1,138 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Détail du groupe{% endblock %}
+{% block title %}Détail du groupe - CarthageKids{% endblock %}
 
 {% block sidebar %}
-    {% include "components/sidebar_menu.html" %}
+{% include "components/sidebar_menu.html" %}
 {% endblock %}
 
 {% block content %}
+<main>
+    <div class="container mt-4">
 
-<main class="container py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <div>
-            <h1 class="mb-1">
-                {{ groupe.nom }}
-            </h1>
-
-            <p class="text-muted mb-0">
-                Détails du groupe
-            </p>
-        </div>
-
-        <a
-            href="{% url 'liste_groupes' %}"
-            class="btn btn-outline-secondary"
-        >
-            <i class="bi bi-arrow-left"></i>
-            Retour à la liste
-        </a>
-
-    </div>
-
-
-    <div class="card mb-4">
-
-        <div class="card-body">
-
-            <h2 class="h5 mb-3">
-                Informations du groupe
-            </h2>
-
-            <p>
-                <strong>Nom :</strong>
-                {{ groupe.nom }}
-            </p>
-
-            <p class="mb-0">
-                <strong>Éducateur :</strong>
-
-                {% if groupe.educateur %}
-                    {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
-                {% else %}
-                    <span class="text-muted">
-                        Aucun éducateur assigné
-                    </span>
-                {% endif %}
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="card-body">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <h2 class="h5 mb-0">
-                    Enfants du groupe
-                </h2>
-
-                <span class="badge bg-secondary">
-                    {{ enfants|length }}
-                </span>
-
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h2 class="mb-1">{{ groupe.nom }}</h2>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-diagram-3"></i> Groupe
+                    {% if groupe.tranche_age %}
+                    <span class="badge bg-info text-dark ms-2">{{ groupe.get_tranche_age_display }}</span>
+                    {% endif %}
+                </p>
             </div>
+            <a href="{% url 'liste_groupes' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+        </div>
 
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Nom</div>
+                    <div>{{ groupe.nom }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Tranche d'âge</div>
+                    <div>{{ groupe.get_tranche_age_display|default:"—" }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Capacité</div>
+                    <div>{{ groupe.capacite }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Places restantes</div>
+                    <div>{{ groupe.places_restantes }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Éducateur</div>
+                    <div>
+                        {% if groupe.educateur %}
+                            {{ groupe.educateur.get_full_name|default:groupe.educateur.username }}
+                        {% else %}
+                            <span class="text-muted">Aucun éducateur assigné</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="border rounded p-3 h-100 bg-light">
+                    <div class="text-uppercase text-muted small mb-1">Nombre d'enfants</div>
+                    <div>{{ enfants|length }}</div>
+                </div>
+            </div>
+        </div>
 
-            {% if enfants %}
+        <div class="card mb-4">
+            <div class="card-body">
 
-                <div class="list-group">
-
-                    {% for enfant in enfants %}
-
-                        <div
-                            class="list-group-item
-                                   d-flex
-                                   justify-content-between
-                                   align-items-center"
-                        >
-
-                            <span>
-                                {{ enfant.prenom }}
-                                {{ enfant.nom }}
-                            </span>
-
-                            <a
-                                href="{% url 'fiche_enfant' enfant.id %}"
-                                class="btn btn-sm btn-ck-bleu-clair"
-                            >
-                                Voir
-                            </a>
-
-                        </div>
-
-                    {% endfor %}
-
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 mb-0">Enfants du groupe</h3>
+                    <span class="badge bg-secondary">{{ enfants|length }}</span>
                 </div>
 
-            {% else %}
+                {% if enfants %}
+                <div class="list-group">
+                    {% for enfant in enfants %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ enfant.prenom }} {{ enfant.nom }}</span>
+                        <a href="{% url 'fiche_enfant' enfant.id %}" class="btn btn-sm btn-ck-bleu-clair">
+                            <i class="bi bi-eye"></i> Voir
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Aucun enfant dans ce groupe.</p>
+                {% endif %}
 
-                <p class="text-muted mb-0">
-                    Aucun enfant dans ce groupe.
-                </p>
-
-            {% endif %}
-
+            </div>
         </div>
 
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a href="{% url 'modifier_groupe' groupe.id %}" class="btn btn-warning">
+                <img src="{% static 'img/icones/actions/edit-black.png' %}" class="ck-action-icone" alt=""> Modifier
+            </a>
+
+            <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal" data-bs-target="#modalSuppression">
+                <img src="{% static 'img/icones/actions/delete-white.png' %}" class="ck-action-icone" alt=""> Supprimer le groupe
+            </button>
+        </div>
     </div>
-
-
-    <div class="mt-4">
-
-        <a
-            href="{% url 'modifier_groupe' groupe.id %}"
-            class="btn btn-ck-orange"
-        >
-            <i class="bi bi-pencil"></i>
-            Modifier le groupe
-        </a>
-
-    </div>
-
 </main>
 
+<div class="modal fade" id="modalSuppression" tabindex="-1" aria-labelledby="modalSuppressionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalSuppressionLabel">Supprimer le groupe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                Voulez-vous vraiment supprimer le groupe
+                <strong>{{ groupe.nom }}</strong> ?
+                Cette action est <strong>irréversible</strong>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{% url 'supprimer_groupe' groupe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        Oui, supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
