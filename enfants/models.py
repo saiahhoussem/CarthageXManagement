@@ -386,6 +386,7 @@ class Activite(models.Model):
     )
 
     description = models.TextField(
+        max_length=2000,
         validators=[
             MinLengthValidator(
                 2,
