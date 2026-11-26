@@ -569,8 +569,16 @@ def supprimer_parent(request, pk):
 
     if request.method == "POST":
         nom = parent.get_full_name() or parent.username
-        parent.delete()
-        messages.success(request, f"Le compte de {nom} a été supprimé.")
+        try:
+            parent.delete()
+            messages.success(request, f"Le compte de {nom} a été supprimé.")
+        except ProtectedError:
+            messages.error(
+                request,
+                f"Impossible de supprimer le compte de {nom} : "
+                f"ce parent a au moins un paiement enregistré. "
+                f"Veuillez d'abord traiter ses paiements avant de supprimer son compte."
+            )
         return redirect("compte:liste_parents")
 
     return render(
